@@ -25,8 +25,14 @@ run() {
 
 LC_ALL=C
 export LC_ALL
-for DEV in `cat "${0%.*}.config"`
+for DEV in /sys/block/*
 do
+	DEV=${DEV##*/}
+	case $DEV in
+		loop[0-9]* | dm-* ) continue
+	esac
+	test -e /dev/"$DEV" || continue
+	echo "Examining /dev/$DEV..." >& 2
 	run test -b /dev/"$DEV"
 	run fdisk -lu /dev/"$DEV" | awk '
 		/[^ ]/ {print}
