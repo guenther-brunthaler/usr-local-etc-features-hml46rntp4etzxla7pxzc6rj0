@@ -46,3 +46,11 @@ then
 else
 	echo "lshw is not installed; skipping." >& 2
 fi
+if which lvm /dev/null 2>& 1
+then
+	vgdisplay | grep "VG Name" | awk '{print $NF}' |
+	while read vg
+	do
+		vgcfgbackup -f "$vg.lvm" "$vg"
+	done
+fi
