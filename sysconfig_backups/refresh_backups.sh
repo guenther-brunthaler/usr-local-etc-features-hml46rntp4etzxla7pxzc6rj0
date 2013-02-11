@@ -52,11 +52,23 @@ then
 else
 	echo "lshw is not installed; skipping." >& 2
 fi
+if ! BZR=`which bzr 2> /dev/null` || test ! -d /etc/.bzr
+then
+	BZR=
+fi
 if LVM=`which lvm 2> /dev/null`
 then
 	"$LVM" vgdisplay | grep "VG Name" | awk '{print $NF}' |
 	while read vg
 	do
+		if test -n "$BZR"
+		then
+			s=`"$BZR" st --short -- /etc/lvm/backup/"$vg"` || s=X
+			case $s in
+				X* | "?"*) ;; # Unknown or ignored.
+				*) continue # Version controlled; skip it.
+			esac
+		fi
 		"$LVM" vgcfgbackup -f "$vg.lvm" "$vg"
 	done
 fi
