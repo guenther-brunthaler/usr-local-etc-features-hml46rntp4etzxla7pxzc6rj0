@@ -25,32 +25,38 @@ run() {
 
 LC_ALL=C
 export LC_ALL
-for DEV in /sys/block/*
-do
-	DEV=${DEV##*/}
-	case $DEV in
-		loop[0-9]* | dm-* ) continue
-	esac
-	test -e /dev/"$DEV" || continue
-	echo "Examining /dev/$DEV..." >& 2
-	run test -b /dev/"$DEV"
-	run fdisk -lu /dev/"$DEV" | awk '
-		/[^ ]/ {print}
-		/dentifier:/ {exit}
-	' > disk-id_"$DEV"_info.txt
-	run sfdisk -d /dev/"$DEV" > sfdisk_"$DEV"_backup.txt
-done
+if FDISK=`which fdisk 2> /dev/null` && SFDISK=`which sfdisk 2> /dev/null`
+then
+	for DEV in /sys/block/*
+	do
+		DEV=${DEV##*/}
+		case $DEV in
+			loop[0-9]* | dm-* ) continue
+		esac
+		test -e /dev/"$DEV" || continue
+		echo "Examining /dev/$DEV..." >& 2
+		run test -b /dev/"$DEV"
+		run "$FDISK" -lu /dev/"$DEV" | awk '
+			/[^ ]/ {print}
+			/dentifier:/ {exit}
+		' > disk-id_"$DEV"_info.txt
+		run "$SFDISK" -d /dev/"$DEV" > sfdisk_"$DEV"_backup.txt
+	done
+else
+	echo "fdisk or sfdisk is missing," \
+		"skipping partition table backups." >& 2
+fi
 if LSHW=`which lshw 2> /dev/null`
 then
 	"$LSHW" > lshw.txt
 else
 	echo "lshw is not installed; skipping." >& 2
 fi
-if which lvm /dev/null 2>& 1
+if LVM=`which lvm 2> /dev/null`
 then
-	vgdisplay | grep "VG Name" | awk '{print $NF}' |
+	"$LVM" vgdisplay | grep "VG Name" | awk '{print $NF}' |
 	while read vg
 	do
-		vgcfgbackup -f "$vg.lvm" "$vg"
+		"$LVM" vgcfgbackup -f "$vg.lvm" "$vg"
 	done
 fi
