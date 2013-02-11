@@ -79,7 +79,7 @@ then
 	do
 		DEV=${DEV##*/}
 		case $DEV in
-			loop[0-9]* | dm-* ) continue
+			loop[0-9]* | dm-* | ram[0-9]* | sr[0-9]*) continue
 		esac
 		test -e /dev/"$DEV" || continue
 		echo "Examining /dev/$DEV..." >& 2
