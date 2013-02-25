@@ -29,14 +29,17 @@ run() {
 
 getcmd() {
 	case $1 in
-		-f) ;;
+		-*) ;;
 		*) set -- -- "$@"
 	esac
 	# There is a bug in bash's eval: It does not return the status of a
 	# backquote substitution. Adding a redundant test to fix it.
-	eval "$2=`which \"$3\" 2> /dev/null`; test $? = 0" && return
-	test x"$1" = x"-f" || return
-	die "Required utility '$3' is not installed!"
+	eval "$2=`which \"$3\" 2> /dev/null`;\
+		test \$? = 0 && test -n \"\$$2\" && test -x \"\$$2\"" \
+			&& return
+	eval "$2="
+	test $1 = "-f" && die "Required utility '$3' is not installed!"
+	! test $1 != "-i"
 }
 
 
@@ -73,22 +76,28 @@ print_lvm2_backup_dir() {
 LC_ALL=C
 export LC_ALL
 getcmd -f AWK awk
+getcmd -f TEMPFILE tempfile
+t=`"$TEMPFILE"`
+trap "rm -- '$t'" 0
 if getcmd FDISK fdisk && getcmd SFDISK sfdisk
 then
 	for DEV in /sys/block/*
 	do
 		DEV=${DEV##*/}
 		case $DEV in
-			loop[0-9]* | dm-* | ram[0-9]* | sr[0-9]*) continue
+			loop[0-9]* | dm-* | ram[0-9]* | sr[0-9]* \
+			| nbd[0-9]*) continue
 		esac
 		test -e /dev/"$DEV" || continue
-		echo "Examining /dev/$DEV..." >& 2
 		run test -b /dev/"$DEV"
-		run "$FDISK" -lu /dev/"$DEV" | "$AWK" '
+		"$SFDISK" -d /dev/"$DEV" 2> /dev/null > "$t" || continue
+		echo "Examining /dev/$DEV..." >& 2
+		cat "$t" > sfdisk_"$DEV"_backup.txt
+		"$FDISK" -lu /dev/"$DEV" 2> /dev/null > "$t" || continue
+		"$AWK" '
 			/[^ ]/ {print}
 			/dentifier:/ {exit}
-		' > disk-id_"$DEV"_info.txt
-		run "$SFDISK" -d /dev/"$DEV" > sfdisk_"$DEV"_backup.txt
+		' < "$t" > disk-id_"$DEV"_info.txt
 	done
 else
 	echo "fdisk or sfdisk is missing," \
