@@ -135,3 +135,12 @@ then
 		"$LVM" vgcfgbackup -f "$vg.lvm" "$vg"
 	done
 fi
+if getcmd LSMOD lsmod
+then
+	run "$LSMOD" | run tail -n +2 | run cut -d" " -f1 \
+	| LC_ALL=C run sort > loaded_modules.txt
+fi
+if getcmd UNAME uname
+then
+	run "$UNAME" -a > "current_kernel.txt"
+fi
