@@ -1,0 +1,30 @@
+# We don't want to keep the archives twice, so delete as much as
+# possible. All archives are cached by apt-cacher locally anyway.
+
+#  - Enable the update/upgrade script (0=disable) Note that this
+#    will effect the settings in "10periodic" too.
+APT::Periodic::Enable "1";
+
+
+#  - Set maximum allowed age of a cache package file. If a cache
+#    package file is older it is deleted (0=disable)
+#
+#    The only reason whe a package should ever be deleted is
+#    because it is outdated, but never because it is just too old.
+APT::Periodic::MaxAge "0";
+
+#  - Set minimum age of a package file. If a file is younger it
+#    will not be deleted (0=disable). Useful to prevent races and
+#    to keep backups of the packages for emergency.
+#
+#    The selected value reflects the minimum guaranteed lifetime
+#    of debdeltas in the cache, so we can use the old files to
+#    apply debdeltas for constructing new versions of those
+#    files.
+APT::Periodic::MinAge "10";
+
+#  - Set maximum size of the cache in MB (0=disable). If the
+#    cache is bigger, cached package files are deleted until the
+#    size requirement is met (the biggest packages will be
+#    deleted first).
+APT::Periodic::MaxSize "0";
