@@ -30,12 +30,12 @@ Runlevel 3 serves the same purpose as runlevel 2 - temporarily stop as many
 services as possible without rebooting. However, it is intended for remote
 administration, especially on headless systems. It will stop all services not
 strictly required for administrative access by a remote administrator. The
-decision which services shell be used for remote administration has to be made
-by the local system administrator. Line runlevel 2, runlevel 3 is only
+decision which services shall be used for remote administration has to be made
+by the local system administrator. Like runlevel 2, runlevel 3 is only
 intended to be used for short periods of time.
 
 Runlevel 4 is normal multi-user mode, except that no graphical login is used
-for local users. Local users have to log from text mode terminal. This will
+for local users. Local users have to log in from text mode terminal. This will
 not prevent them from running "startx" once they have logged in, but no
 graphical login manager will run. This is the typical default run-level on
 server machines.
