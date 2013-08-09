@@ -1,0 +1,3 @@
+#! /bin/sh -e
+d=/var/run/sshd
+test -d "$d" || mkdir "$d"
