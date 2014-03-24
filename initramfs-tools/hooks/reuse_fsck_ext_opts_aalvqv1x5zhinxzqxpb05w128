@@ -1,0 +1,13 @@
+#! /bin/sh -e
+case $1 in
+	prereqs) echo; exit
+esac
+. /usr/share/initramfs-tools/hook-functions
+
+s=/etc/e2fsck.conf
+if test -f "$s"
+then
+	d=$DESTDIR/${s%/*}
+	test -d "$d" || mkdir -- "$d"
+	cp "$s" "$d"
+fi

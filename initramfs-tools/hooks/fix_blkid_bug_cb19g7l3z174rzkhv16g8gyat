@@ -1,0 +1,10 @@
+#! /bin/sh
+case $1 in
+	prereqs) echo; exit
+esac
+. /usr/share/initramfs-tools/hook-functions
+
+# Fix bug described in
+# http://paxswill.com/blog/2013/11/04/encrypted-raspberry-pi/
+
+ln -s ../sbin/blkid "$DESTDIR"/bin/blkid
