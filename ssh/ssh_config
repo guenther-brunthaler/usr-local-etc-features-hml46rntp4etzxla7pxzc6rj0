@@ -36,12 +36,6 @@ Host *
 #   IdentityFile ~/.ssh/id_rsa
 #   IdentityFile ~/.ssh/id_dsa
 #   Port 22
-Protocol 2
-Cipher 3des
-Ciphers blowfish-cbc,3des-cbc
-HostKeyAlgorithms ssh-rsa
-MACs hmac-ripemd160,hmac-sha1
-KexAlgorithms diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha256,diffie-hellman-group-exchange-sha1
 #   EscapeChar ~
 #   Tunnel no
 #   TunnelDevice any:any
@@ -49,5 +43,11 @@ KexAlgorithms diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha256,d
 #   VisualHostKey no
 #   ProxyCommand ssh -q -W %h:%p gateway.example.com
 #   RekeyLimit 1G 1h
+    Protocol 2
+    Cipher 3des
+    Ciphers blowfish-cbc,3des-cbc
+    HostKeyAlgorithms ssh-rsa
+    MACs hmac-ripemd160,hmac-sha1
+    KexAlgorithms diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha256,diffie-hellman-group-exchange-sha1
     SendEnv LANG LC_*
-#   HashKnownHosts no
+    HashKnownHosts no
