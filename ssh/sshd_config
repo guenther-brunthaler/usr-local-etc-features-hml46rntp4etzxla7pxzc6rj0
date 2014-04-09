@@ -36,9 +36,9 @@ HostKey /etc/ssh/ssh_host_rsa_key
 # Authentication:
 
 #LoginGraceTime 2m
-# Root login is dangerous only if weak passwords as used.
-# As we only allow RSA logins, this danger does not apply.
-PermitRootLogin yes
+# Root logins are dangerous only if weak passwords are used.
+# As we allow only RSA logins in most situations, this danger hardly applies.
+PermitRootLogin without-password
 #StrictModes yes
 #MaxAuthTries 6
 #MaxSessions 10
