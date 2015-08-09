@@ -1,0 +1,31 @@
+#! /bin/sh
+set -e
+trap 'test $? = 0 || echo "${0##*/} failed!" >& 2' 0
+b=1024; usfx=iB
+while getopts Sd OPT
+do
+	case $OPT in
+		[Sd]) b=1000; usfx="B (SI-units as powers of $b)";;
+		*) false || exit
+	esac
+done
+shift `expr $OPTIND - 1 || :`
+from='^rotating pattern:.*[^0-9]\([0-9]\+\) bytes (\([0-9]\+\) rotations)$'
+into='\1 \2'
+LC_MESSAGES=C LC_NUMERIC=C logrotate -d /etc/logrotate.conf 2>& 1 \
+| sed "s/$from/$into/; t; d" \
+| {
+	sum=0
+	while read bytes rotations
+	do
+		sum=`expr $sum \+ $bytes \* \( $rotations + 1 \)`
+	done
+	u=bytes
+	for nu in K M G T P E Z Y
+	do
+		test $sum -lt $b && break
+		u=$nu$usfx
+		sum=`expr \( $sum + $b - 1 \) / $b`
+	done
+	echo "$sum $u"
+}
