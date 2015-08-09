@@ -1,0 +1,4 @@
+/var/log/lastlog {
+    create 0664 root utmp
+    rotate 20
+}
