@@ -1,0 +1,45 @@
+Runlevels defined for this installation:
+
+0 "halt": Shut down system. Do not use directly.
+1 "shutdown": Helper for runlevels 0 or 6. Do not use directly.
+S "single": Work on the system console only. Requires root password login.
+2 "local": Stop all services except local consoles.
+3 "radmin": Stop all services except administrative remote connections.
+4 "text": Multi-user non-GUI mode with all networking services.
+5 "gui": like runlevel 4, but with GUI. No other runlevel has GUI.
+6 "reboot": Reboot the system. Do not use directly.
+
+Extended Description:
+
+Runlevel S is used for basic administrative tasks via the local system console
+without multiuser access. Unfortunately, it requires that a root password has
+been configured, and therefore cannot be used on systems which rely solely on
+SSH logins or "sudo" to gain root access.
+
+Runlevel 2 is a substitute for runlevel S on systems which do not define a
+root password. It allows normal multiuser login, but only from local terminals
+(virtual terminals and, if configured that way, also local serial or parallel
+port connections). All services not required for text console login are
+stopped. This includes all networking services including DHCP clients.
+Runlevel 2 is normally used only for short periods of time for temporarily
+shutting down services before restarting them by returning to the previous
+runlevel. This is useful after a system upgrade to get rid of in-memory copies
+of outdated shared libraries, avoiding a reboot for this purpose.
+
+Runlevel 3 serves the same purpose as runlevel 2 - temporarily stop as many
+services as possible without rebooting. However, it is intended for remote
+administration, especially on headless systems. It will stop all services not
+strictly required for administrative access by a remote administrator. The
+decision which services shall be used for remote administration has to be made
+by the local system administrator. Like runlevel 2, runlevel 3 is only
+intended to be used for short periods of time.
+
+Runlevel 4 is normal multi-user mode, except that no graphical login is used
+for local users. Local users have to log in from text mode terminal. This will
+not prevent them from running "startx" once they have logged in, but no
+graphical login manager will run. This is the typical default run-level on
+server machines.
+
+Runlevel 5 is normal multi-user mode with graphical login. This is the typical
+default run-level for client computers, but only wastes resources on server
+machines (especially headless ones).
