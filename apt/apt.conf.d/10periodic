@@ -1,0 +1,8 @@
+# Look in "10periodic" for the "Enable" setting.
+# That setting effects the following settings also.
+
+APT::Periodic {
+	Update-Package-Lists "0";
+	Download-Upgradeable-Packages "0";
+	AutocleanInterval "0";
+}
