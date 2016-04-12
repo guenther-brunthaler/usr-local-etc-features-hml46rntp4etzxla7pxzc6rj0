@@ -5,7 +5,6 @@
 #    will effect the settings in "10periodic" too.
 APT::Periodic::Enable "0";
 
-
 #  - Set maximum allowed age of a cache package file. If a cache
 #    package file is older it is deleted (0=disable)
 #
