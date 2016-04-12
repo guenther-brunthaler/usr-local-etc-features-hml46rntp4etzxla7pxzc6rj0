@@ -1,0 +1,23 @@
+# Defaults to be enforced wherever possible. Will be included explicitly from
+# main config file multiple times.
+
+# keep 8 backlogs
+rotate 8
+
+# rotate log files larger than this
+size 5M
+
+# create new (empty) log files after rotating old ones
+create
+
+# uncomment this if you want your log files compressed
+compress
+
+# old logs go there
+olddir /var/log/archive
+
+notifempty
+nomail
+
+# Ignore .keep files (present because git cannot track directories).
+tabooext + keep
