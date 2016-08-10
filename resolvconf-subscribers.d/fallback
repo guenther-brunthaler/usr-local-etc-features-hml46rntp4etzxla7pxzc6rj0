@@ -1,0 +1,36 @@
+#! /bin/sh
+set -e
+resolvconf=/sbin/resolvconf
+fallback=/etc/resolv.conf.fallback
+uuid=6nd3klappym8w7lbtnyjhhwpt
+
+our_name=`basename -- "$0"`_$uuid
+
+us=false
+others=false
+for ifc in `"$resolvconf" -i`
+do
+	case $ifc in
+		"$our_name") us=true;;
+		?*) others=true
+	esac
+done
+if $others
+then
+	# Real DNS information is available.
+	if $us
+	then
+		# Remove our fallback configuration.
+		"$resolvconf" -d "$our_name"
+	fi
+else
+	# There is no real DNS information.
+	if $us
+	then
+		:
+	else
+		# Add our fallback configuration.
+		test -f "$fallback"
+		"$resolvconf" -a "$our_name" < "$fallback"
+	fi
+fi
