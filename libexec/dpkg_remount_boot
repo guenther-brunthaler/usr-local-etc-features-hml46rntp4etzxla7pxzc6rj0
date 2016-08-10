@@ -1,0 +1,40 @@
+#! /bin/sh
+# Invoked by "/etc/apt/apt.conf.d/55mount_boot".
+set -e
+state_file=/var/run/${0##*/}.state
+target=/boot
+
+remount_rw() {
+	mount -o remount,rw,noatime -- "$1"
+}
+
+case $1 in
+	make-writable)
+		if mountpoint -q "$target"
+		then
+			if test -w "$target"
+			then
+				was=mounted-rw
+			else
+				was=mounted-ro
+				remount_rw "$target"
+			fi
+		else
+			was=unmounted
+			mount "$target"
+			test -w "$target" || remount_rw "$target"
+		fi
+		echo "was=$was" > "$state_file"
+		;;
+	revert)
+		. "$state_file"
+		case $was in
+			mounted-rw) ;;
+			unmounted) umount -- "$target";;
+			mounted-ro) mount -o remount,ro -- "$target";;
+			*) false || exit
+		esac
+		rm -- "$state_file"
+		;;
+	*) false || exit
+esac

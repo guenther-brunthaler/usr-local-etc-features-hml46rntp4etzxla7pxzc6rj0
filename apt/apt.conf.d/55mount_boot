@@ -1,0 +1,4 @@
+DPkg {
+	Pre-Invoke { "/etc/libexec/dpkg_remount_boot make-writable"; }
+	Post-Invoke { "/etc/libexec/dpkg_remount_boot revert"; }
+}
