@@ -1,0 +1,42 @@
+--- ifscheme.distrib	2009-12-19 00:11:31.000000000 +0100
++++ ifscheme	2016-08-11 20:47:40.877230942 +0200
+@@ -1,10 +1,11 @@
+ #!/bin/sh -e
++. /etc/libexec/update-patch-helper
+ # ifscheme changes network configuration schemes using ifup and ifdown
+ 
+ # File locations
+ OLD_IFSTATE=/etc/network/ifstate
+ NEW_IFSTATE=/etc/network/run/ifstate
+-INTERFACES=/etc/network/interfaces
++INTERFACES=/etc/network/interfaces.d
+ SCHEME=/etc/network/run/scheme
+ 
+ usage ()
+@@ -20,7 +21,7 @@
+ list()
+ {
+ 	# Sed magic...
+-	sed -ne "/^[[:space:]]*\(iface\|map\)[[:space:]].*-/{s:^[ ]*::;s:-: :;p;}" < $INTERFACES | cut -d' ' -f3 | sort -u
++	cat "$INTERFACES"/* | sed -ne "/^[[:space:]]*\(iface\|map\)[[:space:]].*-/{s:^[ ]*::;s:-: :;p;}" | cut -d' ' -f3 | sort -u
+ 
+ 	# Easier to read, slower :
+ 	#grep "^[[:space:]]*\(iface\|map\)[[:space:]].*-" $INTERFACES | sed -e"s/^[ ]*//" | sed -e"s/-/ /" | cut -d' ' -f3 | sort -u
+@@ -84,7 +85,7 @@
+ 
+ 	# Does it look like this scheme exists ? Or does a wildcard scheme
+ 	# exist ?
+-	if grep $quiet "^[[:space:]]*\(iface\|map\)[[:space:]].*-\($newscheme\|\*\)" $INTERFACES
++	if cat "$INTERFACES"/* | grep $quiet "^[[:space:]]*\(iface\|map\)[[:space:]].*-\($newscheme\|\*\)"
+ 	then
+ 		echo $newscheme > $SCHEME
+ 		echo "Scheme changed to $newscheme."
+@@ -102,7 +103,7 @@
+ 		# First, extract liface names from explicit mapping lines
+ 		# in interface configuration file, either matching
+ 		# the old scheme or a wildcard.
+-		old_mappings=$(sed -ne "/^[[:space:]]*map[[:space:]].*-\($oldscheme\|\*\)/{s:^[ ]*::p;}" < $INTERFACES | cut -d' ' -f 3)
++		old_mappings=$(cat "$INTERFACES"/* | sed -ne "/^[[:space:]]*map[[:space:]].*-\($oldscheme\|\*\)/{s:^[ ]*::p;}" | cut -d' ' -f 3)
+ 
+ 		# Second, extract from the state file any real interface
+ 		# which liface either match the mapping above or is
