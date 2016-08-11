@@ -15,6 +15,7 @@
 # * Write result of "stat -c %i+%Z $ofile" to $UPDATE_KEYS/$0 (see below).
 # * Re-exec "$0" "$@".
 
+# Keep the following values in sync with ./update-patch-helper!
 HYPE_NAME=diversion-patches
 UUID=5cj2dtd975yp5yah4ku3ll4ia
 PATCHES_REL_BASE=../$HYPE_NAME.d
@@ -66,7 +67,9 @@ patch=$PATCHES_BASE/$ufile.patch
 test -f "$patch"
 cp -p -- "$ofile" "$ufile"
 patch -i "$patch" -- "$ufile" > /dev/null 2>& 1 || {
-	echo "Could not patch '$ufile' based on '$ofile'!"
+	echo "Could not patch '$ufile' based on '$ofile'"
+	echo "by applying patch '$patch'!"
+	echo "Please apply the patch manually. Then regenerate the patch."
 	false || exit
 } >& 2
 
