@@ -1,0 +1,33 @@
+#! /bin/sh
+# Yes I know the name of this script is a bit idiotic, but it should run
+# before "hostapd" and the scripts in this directory are not numbered and have
+# no other way to express execution order than by choosing their names.
+#
+# Of course, I could have called it aaa_something, but who knows which other
+# packages might drop scripts in here, and this script does not necessarily
+# have to be run before *all* of them.
+
+set -e
+
+what=wifi
+state_file=/var/run/rfkill-$what-holders
+
+test $PHASE = pre-up || exit 0
+
+case $IFACE in
+	$what* | wlan*) ;;
+	*) exit 0
+esac
+
+rfkill=`which rfkill 2> /dev/null` || exit 0
+
+(
+	flock -n 9 || exit
+	if test ! -s "$state_file"
+	then
+		# No holders yet.
+		rfkill unblock $what
+	fi
+	printf '%s\n' "$IFACE" >> "$state_file"
+	LC_COLLATE=C sort -o "$state_file" -u -- "$state_file"
+) 9>> "$state_file"
