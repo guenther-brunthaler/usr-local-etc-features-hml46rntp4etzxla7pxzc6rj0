@@ -12,7 +12,11 @@ for ifc in `"$resolvconf" -i`
 do
 	case $ifc in
 		"$our_name") us=true;;
-		?*) others=true
+		?*)
+			test `
+				"$resolvconf" -l "$ifc" \
+				| grep ^nameserver | wc -l
+			` -gt 0 && others=true
 	esac
 done
 if $others
