@@ -4,18 +4,16 @@
 # 
 #
 ipparam 100%
-unit 1
-/var/run/ppp1-real-dev
-init "/etc/ppp/locate_SIM.sh '100% SIM # 1 (GB)' '1260133568 15' /var/run/ppp1-real-dev"
+unit 0
+/dev/gsmmodem
 # hash(unit1.remote.ppp.0u02q6wjr6zdku9qh4mjbyqdn.local):
+noipdefault
 :10.85.105.14
 lock
 hide-password 
 noauth
 connect "/usr/sbin/chat -v -f /etc/chatscripts/common_AT"
-#debug
 115200
-defaultroute
-noipdefault
 persist
-noipdefault
+defaultroute
+usepeerdns
