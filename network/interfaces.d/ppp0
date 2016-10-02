@@ -1,4 +1,0 @@
-# iface <if> <afamily> <method> # Followed by supported statements.
-
-iface ppp0 inet ppp
-	provider 100%
