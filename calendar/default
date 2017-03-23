@@ -1,0 +1,17 @@
+/*
+ * International and national calendar files
+ *
+ * This is the calendar master file.  In the standard setup, it is
+ * included by /etc/calendar/default, so you can make any system-wide
+ * changes there and they will be kept when you upgrade.  If you want
+ * to edit this file, copy it into /etc/calendar/calendar.all and
+ * edit it there.
+ *
+ */
+
+#include <calendar.birthday>
+#include <calendar.christian>
+#include <calendar.computer>
+#include <calendar.debian>
+#include <calendar.eu>
+#include <de_AT/calendar.feiertag>
