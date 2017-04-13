@@ -1,11 +1,35 @@
-#!/bin/sh
+#! /bin/sh
+while :
+do
+	xmessage -buttons "Ausschalten,Neustarten" "$@" \
+			"Alternative Aktionen" \
+		&& rc=$? || rc=$?
+	case $rc in
+		101) xmessage -file - "$@" << 'EOF';;
+Instructions for powering off the machine:
 
-xmessage -buttons Neustarten,Herunterfahren "$@" "Alternative Aktionen"
-case "$?" in
-	101)
-		/sbin/reboot
-		;;
-	102)
-		/sbin/poweroff
-		;;
-esac
+* First, press [Strg]+[Alt]+[F1] in order to switch to text
+  console.
+
+* In text console press [Strg]+[Alt]+[Entf] in order to shut down
+  and reboot the system.
+
+* As soon as the boot manager screen appears after reboot, stop
+  the automatic countdown by selecting "Power Off" from the menu.
+
+* If you were too slow to stop the countdown and the Full-Disk
+  Encryption password is prompted for, press
+  [Strg]+[Alt]+[SyReq]+[r] to reboot and try again.
+EOF
+		102) xmessage -file - "$@" << 'EOF';;
+Instructions for rebooting the machine:
+
+* First, press [Strg]+[Alt]+[F1] in order to switch to text
+  console.
+
+* In text console press [Strg]+[Alt]+[Entf] in order to shut down
+  and reboot the system.
+EOF
+		*) false || exit
+	esac
+done
