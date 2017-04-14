@@ -15,7 +15,8 @@ Anweisungen zum Abschalten des Computers:
 : r pB pI
 
 *
-  First, press [Ctrl]+[Alt]+[F1] in order to switch to text console.
+  First, press +AFs-Ctrl+AF0AKwBb-Alt+AF0AKwBb-F1+AF0 in order to switch to
+  text console.
 : r pB pI L=de
 
 *
@@ -24,8 +25,8 @@ Anweisungen zum Abschalten des Computers:
 : r pB pI
 
 *
-  In text console press [Ctrl]+[Alt]+[Del] in order to shut down and reboot
-  the system.
+  In text console press +AFs-Ctrl+AF0AKwBb-Alt+AF0AKwBb-Del+AF0 in order to
+  shut down and reboot the system.
 : r pB pI L=de
 
 *
@@ -46,8 +47,9 @@ Anweisungen zum Abschalten des Computers:
 
 *
   If you were too slow to stop the countdown and the Full-Disk Encryption
-  password is prompted for already, press [Ctrl]+[Alt]+[SysRq]+[r] to reboot
-  and try again.
+  password is prompted for already, press
+  +AFs-Ctrl+AF0AKwBb-Alt+AF0AKwBb-SysRq+AF0AKwBb-r+AF0 to reboot and try
+  again.
 : pB L=de
 
 *
@@ -62,8 +64,9 @@ Anweisungen zum Abschalten des Computers:
 
 *
   Wait for the reboot to happen and until the Full-Disk Encryption password is
-  prompted for. Then press [Ctrl]+[Alt]+[SysRq]+[o] to power-off the machine
-  instead of entering the password.
+  prompted for. Then press
+  +AFs-Ctrl+AF0AKwBb-Alt+AF0AKwBb-SysRq+AF0AKwBb-o+AF0 to power-off the
+  machine instead of entering the password.
 : pI L=de
 
 *
@@ -84,6 +87,8 @@ nl_extract() {
 		set -- "$@" L="$lang"
 		t=${lang%_*}
 		test x"$t" != x"$lang" && test -n "$t" && set -- "$@" L="$t"
+	else
+		set -- "$@" L=en
 	fi
 	output=false
 	while IFS= read -r line
