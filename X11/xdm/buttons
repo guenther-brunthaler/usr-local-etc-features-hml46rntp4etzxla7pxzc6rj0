@@ -1,35 +1,141 @@
 #! /bin/sh
+
+text() {
+	cat << 'EOF' | nl_extract "$@" \
+	| iconv -f UTF-7 | fmt -cw 66 | iconv -t LATIN1
+: r
+Instructions for rebooting the machine:
+: r L=de
+Anweisungen zum Neustarten des Computers:
+: p
+Instructions for powering off the machine:
+: p L=de
+Anweisungen zum Abschalten des Computers:
+: r p
+
+*
+  First, press [Ctrl]+[Alt]+[F1] in order to switch to text console.
+: r p L=de
+
+*
+  Dr+APw-cken Sie als erstes +AFs-Strg+AF0AKwBb-Alt+AF0AKwBb-F1+AF0 um von der
+  grafischen Oberfl+AOQ-che auf die Textkonsole zu wechseln.
+: r p
+
+*
+  In text console press [Ctrl]+[Alt]+[Del] in order to shut down and reboot
+  the system.
+: r p L=de
+
+*
+  Dr+APw-cken Sie in der Textkonsole +AFs-Strg+AF0AKwBb-Alt+AF0AKwBb-Entf+AF0
+  um den Computer herunter zu fahren und neu zu starten.
+: p
+
+*
+  As soon as the boot manager screen appears after reboot, stop the automatic
+  countdown by selecting "Power Off" from the menu.
+: p L=de
+
+*
+  Sobald das Men+APw des Boot-Managers erscheint, brechen Sie den Countdown
+  der Vorgabe-Men+APw-auswahl ab, und w+AOQ-hlen Sie statt dessen den Punkt
+  +ACI-Power Off+ACI aus dem Men+APw.
+: p
+
+*
+  If you were too slow to stop the countdown and the Full-Disk Encryption
+  password is prompted for, press [Ctrl]+[Alt]+[SysRq]+[r] to reboot and try
+  again.
+: p L=de
+
+*
+  Falls Sie zu langsam waren um den Countdown noch abbrechen zu k+APY-nnen und
+  sie bereits nach dem Passwort f+APw-r die Festplatten-Entschl+APw-sselung
+  gefragt werden, dr+APw-cken Sie
+  +AFs-Strg+AF0AKwBb-Alt+AF0AKwBb-SyReq+AF0AKwBb-r+AF0 f+APw-r einen
+  sofortigen Neustart, nach welchem der Boot-Manager erneut sein Men+APw
+  anzeigt und ihnen die Chance auf einen neuen Versuch zum Abbruch des
+  Countdowns bietet.
+EOF
+}
+
+nl_extract() {
+	local lang t output line
+	lang=$LC_ALL; : ${lang:=$LC_MESSAGES}; : ${lang:=$LANG}
+	lang=${lang%.*}; lang=${lang%"@"*}
+	if test -n "$lang"
+	then
+		set -- "$@" L="$lang"
+		t=${lang%_*}
+		test x"$t" != x"$lang" && test -n "$t" && set -- "$@" L="$t"
+	fi
+	output=false
+	true "args are >>>$*<<<"
+	while IFS= read -r line
+	do
+		case $line in
+			:*)
+				true "line is >>>$line<<<"
+				case $line in
+					*L=*) ;;
+					*) line="$line L=en"
+ 				true "line finally is >>>$line<<<"
+				esac
+				if match "$line" "$@"
+				then
+					output=true
+				else
+					output=false
+				fi
+				;;
+			*)
+				if $output
+				then
+					printf '%s\n' "$line"
+				fi
+		esac
+	done
+}
+
+match() {
+	local rest tok t matched
+	rest=${1#:}" "; shift
+	true "REST >>>$rest<<<"
+	true "remove all: >>>$*<<<"
+	matched=false
+	for tok
+	do
+		true "Try to remove >>> $tok <<< from >>>$rest<<<!"
+		t=${rest%" $tok "*}
+		true "t is >>>$t<<<"
+		if test x"$t" != x"$rest"
+		then
+			case $tok in
+				L=*) ;;
+				*) matched=true
+			esac
+			true "remove leading >>>$t $tok<<< from >>>$rest<<<"
+			rest=${rest#"$t $tok"}
+			true "rest is >>>$rest<<<"
+			rest=$t$rest
+		fi
+		true "now rest is >>>$rest<<<"
+	done
+	test x"${rest% L=*}" = x"$rest" || return
+	$matched || return
+}
+
+text "$@"
+exit
 while :
 do
 	xmessage -buttons "Ausschalten,Neustarten" "$@" \
 			"Alternative Aktionen" \
 		&& rc=$? || rc=$?
 	case $rc in
-		101) xmessage -file - "$@" << 'EOF';;
-Instructions for powering off the machine:
-
-* First, press [Strg]+[Alt]+[F1] in order to switch to text
-  console.
-
-* In text console press [Strg]+[Alt]+[Entf] in order to shut down
-  and reboot the system.
-
-* As soon as the boot manager screen appears after reboot, stop
-  the automatic countdown by selecting "Power Off" from the menu.
-
-* If you were too slow to stop the countdown and the Full-Disk
-  Encryption password is prompted for, press
-  [Strg]+[Alt]+[SyReq]+[r] to reboot and try again.
-EOF
-		102) xmessage -file - "$@" << 'EOF';;
-Instructions for rebooting the machine:
-
-* First, press [Strg]+[Alt]+[F1] in order to switch to text
-  console.
-
-* In text console press [Strg]+[Alt]+[Entf] in order to shut down
-  and reboot the system.
-EOF
+		101) text p | xmessage -file - "$@";;
+		102) text r | xmessage -file - "$@";;
 		*) false || exit
 	esac
 done
