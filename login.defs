@@ -100,7 +100,7 @@ HUSHLOGIN_FILE	.hushlogin
 #
 # (they are minimal, add the rest in the shell startup files)
 ENV_SUPATH	PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-ENV_PATH        PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/games:/usr/games
+ENV_PATH	PATH=/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games
 
 #
 # Terminal permissions
@@ -218,7 +218,7 @@ DEFAULT_HOME	yes
 # (examples: 022 -> 002, 077 -> 007) for non-root users, if the uid is
 # the same as gid, and username is the same as the primary group name.
 #
-# If set to yes, userdel will remove the user´s group if it contains no
+# If set to yes, userdel will remove the user's group if it contains no
 # more members, and useradd will create by default a group with the name
 # of the user.
 #
