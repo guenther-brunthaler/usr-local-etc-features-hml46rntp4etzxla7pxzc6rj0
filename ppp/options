@@ -226,6 +226,11 @@ lcp-echo-interval 30
 # situations where no hardware modem control lines are available.
 lcp-echo-failure 4
 
+# If this option is used with the lcp-echo-failure option then pppd will send
+# LCP echo-request frames only if no traffic was received from the peer since
+# the last echo-request was sent.
+lcp-echo-adaptive
+
 # Set the LCP restart interval (retransmission timeout) to <n> seconds
 # (default 3).
 #lcp-restart <n>
