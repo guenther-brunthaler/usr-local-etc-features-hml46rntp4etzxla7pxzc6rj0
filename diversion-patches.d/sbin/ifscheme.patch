@@ -1,16 +1,16 @@
---- ifscheme.distrib	2009-12-19 00:11:31.000000000 +0100
-+++ ifscheme	2016-08-11 20:47:40.877230942 +0200
+--- ifscheme.distrib	2017-02-07 16:52:33.000000000 +0000
++++ ifscheme	2017-07-14 19:07:43.938944551 +0000
 @@ -1,10 +1,11 @@
  #!/bin/sh -e
 +. /etc/libexec/update-patch-helper
  # ifscheme changes network configuration schemes using ifup and ifdown
  
  # File locations
- OLD_IFSTATE=/etc/network/ifstate
- NEW_IFSTATE=/etc/network/run/ifstate
+ OLD_IFSTATE=/etc/network/run/ifstate
+ NEW_IFSTATE=/run/network/ifstate
 -INTERFACES=/etc/network/interfaces
 +INTERFACES=/etc/network/interfaces.d
- SCHEME=/etc/network/run/scheme
+ SCHEME=/run/network/scheme
  
  usage ()
 @@ -20,7 +21,7 @@
