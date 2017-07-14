@@ -1,0 +1,42 @@
+#! /bin/sh
+# kFreeBSD do not accept scripts as interpreters, using #!/bin/sh and sourcing.
+if test	true != "$INIT_D_SCRIPT_SOURCED"
+then
+    set "$0" "$@"; INIT_D_SCRIPT_SOURCED=true . /lib/init/init-d-script
+fi
+### BEGIN INIT INFO
+# Provides:          dmsetup-nodes
+# Required-Start:    mountkernfs
+# Required-Stop:     mountdevsubfs
+# Default-Start:     S
+# Default-Stop:
+# Short-Description: Ensure Device Mapper nodes have been created
+# Description:       The initramfs may create Device Mapper nodes in a
+#                    temporary /dev which have not yet been created in the
+#                    real /dev. Make sure the nodes are created anyway.
+### END INIT INFO
+
+# Copyright (c) 2017 Guenther Brunthaler. All rights reserved.
+# 
+# This script is free software.
+# Distribution is permitted under the terms of the GPLv3.
+
+DESC="Recreate pre-existing Device Mapper nodes"
+NAME=dmsetup-nodes
+
+status=0
+
+case "$1" in
+    start)
+        log_daemon_msg "Starting $DESC" "$NAME"
+        dmsetup mknodes
+        log_end_msg $status
+        ;;
+
+    *)
+        log_failure_msg "Usage: /etc/init.d/$NAME {start|stop}" 2 >& 1
+        exit 1
+        ;;
+esac
+
+exit $status
