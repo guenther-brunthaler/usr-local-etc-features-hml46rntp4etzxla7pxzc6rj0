@@ -21,6 +21,7 @@ mkdir -p -- "`dirname -- "$DB"`"
 sys=$SYS_PREFIX$dev$SYS_SUFFIX
 test -e "$sys"
 test -f "$BOOT_ID"
+boot_time=`stat -c %Y -- "$BOOT_ID"`
 boot_id=`cat "$BOOT_ID" | cksum | cut -d" " -f 1`
 written=`awk '{print $7}' < "$sys"`
 written=`expr $written \* 512`
@@ -28,7 +29,7 @@ written=`expr $written \* 512`
 test ! -e "$DB" && >> "$DB"
 (
 	flock -n 9
-	LOGGING_SINCE=`date +%s`
+	LOGGING_SINCE=$boot_time
 	CURRENT_BOOT_ID=
 	WRITTEN_SINCE_BOOT=0
 	WRITTEN_BEFORE=0
