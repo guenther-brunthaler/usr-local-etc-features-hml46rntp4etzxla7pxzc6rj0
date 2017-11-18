@@ -1,0 +1,45 @@
+#! /bin/sh
+# When this script is called, it will update file $DB,
+# named after a device file in /dev. The name will be taken as the last
+# sequence of alphanumeric characters from the script name.
+
+UUID=l9s4pu6iyhe1pgzbnhanpxk27
+DB=/var/lib/misc/lifetime_writes-
+SYS_PREFIX=/sys/block/
+SYS_SUFFIX=/stat
+BOOT_ID=/proc/sys/kernel/random/boot_id
+
+test "$1" != "--debug" && exec > /dev/null 2>& 1
+set -e
+trap 'test $? = 0 || logger -p daemon.err -t "$0" failure' 0
+
+dev=`basename -- "$0"`
+dev=`expr x"$dev" : x'.*[^[:alnum:]]\([[:alnum:]]\{1,\}\)$'`
+DB=$DB$dev-$UUID.dat
+mkdir -p -- "`dirname -- "$DB"`"
+sys=$SYS_PREFIX$dev$SYS_SUFFIX
+test -e "$sys"
+test -f "$BOOT_ID"
+boot_id=`cat "$BOOT_ID" | cksum | cut -d" " -f 1`
+written=`awk '{print $7}' < "$sys"`
+written=`expr $written \* 512`
+
+test ! -e "$DB" && >> "$DB"
+(
+	flock -n 9
+	BOOT_ID=
+	WRITTEN_SINCE_BOOT=0
+	WRITTEN_BEFORE=0
+	. "$DB"
+	if test "$BOOT_ID" != "$boot_id"
+	then
+		WRITTEN_BEFORE=`
+			expr $WRITTEN_BEFORE + $WRITTEN_SINCE_BOOT || :
+		`
+	fi
+	{
+		echo BOOT_ID=$boot_id
+        	echo WRITTEN_SINCE_BOOT=$written
+        	echo WRITTEN_BEFORE=$WRITTEN_BEFORE
+        } > "$DB"
+) 9< "$DB"
