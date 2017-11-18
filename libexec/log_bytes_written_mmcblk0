@@ -13,6 +13,7 @@ test "$1" != "--debug" && exec > /dev/null 2>& 1
 set -e
 trap 'test $? = 0 || logger -p daemon.err -t "$0" failure' 0
 
+test "`expr 9223372036854775806 + 1`" = 9223372036854775807
 dev=`basename -- "$0"`
 dev=`expr x"$dev" : x'.*[^[:alnum:]]\([[:alnum:]]\{1,\}\)$'`
 DB=$DB$dev-$UUID.dat
