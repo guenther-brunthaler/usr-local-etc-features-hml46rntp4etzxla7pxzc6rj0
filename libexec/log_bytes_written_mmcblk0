@@ -28,18 +28,20 @@ written=`expr $written \* 512`
 test ! -e "$DB" && >> "$DB"
 (
 	flock -n 9
-	BOOT_ID=
+	LOGGING_SINCE=`date +%s`
+	CURRENT_BOOT_ID=
 	WRITTEN_SINCE_BOOT=0
 	WRITTEN_BEFORE=0
 	. "$DB"
-	if test "$BOOT_ID" != "$boot_id"
+	if test "$CURRENT_BOOT_ID" != "$boot_id"
 	then
 		WRITTEN_BEFORE=`
 			expr $WRITTEN_BEFORE + $WRITTEN_SINCE_BOOT || :
 		`
 	fi
 	{
-		echo BOOT_ID=$boot_id
+		echo LOGGING_SINCE=$LOGGING_SINCE
+		echo CURRENT_BOOT_ID=$boot_id
         	echo WRITTEN_SINCE_BOOT=$written
         	echo WRITTEN_BEFORE=$WRITTEN_BEFORE
         } > "$DB"
