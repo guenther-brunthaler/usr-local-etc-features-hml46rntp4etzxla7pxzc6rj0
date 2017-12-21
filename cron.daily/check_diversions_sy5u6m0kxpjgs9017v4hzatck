@@ -53,11 +53,30 @@ LC_MESSAGES=C dpkg-divert --list \
 | sed 's|^local diversion of \(.*\) to \(.*\)$|\1 -\n\2 +|; t; d' \
 | LC_COLLATE=C sort > "$T"
 
+chk_line() {
+	f=${1% [-+]}
+	test "$f" != "$1"
+	case $line in
+		*-)
+			test ! -e "$f" && return
+			log err "Diverted '$f' has reappeared!"
+			;;
+		*+)
+			test -e "$f" && return
+			log warning "Diverted '$f' is missing!"
+			;;
+		*) false
+	esac
+}
+
 case $mode in
 	check)
 		if cmp -s -- "$save_file" "$T"
 		then
-			:
+			while IFS= read -r line
+			do
+				chk_line "$line"
+			done < "$save_file"
 		else
 			log warning "Local diversions have changed!"
 			log info "Run '$0 -d' to examine"
