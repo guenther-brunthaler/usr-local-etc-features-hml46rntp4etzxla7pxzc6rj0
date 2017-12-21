@@ -46,6 +46,7 @@ shift `expr $OPTIND - 1 || :`
 
 test $# = 0
 test -f "$save_file"
+exec 9< "$save_file"; flock 9; # Will be released by script termination.
 
 T=`mktemp -- "${TMPDIR:-/tmp}/$APP.XXXXXXXXXX"`
 LC_MESSAGES=C dpkg-divert --list \
