@@ -1,0 +1,12 @@
+/etc/cron.d/atop -
+/etc/cron.d/atop.disabled +
+/etc/cron.d/dma -
+/etc/cron.d/dma.disabled +
+/etc/cron.d/uucp -
+/etc/cron.d/uucp.disabled +
+/etc/cron.daily/uucp -
+/etc/cron.daily/uucp.disabled +
+/lib/udev/rules.d/75-persistent-net-generator.rules =
+/lib/udev/rules.d/75-persistent-net-generator.rules.distrib +
+/sbin/ifscheme =
+/sbin/ifscheme.distrib +
