@@ -51,10 +51,19 @@ exec 9< "$save_file"; flock 9; # Will be released by script termination.
 T=`mktemp -- "${TMPDIR:-/tmp}/$APP.XXXXXXXXXX"`
 LC_MESSAGES=C dpkg-divert --list \
 | sed 's|^local diversion of \(.*\) to \(.*\)$|\1 -\n\2 +|; t; d' \
+| while IFS= read -r line
+do
+	o=${line% -}
+	if test "$o" != "$line" && test -e "$o"
+	then
+		line="$o ="
+	fi
+	printf '%s\n' "$line"
+done \
 | LC_COLLATE=C sort > "$T"
 
 chk_line() {
-	f=${1% [-+]}
+	f=${1% [-+=]}
 	test "$f" != "$1"
 	case $line in
 		*-)
@@ -64,6 +73,10 @@ chk_line() {
 		*+)
 			test -e "$f" && return
 			log warning "Diverted '$f' is missing!"
+			;;
+		*=)
+			test -e "$f" && return
+			log warning "Local replacement '$f' is missing!"
 			;;
 		*) false
 	esac
