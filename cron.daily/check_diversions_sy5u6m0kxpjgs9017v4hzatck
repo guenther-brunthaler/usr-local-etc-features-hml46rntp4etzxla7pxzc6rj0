@@ -1,0 +1,107 @@
+#! /bin/sh
+save_file=/etc/site/local_dpkg_diversions.txt
+
+set -e
+if test $# != 0 || test -t 0
+then
+	daemon=false
+else
+	daemon=true
+fi
+
+log() {
+	local p
+	p=daemon.$1; shift
+	if $daemon
+	then
+		logger -p "$p" -t "$APP" -- "$*"
+	else
+		printf '%s\n' "$APP: $*" >& 2
+	fi
+}
+
+cleanup() {
+	rc=$?
+	test "$T" && rm -- "$T"
+	test $rc = 0 || log err "Failed!"
+}
+APP=${0##*/}
+T=
+trap cleanup 0
+trap 'exit $?' HUP INT TERM QUIT
+
+mode=check
+while getopts Dudls opt
+do
+	case $opt in
+		u) mode=update;;
+		d) mode=diff;;
+		l) mode=list;;
+		s) mode=saved;;
+		D) daemon=true;;
+		*) false || exit
+	esac
+done
+shift `expr $OPTIND - 1 || :`
+
+test $# = 0
+test -f "$save_file"
+exec 9< "$save_file"; flock 9; # Will be released by script termination.
+
+T=`mktemp -- "${TMPDIR:-/tmp}/$APP.XXXXXXXXXX"`
+LC_MESSAGES=C dpkg-divert --list \
+| sed 's|^local diversion of \(.*\) to \(.*\)$|\1 -\n\2 +|; t; d' \
+| LC_COLLATE=C sort > "$T"
+
+chk_line() {
+	f=${1% [-+]}
+	test "$f" != "$1"
+	case $line in
+		*-)
+			test ! -e "$f" && return
+			log err "Diverted '$f' has reappeared!"
+			;;
+		*+)
+			test -e "$f" && return
+			log warning "Diverted '$f' is missing!"
+			;;
+		*) false
+	esac
+}
+
+case $mode in
+	check)
+		if cmp -s -- "$save_file" "$T"
+		then
+			while IFS= read -r line
+			do
+				chk_line "$line"
+			done < "$save_file"
+		else
+			log warning "Local diversions have changed!"
+			log info "Run '$0 -d' to examine"
+			log info "Run '$0 -u' to accept changes"
+		fi
+		;;
+	diff)
+		echo "Changes to local diversions:" >& 2
+		echo "('path -' = original, 'path +' = diverted)" >& 2
+		if diff -u -- "$save_file" "$T"
+		then
+			echo "(No changes.)" >& 2
+		fi
+		;;
+	update)
+		echo "'$save_file' has been updated"
+		cat < "$T" > "$save_file"
+		;;
+	list)
+		echo "'$save_file' as of `stat -c %y -- "$save_file"`:" >& 2
+		cat < "$save_file"
+		;;
+	saved)
+		echo "Current local diversions:" >& 2
+		cat < "$T"
+		;;
+	*) false
+esac
