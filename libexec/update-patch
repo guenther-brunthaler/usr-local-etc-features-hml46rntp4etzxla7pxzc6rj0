@@ -81,13 +81,19 @@ shift 2
 
 patch=$PATCHES_BASE/$ufile.patch
 test -f "$patch"
-cp -p -- "$ofile" "$ufile"
-patch -i "$patch" -- "$ufile" > /dev/null 2>& 1 || {
+tfile=$ufile.$APP.tmp
+> "$tfile"
+chmod 600 -- "$tfile"
+cat < "$ofile" > "$tfile"
+patch -i "$patch" -- "$tfile" > /dev/null 2>& 1 || {
+	rm -- "$tfile"
 	complain "Could not patch '$ufile' based on '$ofile'"
 	complain "by applying patch '$patch'!"
 	complain "Please apply the patch manually. Then regenerate the patch."
 	false || exit
 }
+cat < "$tfile" > "$ufile"
+rm -- "$tfile"
 inform notice "Patch for updated '$ufile' has been re-applied successfully"
 
 ukeyloc=$UPDATE_KEYS/$ufile
