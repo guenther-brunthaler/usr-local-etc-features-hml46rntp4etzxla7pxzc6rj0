@@ -22,7 +22,23 @@ PATCHES_REL_BASE=../$HYPE_NAME.d
 UPDATE_KEYS=/var/lib/$HYPE_NAME-$UUID
 
 set -e
-trap 'test $? = 0 || echo "$0 failed!" >& 2' 0
+inform() {
+	# Log to stderr if stdin is a terminal, or to syslog otherwise.
+	# Daemons usually redirect their standard input from /dev/null.
+	local level
+	level=$1; shift
+	if test -t 0
+	then
+		printf '%s\n' "$*" >& 2
+	else
+		logger -t "$APP" -p user.$level -- "$*"
+	fi
+}
+complain() {
+	inform warning "$@"
+}
+APP=${0##*/}
+trap 'test $? = 0 || complain "$0 failed!"' 0
 
 PATCHES_BASE=`dirname -- "$0"`/$PATCHES_REL_BASE
 
@@ -67,11 +83,12 @@ patch=$PATCHES_BASE/$ufile.patch
 test -f "$patch"
 cp -p -- "$ofile" "$ufile"
 patch -i "$patch" -- "$ufile" > /dev/null 2>& 1 || {
-	echo "Could not patch '$ufile' based on '$ofile'"
-	echo "by applying patch '$patch'!"
-	echo "Please apply the patch manually. Then regenerate the patch."
+	complain "Could not patch '$ufile' based on '$ofile'"
+	complain "by applying patch '$patch'!"
+	complain "Please apply the patch manually. Then regenerate the patch."
 	false || exit
-} >& 2
+}
+inform notice "Patch for updated '$ufile' has been re-applied successfully"
 
 ukeyloc=$UPDATE_KEYS/$ufile
 ukeydir=`dirname -- "$ukeyloc"`
