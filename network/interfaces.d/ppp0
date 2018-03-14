@@ -2,4 +2,4 @@
 
 iface ppp0 inet ppp
 	provider 100%
-	options demand holdoff 1 idle 2700
+	options demand ktune holdoff 1 idle 2700
