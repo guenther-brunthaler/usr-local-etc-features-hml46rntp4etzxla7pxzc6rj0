@@ -8,10 +8,13 @@ DB=/var/lib/misc/lifetime_writes-
 SYS_PREFIX=/sys/block/
 SYS_SUFFIX=/stat
 BOOT_ID=/proc/sys/kernel/random/boot_id
+LOG_ALSO=false
 
-test "$1" != "--debug" && exec > /dev/null 2>& 1
+test "$1" = "--debug" && shift || exec > /dev/null 2>& 1
 set -e
-trap 'test $? = 0 || logger -p daemon.err -t "$0" failure' 0
+trap 'test $? = 0 || logger -p user.err -t "$0" failure' 0
+
+test "$1" = "--log" && { shift; LOG_ALSO=true; }
 
 test "`expr 9223372036854775806 + 1`" = 9223372036854775807
 dev=`basename -- "$0"`
@@ -46,4 +49,11 @@ test ! -e "$DB" && >> "$DB"
         	echo WRITTEN_SINCE_BOOT=$written
         	echo WRITTEN_BEFORE=$WRITTEN_BEFORE
         } > "$DB"
+        if $LOG_ALSO
+        then
+        	m="`expr $WRITTEN_BEFORE + $WRITTEN_SINCE_BOOT || :` bytes"
+        	m=$m" have been written to /dev/$dev"
+        	m=$m" since `date -d "@$LOGGING_SINCE" +%Y-%m-%d`"
+        	logger -p user.notice -t "$0" "$m"
+        fi
 ) 9< "$DB"
