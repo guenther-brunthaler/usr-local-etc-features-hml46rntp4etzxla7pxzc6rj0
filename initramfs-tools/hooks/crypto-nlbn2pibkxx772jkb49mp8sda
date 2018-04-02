@@ -1,0 +1,29 @@
+#! /bin/sh
+set -e
+
+case $1 in
+	prereqs) echo; exit
+esac
+
+. /usr/share/initramfs-tools/hook-functions
+
+while IFS= read -r module
+do
+	manual_add_modules "$module"
+done <<- 'EOF'
+	des_generic
+	dm_crypt
+	algif_skcipher
+	sd_mod
+	serpent_sse2_x86_64
+	sha512_generic
+EOF
+
+copy_exec /sbin/dmsetup /sbin/
+copy_exec /usr/bin/find /bin/gfind
+copy_exec /usr/bin/tput /bin/
+copy_exec "$CONFDIR"/hooks/install/cryptsetup-bm1fu35d94e5tbvvfib9bzgi0 /sbin/
+copy_exec /lib/cryptsetup/askpass /lib/cryptsetup/
+ln -sn ../lib/cryptsetup/askpass "$DESTDIR"/bin/
+mkdir -p "$DESTDIR"/etc/terminfo/l
+cp /lib/terminfo/l/linux "$DESTDIR"/etc/terminfo/l/

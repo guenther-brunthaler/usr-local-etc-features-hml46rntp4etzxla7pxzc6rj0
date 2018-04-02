@@ -1,0 +1,85 @@
+#! /bin/sh
+# Identify the primary network interface to be used for the (faked) kernel
+# "ip=" command line argument from the ifup/ifdown configuration, extract its
+# network setup parameters, and patch the dropbear configuration file
+# $IFC_CONFIG_TEMPLATE in initramfs with that information.
+#
+# The primary boot interface definition must contain a "allow-$BOOT_IFC_CLASS"
+# declaration, and only exactly one such declaration is allowed among all
+# interface definitions.
+#
+# As a special provision for bridge setups, if the definition stanza of the
+# primary boot interface contains a "bridge_ports" option, then its first
+# argument (unless it happens to be "none", "all" or "regex") will be used as
+# the name for the primary boot interface rather than the name of the
+# interface to which the stanza refers. This allows to use the first physical
+# interface of the bridge as the interface name, assuming the bridge itself
+# will not exist yet during initramfs execution.
+#
+# Version 2018.73
+# Copyright (c) 2018 Guenther Brunthaler. All rights reserved.
+#
+# This script is free software.
+# Distribution is permitted under the terms of the GPLv3.
+
+BOOT_IFC_CLASS=primary_boot
+IFC_CONFIG_TEMPLATE=$DESTDIR/conf/conf.d/dropbear_u62wwzzvdqjd5ej4dad43b1i8
+PREREQS='<dropbear'
+
+set -e
+
+case $1 in
+	prereqs) echo "$PREREQS"; exit
+esac
+
+. /usr/share/initramfs-tools/scripts/functions
+
+t=$IFC_CONFIG_TEMPLATE.tmp
+ifquery -l -a --allow=$BOOT_IFC_CLASS > "$t"
+if test "`wc -l < "$t"`" != 1
+then
+	m="Not exactly one network interface has been declared as"
+	m=$m" allow-$BOOT_IFC_CLASS!"
+	log_failure_msg "$m"
+	false || exit
+fi
+
+read NICNAME < "$t"
+ifquery "$NICNAME" > "$t"
+
+HOSTNAME=`hostname`
+test -n "$HOSTNAME"
+IPADDR=
+NETMASK=
+while read -r opt args
+do
+	set -f; set -- "$args"; set +f
+	test -z "$1" && continue
+	case $opt$# in
+		address:1) IPADDR=$1;;
+		netmask:1) NETMASK=$1;;
+		bridge_ports:*)
+			case $1 in
+				all | none | regex) continue
+			esac
+			NICNAME=$1
+	esac
+done < "$t"
+
+rx=
+for vn in IPADDR NETMASK HOSTNAME NICNAME
+do
+	eval val=\$$vn
+	case $val in
+		"" | *"|"*) false || exit;;
+	esac
+	rx=$rx${rx:+"; "}"s|<[\$]$vn>|$val|"
+done
+
+m="The initramfs boot interface will be $NICNAME"
+m=$m" ($IPADDR with netmask $NETMASK and hostname '$HOSTNAME')"
+log_success_msg "$m"
+
+sed "$rx" < "$IFC_CONFIG_TEMPLATE" > "$t"
+cat < "$t" > "$IFC_CONFIG_TEMPLATE"
+rm -- "$t"

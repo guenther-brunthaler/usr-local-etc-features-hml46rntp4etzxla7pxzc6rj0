@@ -1,0 +1,31 @@
+#! /bin/sh
+# Copyright (c) 2018 Guenther Brunthaler. All rights reserved.
+# 
+# This script is free software.
+# Distribution is permitted under the terms of the GPLv3.
+
+# Start a shell as a local companion for SSH login shells. It will run as long
+# as the initrd SSH server.
+
+TTY_N=2
+PIDFILE=/var/run/companion.pid
+PREREQS='dropbear'
+
+set -e
+
+case $1 in
+	prereqs) echo "$PREREQS"; exit
+esac
+
+. /scripts/functions
+
+TTY=/dev/tty$TTY_N
+chvt 1
+log_begin_msg "Stopping local shell on $TTY"
+(
+	read pid < "$PIDFILE"
+	rm -- "$PIDFILE"
+	kill -QUIT $pid
+	wait $pid
+	deallocvt $TTY_N
+) && log_end_msg || log_end_msg

@@ -1,0 +1,34 @@
+#! /bin/sh
+# Copyright (c) 2018 Guenther Brunthaler. All rights reserved.
+#
+# This script is free software.
+# Distribution is permitted under the terms of the GPLv3.
+
+locale=C.UTF-8
+locale_data=/usr/lib/locale/$locale
+ti_src=/lib/terminfo
+ti_dst=/etc/terminfo
+tinfos='linux screen xterm'
+
+set -e
+
+case $1 in
+	prereqs) echo; exit
+esac
+
+. /usr/share/initramfs-tools/scripts/functions
+
+log_begin_msg "Installing $locale locale"
+find -H "$locale_data" \
+| while IFS= read -r fso
+do
+	dest=$DESTDIR$fso
+	if test -d "$fso"
+	then
+		mode=`stat -c %a -- "$fso"`
+		mkdir -pm "$mode" -- "$dest"
+	else
+		cp -Pp -- "$fso" "$dest"
+	fi
+done
+log_end_msg

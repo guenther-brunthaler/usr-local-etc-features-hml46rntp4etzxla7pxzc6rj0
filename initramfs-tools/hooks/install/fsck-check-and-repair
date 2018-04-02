@@ -1,0 +1,211 @@
+#! /bin/sh
+# Forced fsck and automatic repair of minor inconsistencies. Either the block
+# devices specified as arguments are checked, or all block devices found by
+# "blkid". In any case, "blkid" is used to detect the type of filesystem
+# present on the block devices. Only filesystem types known to this script
+# will be processed, any only if the required fsck-tool for the filesystem
+# type is also present. See $SUPPORTED_FILESYSTEMS for a list of such Also,
+# any mounted filesystems will be reported as OK no matter how "OK" they
+# really are, and will not really be checked. supported filesystems. This
+# script supported being run in an initramfs in a BusyBox environment.
+#
+# Version 2018.51
+# Copyright (c) 2017 Guenther Brunthaler. All rights reserved.
+# 
+# This script is free software.
+# Distribution is permitted under the terms of the GPLv3.
+
+SUPPORTED_FILESYSTEMS='ext2 ext3 ext4 reiserfs vfat'
+
+set -e
+cleanup() {
+	rc=$?
+	test "$T" && rm -- "$T"
+	test $rc = 0 || echo "$0 failed!" >& 2
+}
+T=
+trap cleanup 0
+trap 'exit $?' HUP INT QUIT TERM
+
+dry_run=false
+interactive_default_yes=
+while getopts iIn opt
+do
+	case $opt in
+		i) interactive_default_yes=true;;
+		I) interactive_default_yes=false;;
+		n) dry_run=true;;
+		*) false || exit
+	esac
+done
+shift `expr $OPTIND - 1 || :`
+
+register() {
+	registered_handlers=$registered_handlers${registered_handlers:+ }$*
+}
+registered_handlers=
+
+ext2_opts='-vfp'
+register ext2
+
+ext3_opts=$ext2_opts
+register ext3
+
+ext4_opts=$ext2_opts
+register ext4
+
+reiserfs_opts='-fyq'
+register reiserfs
+
+vfat_opts='-av'
+register vfat
+
+colsort() {
+	printf '%s\n' "$*" | tr ' ' '\n' \
+	| LC_COLLATE=C sort | tr '\n' ' ' | sed 's/ *$//'
+}
+
+registered_handlers=`colsort "$registered_handlers"`
+SUPPORTED_FILESYSTEMS=`colsort "$SUPPORTED_FILESYSTEMS"`
+if test "$registered_handlers" != "$SUPPORTED_FILESYSTEMS"
+then
+	{
+		echo "\"$registered_handlers\" are supported, but"
+		echo "\"$SUPPORTED_FILESYSTEMS\" should be."
+	} >& 2
+	false || exit
+fi
+
+if test "$interactive_default_yes"
+then
+	if test ! -t 0
+	then
+		echo "Interaction requires standard input" \
+			"to be a terminal!" >& 2
+		false || exit
+	fi
+	exec 5<& 0
+fi
+
+for d
+do
+	orig_d=$d
+	if test -L "$d"
+	then
+		d=`readlink -f -- "$d"`
+	fi
+	if test ! -b "$d"
+	then
+		echo "$orig_d is no block device!" >& 2
+		false || exit
+	fi
+done
+
+report_rc() {
+	test $rc -lt $1 && return
+	rc=`expr $rc - $1 || :`
+	shift
+	echo "fsck: $*!"
+	any=true
+}
+
+# Updates $first and variables with names from $varlist.
+process() {
+	test -z "$TYPE" && return
+	local opts desc rc
+	if $first
+	then
+		first=false
+	else
+		echo
+	fi
+	desc=$DEVNAME
+	if test "$LABEL"
+	then
+		desc="$desc \"$LABEL\""
+	fi
+	case " $SUPPORTED_FILESYSTEMS " in
+		*" $TYPE "*) ;;
+		*)
+			echo "Ignoring $desc of unsupported type $TYPE." >& 2
+			return
+	esac
+	if test "$interactive_default_yes"
+	then
+		$interactive_default_yes && dp='Ynq' || dp='yNq'
+		printf %s "Do you want to fsck $desc of type $TYPE [$dp]? "
+		local REPLY
+		REPLY=
+		read -r REPLY <& 5 || echo
+		case $REPLY in
+			[Yy]*) REPLY=true;;
+			[Nn]*) REPLY=false;;
+			[Qq]*)
+				echo "Quitting prematurely" \
+					"due to user request."
+				exit
+				;;
+			*) REPLY=$interactive_default_yes
+		esac
+		$REPLY || {
+			echo "Skipping fsck of $DEVNAME by user request."
+			return
+		}
+	fi
+	set -f; eval opts=\$${TYPE}_opts; set +f
+	test "$opts"
+	echo "Forcing fsck $desc of type $TYPE..."
+	set -f;	set fsck -M -t $TYPE "$DEVNAME" -- $opts; set +f
+	if $dry_run
+	then
+		echo SIMULATION: "$@"
+	else
+		"$@" > "$T" 2>& 1 && rc=$? || rc=$?
+	fi
+	case $rc in
+		0) echo "Filesystem is OK";;
+		1) echo "*** Some minor inconsistencies have been repaired!";;
+		*)
+			e=`date +'fsck_errors_%Y-%m-%d_%H:%M:%S.log'`
+			any=false; orig_rc=$rc
+			report_rc 128 Shared-library error
+			report_rc 32 Checking canceled by user request
+			report_rc 16 Usage or syntax error
+			report_rc 8 Operational error
+			report_rc 4 Filesystem errors left uncorrected
+			report_rc 2 System should be rebooted
+			report_rc 1 Filesystem errors corrected
+			$any || echo "fsck: Unknown return code $orig_rc"
+			echo "*** ABORTING!"
+			{
+				printf '%s\n\n' "$desc"
+				cat < "$T"
+			} > "$e"
+			echo "(fsck log has been saved as '$e'.)"
+			false || exit
+	esac
+}
+varlist='DEVNAME LABEL TYPE'
+
+T=`mktemp -- "${TMPDIR:-/tmp}/${0##*/}".XXXXXXXXXX`
+blkid -o export -- "$@" \
+| {
+	unset $varlist
+	first=true
+	while IFS= read -r line
+	do
+		if test "$line"
+		then
+			vn=${line%%=*}
+			line=${line#"$vn="}
+			eval $vn=\$line
+		else
+			process
+			unset $varlist
+		fi
+	done
+	if test "$DEVNAME"
+	then
+		process
+	fi
+}

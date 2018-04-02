@@ -1,0 +1,48 @@
+#! /bin/sh
+# Copyright (c) 2018 Guenther Brunthaler. All rights reserved.
+#
+# This script is free software.
+# Distribution is permitted under the terms of the GPLv3.
+
+# Copy the files from $skel into the HOME directories of all users.
+skel=$CONFDIR/etc/skel
+
+PREREQS=
+# Actually, there *is* a dependency: We need to be run after the dropbear
+# hook, which randomly generates the name of root's HOME directory. However,
+# currently *every* /etc hook is run after all of the /usr hooks, so this
+# should always apply.
+
+set -e
+
+case $1 in
+	prereqs) echo "$PREREQS"; exit
+esac
+
+. /usr/share/initramfs-tools/hook-functions
+
+test ! -e "$skel" && exit
+test -d "$skel"
+
+passwd=$DESTDIR/etc/passwd
+test -f "$passwd" # The dropbear hook should have created this!
+
+test "${skel#-}" = "$skel" # Must not look like an option to "find".
+while IFS=: read -r x x x x x home x
+do
+	test "${home#/}" != "$home" # Must be an absolute path.
+	find -H "$skel" ! -path "$skel" \
+	| while read -r fso
+	do
+		dest=${fso#"$skel"}
+		test "$dest" != "$fso"
+		dest=$DESTDIR$home$dest
+		if test -d "$fso"
+		then
+			perm=`stat -c %a -- "$fso"`
+			mkdir -pm "$perm" -- "$dest"
+		else
+			cp -Pp -- "$fso" "$dest"
+		fi
+	done
+done < "$passwd"

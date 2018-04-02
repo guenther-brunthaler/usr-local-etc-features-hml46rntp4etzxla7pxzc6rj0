@@ -1,0 +1,24 @@
+#! /bin/sh
+# Emulate GNU "screen" using "tmux".
+#
+# Version 2018.54
+# Copyright (c) 2017 Guenther Brunthaler. All rights reserved.
+# 
+# This script is free software.
+# Distribution is permitted under the terms of the GPLv3.
+
+EXTRA_CONFIG=/etc/tmux/screenlike.conf
+
+set -e
+trap 'test $? = 0 || echo "$0 failed!" >& 2' 0
+
+args=
+while getopts xr opt
+do
+	case $opt in
+		[xr]) args=" attach";;
+		*) false || exit
+	esac
+done
+shift `expr $OPTIND - 1 || :`
+exec tmux -f "$EXTRA_CONFIG"$args

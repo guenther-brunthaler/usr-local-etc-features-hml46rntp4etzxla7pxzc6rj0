@@ -1,0 +1,43 @@
+#! /bin/sh
+SETTINGS_IN_FILE=/etc/sysctl.conf
+SETTINGS_IN_DIR=/etc/sysctl.d
+SETTINGS_OUT_FILE_DESTDIR_REL=etc/sysctl.conf
+
+set -e
+case $1 in
+	prereqs) echo; exit
+esac
+
+. /usr/share/initramfs-tools/hook-functions
+
+SETTINGS_OUT_FILE=$DESTDIR/$SETTINGS_OUT_FILE_DESTDIR_REL
+test ! -e "$SETTINGS_OUT_FILE" # We don't want to overwrite anything!
+ofd=`dirname -- "$SETTINGS_OUT_FILE"`
+mkdir -p -- "$ofd"
+
+{
+	if test -e "$SETTINGS_IN_FILE"
+	then
+		test -f "$SETTINGS_IN_FILE"
+		printf '%s\n' "$SETTINGS_IN_FILE"
+	fi
+	if test -e "$SETTINGS_IN_DIR"
+	then
+		test -d "$SETTINGS_IN_DIR"
+		find "$SETTINGS_IN_DIR" -name "*.conf"
+	fi
+} | {
+	first=true
+	while IFS= read -r f
+	do
+		test ! -f "$f" && continue
+		if $first
+		then
+			first=false
+		else
+			echo
+		fi
+		echo "# From $f:"
+		sed 's/^[[:space:]]*//; s/^#.*//; /^$/d' "$f"
+	done
+} > "$SETTINGS_OUT_FILE"

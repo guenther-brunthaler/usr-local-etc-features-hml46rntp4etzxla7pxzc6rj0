@@ -1,0 +1,12 @@
+#! /bin/sh
+set -e
+
+case $1 in
+	prereqs) echo; exit
+esac
+
+redir=/scripts/local-top/cryptroot-1z88d0bny63a5wzph7r1wdxla
+if test -x "$redir"
+then
+	exec "$redir"
+fi

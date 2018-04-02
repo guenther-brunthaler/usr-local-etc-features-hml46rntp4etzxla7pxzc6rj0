@@ -1,0 +1,28 @@
+#! /bin/sh
+set -e
+
+PREREQS=stop_networking_k0rvck661lgwn8njd3xetqasw
+WATCHDOG_MODULE=bcm2835-wdt
+WATCHDOG_DEV=/dev/watchdog
+WATCHDOG_PID=/run/watchdog.pid
+
+case $1 in
+	prereqs) echo "$PREREQS"; exit
+esac
+
+. /scripts/functions
+
+log_begin_msg "Shutting down hardware watchdog timer"
+
+kill `cat "$WATCHDOG_PID"`
+while test -e "$WATCHDOG_PID"
+do
+	sleep 1
+done
+# Ignore failure of the following command if the driver is not a module.
+modprobe -r "$WATCHDOG_MODULE" 2> /dev/null || :
+while test -e "$WATCHDOG_DEV"
+do
+	sleep 1
+done
+log_end_msg

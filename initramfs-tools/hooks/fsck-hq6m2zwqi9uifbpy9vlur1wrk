@@ -1,0 +1,38 @@
+#! /bin/sh
+# Copyright (c) 2018 Guenther Brunthaler. All rights reserved.
+#
+# This script is free software.
+# Distribution is permitted under the terms of the GPLv3.
+
+utility=fsck-check-and-repair
+
+set -e
+case $1 in
+	prereqs) echo; exit
+esac
+
+. /usr/share/initramfs-tools/hook-functions
+
+for fsck in fsck.ext4 fsck.reiserfs reiserfsck fsck.vfat fsck.fat
+do
+	fsck=/sbin/$fsck
+	test ! -e $fsck && continue
+	copy_exec $fsck /sbin/
+done
+
+f=$CONFDIR/hooks/install/$utility
+if test ! -f "$f"
+then
+	f=`
+		if test -f ~/.profile
+		then
+			. ~/.profile > /dev/null 2>& 1 < /dev/null
+		fi
+		command -v -- "$utility"
+	`
+	test -f "$f" || {
+		echo "Cannot find required utility '$utility'!" >& 2
+		false || exit
+	}
+fi
+copy_exec "$f" /sbin/

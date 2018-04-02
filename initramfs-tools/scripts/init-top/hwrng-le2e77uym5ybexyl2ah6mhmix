@@ -1,0 +1,54 @@
+#! /bin/sh
+# Copyright (c) 2018 Guenther Brunthaler. All rights reserved.
+#
+# This script is free software.
+# Distribution is permitted under the terms of the GPLv3.
+
+set -e
+
+DAEMON=rngd
+DEVICELIST="hwrng hw_random hwrandom intel_rng i810_rng"
+HRNGDEVICE=/dev/hwrng
+PIDFILE=/var/run/rngd.pid
+RNGDOPTIONS=
+SETTINGS=/conf/conf.d/hwrng-le2e77uym5ybexyl2ah6mhmix
+
+case $1 in
+	prereqs) echo; exit
+esac
+
+. /scripts/functions
+
+. "$SETTINGS"
+
+
+finddevice () {
+	test -c "$HRNGDEVICE" && return
+	for i in $DEVICELIST
+	 do
+		if test -c "/dev/$i"
+		then
+			HRNGDEVICE=/dev/$i
+			return
+		fi
+		if test -c "/dev/misc/$i"
+		then
+			HRNGDEVICE="/dev/misc/$i"
+			return
+		fi
+	done
+	echo "(Hardware RNG device inode not found)"
+	echo "$0: Cannot find a hardware RNG device to use." >&2
+	false || exit
+}
+
+
+log_begin_msg "Starting hardware random daemon"
+PATH=$PATH:/sbin:/usr/sbin
+finddevice
+"$DAEMON" -r $HRNGDEVICE $RNGDOPTIONS
+while test ! -f "$PIDFILE"
+do
+	sleep 1
+done
+log_end_msg

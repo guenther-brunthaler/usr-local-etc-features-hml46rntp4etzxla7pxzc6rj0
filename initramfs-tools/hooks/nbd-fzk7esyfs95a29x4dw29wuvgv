@@ -1,0 +1,22 @@
+#! /bin/sh
+set -e
+
+case $1 in
+	prereqs) echo; exit
+esac
+
+. /usr/share/initramfs-tools/hook-functions
+
+for tool in nbd-server nbd-client
+do
+	for dir in /usr/sbin /usr/bin /sbin /bin
+	do
+		path=$dir/$tool
+		if test -f "$path"
+		then
+			copy_exec "$path" "$dir"/
+			continue 2
+		fi
+	done
+	echo "$tool not found!" >& 2; false || exit
+done

@@ -1,0 +1,9 @@
+#! /bin/sh
+time37svc=10.157.146.248
+
+set -e
+trap 'test $? = 0 || echo "$0 failed" >& 2' 0
+ping -c 1 "$time37svc"
+rdate "$time37svc"
+hwclock -u -w
+echo "Successfully fetched time from $time37svc and set CMOS clock."

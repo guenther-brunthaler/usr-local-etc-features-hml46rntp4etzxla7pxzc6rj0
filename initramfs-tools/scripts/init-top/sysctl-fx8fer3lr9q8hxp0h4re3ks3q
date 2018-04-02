@@ -1,0 +1,14 @@
+#! /bin/sh
+set -e
+
+SETTINGS=/etc/sysctl.conf
+
+case $1 in
+	prereqs) echo; exit
+esac
+
+. /scripts/functions
+
+log_begin_msg "Applying sysctl settings"
+busybox sysctl -p "$SETTINGS"
+log_end_msg

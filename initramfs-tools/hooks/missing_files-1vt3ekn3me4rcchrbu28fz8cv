@@ -1,0 +1,11 @@
+#! /bin/sh
+# Install some files missed by third-party scripts.
+set -e
+
+case $1 in
+	prereqs) echo; exit
+esac
+
+. /usr/share/initramfs-tools/hook-functions
+
+copy_exec /bin/mountpoint /bin/

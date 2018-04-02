@@ -1,0 +1,45 @@
+#! /bin/false
+# Copyright (c) 2018 Guenther Brunthaler. All rights reserved.
+# 
+# This shell snippet is free software.
+# Distribution is permitted under the terms of the GPLv3.
+
+# Create a more powerful version of get_prereq_pairs() which is used by the
+# initramfs framework to interpret the tokens returned by the "prereq" action
+# of hook and boot scripts.
+#
+# Extend the syntax of supported "prereqs" tokens printed by some script as
+# follows:
+#
+# somename - run the script AFTER any script "somename" (the old behaviour)
+# <somename - run the script BEFORE any script "somename"
+#
+# Note: Be sure to properly quote "<" in the script, or it will be
+# mis-interpreted by the shell as a redirection operator.
+
+unset -f get_prereq_pairs
+
+# Important: Keep this in sync with any changes in the function of the same
+# name in /usr/share/initramfs-tools/hook-functions!
+#
+# The function below should be the same code as there, except that the
+# innermost "echo" has been enclosed within a new "if" and been moved into its
+# "else" branch.
+
+get_prereq_pairs()
+{
+	set_initlist
+	for gp_x in ${initlist:-}; do
+		echo ${gp_x} ${gp_x}
+		gp_src="$(get_source $gp_x)"
+		prereqs=$("${gp_src}" prereqs)
+		for prereq in ${prereqs}; do
+			if test "${prereq#<}" != "${prereq}"
+			then
+				echo ${gp_x} ${prereq#<}
+			else
+				echo ${prereq} ${gp_x}
+			fi
+		done
+	done
+}

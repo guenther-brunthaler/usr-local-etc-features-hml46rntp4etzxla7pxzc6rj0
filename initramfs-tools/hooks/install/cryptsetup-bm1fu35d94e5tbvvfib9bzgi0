@@ -1,0 +1,16 @@
+#! /bin/sh
+where=/root
+tagfile=bin/true
+
+set -e
+while test ! -e "$where/$tagfile"
+do
+	echo
+	echo "Please be so good and mount the REAL filesystem root"
+	echo "at $where! Then enter 'exit' to continue."
+	ash
+	sleep 1
+done
+echo
+echo "Thank you so very much! Continuing boot process."
+echo

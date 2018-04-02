@@ -1,0 +1,28 @@
+#! /bin/sh
+# Version 2018.71
+# Copyright (c) 2018 Guenther Brunthaler. All rights reserved.
+#
+# This script is free software.
+# Distribution is permitted under the terms of the GPLv3.
+
+UR=/dev/urandom
+ORIG_SUFFIX=.orig
+REAL_MINOR=9
+PREREQS=dropbear
+
+set -e
+case $1 in
+	prereqs) echo "$PREREQS"; exit
+esac
+
+. /scripts/functions
+
+test -c $UR && test "`stat -c %T $UR`" = $REAL_MINOR && exit
+
+log_begin_msg "Restoring orginal urandom"
+bu=$UR$ORIG_SUFFIX
+if test -e $bu
+then
+	mv -- "$bu" "$UR"
+fi
+log_end_msg

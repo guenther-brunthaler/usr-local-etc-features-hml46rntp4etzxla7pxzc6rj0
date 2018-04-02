@@ -1,0 +1,17 @@
+#! /bin/sh
+# Install start scripts for the login shell (as used by dropbear).
+rel_root_home=root
+
+set -e
+
+case $1 in
+	prereqs) echo; exit
+esac
+
+. /usr/share/initramfs-tools/hook-functions
+
+mkdir -p "$DESTDIR/$rel_root_home"
+for script in .profile .shellrc
+do
+	cp -p -- "$CONFDIR/$rel_root_home/$script" "$DESTDIR/$rel_root_home/"
+done

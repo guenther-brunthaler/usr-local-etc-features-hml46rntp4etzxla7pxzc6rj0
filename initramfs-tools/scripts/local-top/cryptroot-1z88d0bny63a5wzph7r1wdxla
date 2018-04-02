@@ -1,0 +1,38 @@
+#! /bin/sh
+
+prereqs() {
+	# Make sure that cryptroot is run last in local-top.
+	for req in `dirname $0`/*
+	do
+		script=${req##*/}
+		if test $script != cryptroot-1z88d0bny63a5wzph7r1wdxla
+		then
+			echo $script
+		fi
+	done
+}
+
+case $1 in
+	prereqs) prereqs; exit
+esac
+
+# source for log_*_msg() functions, see LP: #272301
+. /scripts/functions
+
+fallback() {
+	log_failure_msg "Mount the cryptoroot manually, umount any /tmp, then 'exit'!"
+	exec ash
+}
+
+trap fallback 0
+set -e
+
+vg=vg_xquad
+mapping=pv_xquad-dec
+
+mount -t tmpfs -o mode=1777,size=2g tmp /tmp
+cryptsetup-bm1fu35d94e5tbvvfib9bzgi0 $mapping
+#lvm vgchange -a y $vg
+#mount -t reiserfs -o ro,noatime /dev/$vg/debian-fsroot /root
+umount /tmp
+trap - 0

@@ -1,0 +1,27 @@
+#! /bin/sh
+# Copyright (c) 2018 Guenther Brunthaler. All rights reserved.
+#
+# This script is free software.
+# Distribution is permitted under the terms of the GPLv3.
+
+ti_src=/lib/terminfo
+ti_dst=/etc/terminfo
+tinfos='linux screen xterm'
+
+set -e
+
+case $1 in
+	prereqs) echo; exit
+esac
+
+. /usr/share/initramfs-tools/scripts/functions
+
+log_begin_msg "Installing terminfo entries: $tinfos"
+for ti in $tinfos
+do
+	dir=${ti#?}; dir=${ti%"$dir"}
+	dest=$DESTDIR$ti_dst/$dir
+	mkdir -p -- "$dest"
+	cp -Pp -- "$ti_src/$dir/$ti" "$dest"/
+done
+log_end_msg

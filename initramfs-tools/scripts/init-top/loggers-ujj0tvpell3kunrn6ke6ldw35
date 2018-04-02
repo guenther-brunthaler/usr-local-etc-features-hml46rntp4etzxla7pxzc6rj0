@@ -1,0 +1,54 @@
+#! /bin/sh
+# Copyright (c) 2018 Guenther Brunthaler. All rights reserved.
+#
+# This script is free software.
+# Distribution is permitted under the terms of the GPLv3.
+
+RINGBUFFER_KIB=5120 # 5 MiB should really be enough!
+CONSOLE_LOG_LEVEL=1 # Least possible logging; only EMERG events.
+BB=busybox
+SYSLOGD_PIDFILE=/run/syslogd.pid
+KLOGD_PIDFILE=/run/klogd.pid
+
+set -e
+
+prereqs() {
+	# Make sure that this script is run first in init-top.
+	local req script self
+	self=`basename -- "$0"`
+	for req in `dirname -- "$0"`/*
+	do
+		script=${req##*/}
+		test "$script" = "$self" && continue
+		echo "<$script"
+	done
+}
+
+case $1 in
+	prereqs) prereqs; exit
+esac
+
+. /scripts/functions
+
+log_begin_msg "Starting syslogd (use 'logread' to acess) and klogd"
+PATH=$PATH:/sbin:/usr/sbin
+
+"$BB" syslogd -C$RINGBUFFER_KIB
+while test ! -e "$SYSLOGD_PIDFILE"
+do
+	sleep 1
+done
+# Wait for ringbuffer to become available.
+while :
+do
+	"$BB" logread > /dev/null 2>& 1 && break
+	sleep 1
+done
+
+"$BB" klogd -c$CONSOLE_LOG_LEVEL
+while test ! -e "$KLOGD_PIDFILE"
+do
+	sleep 1
+done
+
+log_end_msg

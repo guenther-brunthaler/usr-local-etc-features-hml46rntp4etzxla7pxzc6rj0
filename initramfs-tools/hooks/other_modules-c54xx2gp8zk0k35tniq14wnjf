@@ -1,0 +1,112 @@
+#! /bin/sh
+set -e
+
+case $1 in
+	prereqs) echo; exit
+esac
+
+. /usr/share/initramfs-tools/hook-functions
+
+while IFS= read -r module
+do
+	manual_add_modules "$module"
+done <<- 'EOF'
+	aes_arm
+	af_alg
+	algif_skcipher
+	arc4
+	async_memcpy
+	async_tx
+	authenc
+	authencesn
+	binfmt_misc
+	brcmfmac
+	brcmutil
+	bsd_comp
+	button
+	ccm
+	cdc_acm
+	cfg80211
+	cmac
+	crc_ccitt
+	cryptd
+	crypto_user
+	ctr
+	cts
+	dax
+	deflate
+	dm_crypt
+	dm_mod
+	dm_zero
+	drbg
+	ecb
+	echainiv
+	evdev
+	ext4
+	fixed
+	fuse
+	gcm
+	gf128mul
+	ghash_generic
+	hmac
+	i2c_dev
+	iptable_filter
+	iptable_nat
+	ip_tables
+	ipt_MASQUERADE
+	jitterentropy_rng
+	joydev
+	loop
+	lzo
+	lzo_compress
+	mac80211
+	md4
+	md5
+	michael_mic
+	mt7601u
+	nbd
+	nf_conntrack
+	nf_conntrack_ipv4
+	nf_defrag_ipv4
+	nf_nat
+	nf_nat_ipv4
+	nf_nat_masquerade_ipv4
+	nilfs2
+	nls_cp437
+	nls_iso8859_15
+	option
+	ppp_async
+	ppp_deflate
+	ppp_generic
+	reiserfs
+	rfkill
+	sctp
+	seqiv
+	sg
+	sha1_generic
+	sha256_generic
+	slhc
+	snd
+	snd_bcm2835
+	snd_hwdep
+	snd_pcm
+	snd_rawmidi
+	snd_seq_device
+	snd_timer
+	snd_usb_audio
+	snd_usbmidi_lib
+	tgr192
+	uio
+	uio_pdrv_genirq
+	unix
+	usbserial
+	usb_wwan
+	vfat
+	wp512
+	xcbc
+	x_tables
+	xt_conntrack
+	xts
+	zlib_deflate
+EOF
+	

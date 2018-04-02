@@ -1,0 +1,25 @@
+#! /bin/sh
+# Copyright (c) 2018 Guenther Brunthaler. All rights reserved.
+#
+# This script is free software.
+# Distribution is permitted under the terms of the GPLv3.
+
+set -e
+
+PIDFILE=/var/run/rngd.pid
+
+case $1 in
+	prereqs) echo; exit
+esac
+
+. /scripts/functions
+
+log_begin_msg "Stopping hardware random daemon"
+test -f "$PIDFILE"
+read pid < "$PIDFILE"
+kill $pid
+while test -e "$PIDFILE"
+do
+	sleep 1
+done
+log_end_msg

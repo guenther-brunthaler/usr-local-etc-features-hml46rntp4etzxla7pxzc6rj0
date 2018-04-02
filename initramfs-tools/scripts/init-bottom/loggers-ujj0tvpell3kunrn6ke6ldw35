@@ -1,0 +1,46 @@
+#! /bin/sh
+# Copyright (c) 2018 Guenther Brunthaler. All rights reserved.
+#
+# This script is free software.
+# Distribution is permitted under the terms of the GPLv3.
+
+SYSLOGD_PIDFILE=/run/syslogd.pid
+KLOGD_PIDFILE=/run/klogd.pid
+
+set -e
+
+prereqs() {
+	# Make sure that this script is run last in init-top.
+	local req script self
+	self=`basename -- "$0"`
+	for req in `dirname -- "$0"`/*
+	do
+		script=${req##*/}
+		test "$script" = "$self" && continue
+		echo "$script"
+	done
+}
+
+case $1 in
+	prereqs) prereqs; exit
+esac
+
+. /scripts/functions
+
+log_begin_msg "Stopping ringbuffer-based syslogd and klogd"
+
+read pid < "$KLOGD_PIDFILE"
+kill $pid
+while test -e "$KLOGD_PIDFILE"
+do
+	sleep 1
+done
+
+read pid < "$SYSLOGD_PIDFILE"
+kill $pid
+while test -e "$SYSLOGD_PIDFILE"
+do
+	sleep 1
+done
+
+log_end_msg

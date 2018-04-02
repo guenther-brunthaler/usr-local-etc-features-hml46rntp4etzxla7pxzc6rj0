@@ -1,0 +1,44 @@
+#! /bin/sh
+# Copyright (c) 2018 Guenther Brunthaler. All rights reserved.
+#
+# This script is free software.
+# Distribution is permitted under the terms of the GPLv3.
+
+EXTRA_CONFIG=$CONFDIR/etc/tmux/screenlike.conf
+COMPAT=$CONFDIR/hooks/install/screen
+
+# Since some time, tmux won't start any more without a UTF-8 locale.
+# A terminfo database is also required for actually using the shell remotely.
+PREREQS='locale-j2mkmlcr0gu1pkjv7vn84ksnl terminfo-l0km6uwmh25jblf7a05w7eh5n'
+
+set -e
+
+case $1 in
+	prereqs) echo "$PREREQS"; exit
+esac
+
+. /usr/share/initramfs-tools/hook-functions
+
+
+for tool in tmux
+do
+	for dir in /usr/sbin /usr/bin /sbin /bin
+	do
+		path=$dir/$tool
+		if test -f "$path"
+		then
+			copy_exec "$path" "$dir"/
+			continue 2
+		fi
+	done
+	echo "$tool not found!" >& 2; false || exit
+done
+
+test -f "$EXTRA_CONFIG"
+dest=$DESTDIR${EXTRA_CONFIG#"$CONFDIR"}
+
+mkdir -p -- `dirname -- "$dest"`
+cp -- "$EXTRA_CONFIG" "$dest"
+
+test -f "$COMPAT"
+copy_exec "$COMPAT" /usr/bin/

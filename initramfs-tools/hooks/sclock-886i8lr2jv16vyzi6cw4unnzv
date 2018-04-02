@@ -1,0 +1,10 @@
+#! /bin/sh
+set -e
+
+case $1 in
+	prereqs) echo; exit
+esac
+
+. /usr/share/initramfs-tools/hook-functions
+
+copy_exec "$CONFDIR"/hooks/install/sclock /sbin/
