@@ -9,67 +9,69 @@
 # Distribution is permitted under the terms of the GPLv3.
 
 b=busybox
+if $b test "`$b id`" = 0
+then
 
-ask4sth() {
-	local dval nval dp
-	eval dval=\$$1
-	nval=$dval
-	if test "$dval"
-	then
-		dp=" ($dval)"
-	else
-		dp=
-	fi
+	ask4sth() {
+		local dval nval dp
+		eval dval=\$$1
+		nval=$dval
+		if test "$dval"
+		then
+			dp=" ($dval)"
+		else
+			dp=
+		fi
+		while :
+		do
+			$b printf %s "$2$dp? "
+			read nval \
+			&& test "$nval" || nval=$dval \
+			&& $b expr x"$nval" : x"${3#^}" > /dev/null \
+			&& break
+			$b echo
+			$b echo "Invalid input '$nval':"
+			$b echo "Needs to match the regex"
+			$b printf '%s\n' "$3"
+			$b echo
+		done
+		eval $1=\$nval
+	}
+
+	unset d t
+	sx='s/\(....\)\(..\)\(..\)\(..\)\(..\)/\1-\2-\3 \4:\5/'
+	
 	while :
 	do
-		$b printf %s "$2$dp? "
-		read nval \
-		&& test "$nval" || nval=$dval \
-		&& $b expr x"$nval" : x"${3#^}" > /dev/null \
-		&& break
 		$b echo
-		$b echo "Invalid input '$nval':"
-		$b echo "Needs to match the regex"
-		$b printf '%s\n' "$3"
+		$b echo "You need to set a date (using the local time zone)!"
+		ask4sth d YYYYMMDD '^2[0-9]\{3\}[0-1][0-9][0-3][0-9]$'
+		ask4sth t HHMM '^[0-2][0-9][0-5][0-9]$'
 		$b echo
+		dt=`$b echo "$d$t" | $b sed "$sx"`
+		$b echo "Set date/time to $dt."
+		r=Y
+		ask4sth r "Is this correct" '^[YyNnJj]'
+		case $r in
+			[Nn]) ;;
+			*) break
+		esac
+		$b echo 'Trying again.'
 	done
-	eval $1=\$nval
-}
 
-unset d t
-while :
-do
-	$b echo
-	$b echo "You need to set a date (using the local time zone)!"
-	ask4sth d YYYYMMDD '^2[0-9]\{3\}[0-1][0-9][0-3][0-9]$'
-	ask4sth t HHMM '^[0-2][0-9][0-5][0-9]$'
-	$b echo
-	dt=`
-		$b echo "$d$t" | $b sed '
-			s/\(....\)\(..\)\(..\)\(..\)\(..\)/\1-\2-\3 \4:\5/
-		'
-	`
-	$b echo "Set date/time to $dt."
-	r=Y
-	ask4sth r "Is this correct" '^[YyNnJj]'
-	case $r in
-		[Nn]) ;;
-		*) break
-	esac
-	$b echo 'Trying again.'
-done
+	unset -f ask4sth
 
-unset -f ask4sth
+	$b date -s "$dt" || {
+		$b echo
+		$b echo "Could not set date/time to $dt!"
+		$b echo
+		$b echo "Do it yourself, then enter 'exit' to continue."
+		$b ash
+		$b echo
+		$b echo "Assuming you have set the date/time correctly."
+		$b echo "Continuing boot sequence."
+	}
 
-$b date -s "$dt" || {
-	$b echo
-	$b echo "Could not set date/time to $dt!"
-	$b echo
-	$b echo "Do it yourself, then enter 'exit' to continue."
-	$b ash
-	$b echo
-	$b echo "Assuming you have set the date/time correctly."
-	$b echo "Continuing boot sequence."
-}
-
-unset b d t dt r
+	unset d t dt r sx
+fi
+unset b
