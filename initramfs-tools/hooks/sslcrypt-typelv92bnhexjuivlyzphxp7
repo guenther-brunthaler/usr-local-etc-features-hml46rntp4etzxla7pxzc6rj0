@@ -46,9 +46,10 @@ do
 	done
 	d=$o
 	
+	mkdir -p -- "${DESTDIR%%/}$d"
 	case `file --mime-type "$f"` in
 		*text/*) cp -p -- "$f" "${DESTDIR%%/}$d";;
-		*executable) copy_exe "$f" "$d";;
+		*executable) copy_exec "$f" "$d";;
 		*) false || exit
 	esac
 done

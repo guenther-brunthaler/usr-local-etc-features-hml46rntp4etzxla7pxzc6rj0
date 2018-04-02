@@ -1,0 +1,2 @@
+#! /bin/false
+export PATH=/usr/sbin:/sbin:/usr/bin:/bin
