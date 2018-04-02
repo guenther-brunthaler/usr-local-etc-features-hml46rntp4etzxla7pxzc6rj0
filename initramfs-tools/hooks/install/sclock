@@ -1,9 +1,60 @@
 #! /bin/sh
-time37svc=10.157.146.248
+# Fetch time from TIME service (port 37) of selected hosts.
+#
+# Version 2018.92
+#
+# Copyright (c) 2018 Guenther Brunthaler. All rights reserved.
+#
+# This script is free software.
+# Distribution is permitted under the terms of the GPLv3.
+
+time37servers='10.157.125.107 10.157.146.248 10.157.38.112'
 
 set -e
-trap 'test $? = 0 || echo "$0 failed" >& 2' 0
-ping -c 1 "$time37svc"
-rdate "$time37svc"
-hwclock -u -w
-echo "Successfully fetched time from $time37svc and set CMOS clock."
+cleanup() {
+	rc=$?
+	if test "$worker"
+	then
+		kill $worker || :
+		wait $worker || :
+	fi
+	test "$fifo" && rm -- "$fifo"
+	test $rc = 0 || echo "$0 failed" >& 2
+}
+fifo=
+worker=
+trap cleanup 0
+trap 'exit $?' INT TERM QUIT HUP
+
+while t=`mktemp -u "${TMPDIR:-/tmp}/${0##*/}".XXXXXXXXXX`
+do
+	mkfifo -m 600 -- "$t" && break
+done
+fifo=$t
+
+LC_MESSAGES=C ip addr | LC_MESSAGES=C busybox ip addr \
+| sed 's/^[[:space:]]*inet \([.0-9]\{7,\}\).*$/\1/; t; d' > "$fifo" \
+& worker=$!
+
+excludes=
+while read xcl
+do
+	excludes=$excludes" "$xcl
+done < "$fifo"
+wait $worker; worker=
+
+for time37svc in $time37servers
+do
+	for xcl in $excludes
+	do
+		case $xcl in
+			"$time37svc") continue 2
+		esac
+	done
+	ping -c 1 -W 1 "$time37svc" || continue
+	rdate "$time37svc"
+	hwclock -u -w
+	echo "Successfully fetched time from $time37svc and set CMOS clock."
+	exit
+done
+false
