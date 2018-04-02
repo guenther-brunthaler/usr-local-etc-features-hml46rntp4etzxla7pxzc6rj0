@@ -1,19 +1,22 @@
 #! /bin/sh
-# Copyright (c) 2018 Guenther Brunthaler. All rights reserved.
-#
-# This script is free software.
-# Distribution is permitted under the terms of the GPLv3.
-
 # Replace /dev/urandom by a copy of /dev/random in order to avoid
 # "uninitialized urandom read" messages in the kernel log. This is especially
 # important if dropbear is used. Make sure haveged will be running, so that
 # the new /dev/urandom will not block for long when running out of entropy
 # temporarily.
+#
+# Version 2018.92
+#
+# Copyright (c) 2018 Guenther Brunthaler. All rights reserved.
+#
+# This script is free software.
+# Distribution is permitted under the terms of the GPLv3.
+
 UR=/dev/urandom
 MAJOR=1
 WANT_MINOR=8 # like /dev/random
 MODE=666
-PREREQS=haveged-qny2b5f0vg7c2b5n07kv5zqkf
+PREREQS=hwrng-le2e77uym5ybexyl2ah6mhmix
 
 set -e
 case $1 in

@@ -1,0 +1,54 @@
+#! /bin/sh
+# Version 2018.92
+#
+# Copyright (c) 2018 Guenther Brunthaler. All rights reserved.
+#
+# This script is free software.
+# Distribution is permitted under the terms of the GPLv3.
+
+utilities='enter_psw gbkdf gbosslcrypt openssl'
+more_search_paths=$CONFDIR/hooks/install:/usr/local/sbin:/usr/sbin:/sbin
+
+set -e
+case $1 in
+	prereqs) echo; exit
+esac
+
+. /usr/share/initramfs-tools/hook-functions
+
+if test -f ~/.profile
+then
+	. ~/.profile > /dev/null 2>& 1 < /dev/null
+fi
+PATH=$PATH:$more_search_paths
+
+test "$DESTDIR"
+for utility in $utilities
+do
+	f=`command -v -- "$utility"`
+	test -f "$f" || {
+		echo "Cannot find required utility '$utility'!" >& 2
+		false || exit
+	}
+	d=$f
+	case $d in
+		/usr/local/*/*) k=5;;
+		/usr/*/*) k=4;;
+		/bin/* | /sbin/*) k=3;;
+		*) d=/usr/; k=3
+	esac
+	o=
+	while k=`expr $k - 1`
+	do
+		r=${d#*/}
+		o=$o${d%"$r"}
+		d=$r
+	done
+	d=$o
+	
+	case `file --mime-type "$f"` in
+		*text/*) cp -p -- "$f" "${DESTDIR%%/}$d";;
+		*executable) copy_exe "$f" "$d";;
+		*) false || exit
+	esac
+done
