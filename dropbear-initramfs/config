@@ -4,7 +4,7 @@
 #
 # Command line options to pass to dropbear(8)
 #
-#DROPBEAR_OPTIONS=
+DROPBEAR_OPTIONS='-sK 600 -p 49151'
 
 #
 # On local (non-NFS) mounts, interfaces matching this pattern are

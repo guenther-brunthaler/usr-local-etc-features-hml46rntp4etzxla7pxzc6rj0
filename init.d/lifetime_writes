@@ -1,0 +1,45 @@
+#! /bin/sh
+### BEGIN INIT INFO
+# Provides:          lifetime_writes
+# Required-Start:    $local_fs $time
+# Required-Stop:     $local_fs
+# Default-Start:     S
+# Default-Stop:      0 6
+# Short-Description: Save bytes written counters to files.
+# Description:       This script saves the counters of bytes written to
+#                    devices between restarts.
+### END INIT INFO
+
+. /lib/init/vars.sh
+
+. /lib/lsb/init-functions
+
+do_status () {
+	if [ -f $SAVEDFILE ] ; then
+		return 0
+	else
+		return 4
+	fi
+}
+
+case $1 in
+  stop)
+	[ "$VERBOSE" = no ] || log_action_begin_msg "Saving disk-written counters"
+	/etc/cron.daily/lifetime-writes-9yn49901qr24n1v48s6u05w38
+	ES=$?
+	[ "$VERBOSE" = no ] || log_action_end_msg $ES
+	;;
+  status | start | "")
+	exit
+	;;
+  restart|reload|force-reload)
+	echo "Error: argument '$1' not supported" >&2
+	exit 3
+	;;
+  *)
+	echo "Usage: lifetime_writes start|stop" >&2
+	exit 3
+	;;
+esac
+
+:
