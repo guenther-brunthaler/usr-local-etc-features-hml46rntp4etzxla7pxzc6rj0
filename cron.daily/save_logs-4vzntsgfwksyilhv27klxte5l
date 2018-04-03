@@ -1,0 +1,76 @@
+#! /bin/sh
+# Save those parts of BusyBox syslogd's "logread" ring to $syslog which have
+# not been written there yet. Obviously, this script must be executed more
+# frequently than the ring buffer needs time to fill completely, or some
+# entries will be lost.
+#
+# Version 2018.93
+#
+# Copyright (c) 2018 Guenther Brunthaler. All rights reserved.
+#
+# This script is free software.
+# Distribution is permitted under the terms of the GPLv3.
+
+state_file=/var/lib/misc/log_saver-4vzntsgfwksyilhv27klxte5l
+syslog=/var/log/syslogprefix
+
+test "$1" = "--debug" && shift || exec > /dev/null 2>& 1
+set -e
+cleanup() {
+	rc=$?
+	test "$TDIR" && rm -r -- "$TDIR"
+	test $rc = 0 || logger -p user.err -t "$0" failure
+}
+TDIR=
+trap cleanup 0
+
+exec 5<> "$state_file"
+flock 5
+
+case $1 in
+	--exec-locked)
+		shift
+		"$@" # Execute external command with file lock held.
+		flock -u 5
+		exit
+esac
+
+IFS= read -r omark <& 5 || omark=
+
+nmark=`
+	dd if=/dev/urandom bs=1 count=12 2> /dev/null \
+	| od -t x1 -A n | tr -dc '[:xdigit:]'
+`
+nmark="Saving system log to persistent storage (transaction ID $nmark)"
+TDIR=`mktemp -d -- "${TMPDIR:-/tmp}/${0##*/}".XXXXXXXXXX`
+logger -p user.notice -t "$0" "$nmark"
+logread > "$TDIR"/dump
+nmark=`grep -F "$nmark" "$TDIR"/dump | head -n 1`
+
+lno() {
+	grep -Fn -- "$1" "$TDIR"/dump | sed 's/^\([0-9]*\).*/\1/; q'
+}
+if test "$omark" && n=`lno "$omark"` && test "$n"
+then
+	tail -n +`expr $n + 1` < "$TDIR"/dump > "$TDIR"/tmp
+	mv -- "$TDIR"/tmp "$TDIR"/dump
+else
+	logger -p user.warning -t "$0" \
+		"Some log entries before this one have not been saved!"
+fi
+if test "$nmark" && n=`lno "$nmark"` && test "$n"
+then
+	if test $n = 1
+	then
+		> "$TDIR"/dump
+	else
+		head -n `expr $n - 1` < "$TDIR"/dump > "$TDIR"/tmp
+		mv -- "$TDIR"/tmp "$TDIR"/dump
+	fi
+else
+	logger -p user.crit -t "$0" "Logs are being flooded!"
+fi
+
+cat "$TDIR"/dump >> "$syslog"
+printf '%s\n' "$nmark" > "$state_file"
+flock -u 5
