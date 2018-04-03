@@ -1,0 +1,24 @@
+#! /bin/sh
+# Version 2018.93
+#
+# Copyright (c) 2018 Guenther Brunthaler. All rights reserved.
+#
+# This script is free software.
+# Distribution is permitted under the terms of the GPLv3.
+
+copy='/etc/timezone /etc/localtime'
+
+set -e
+
+case $1 in
+	prereqs) echo; exit
+esac
+
+test -d "$DESTDIR"
+
+for s in $copy
+do
+	t=$DESTDIR/${s#/}
+	mkdir -p -- "`dirname -- "$t"`"
+	cp $s "$t"
+done
