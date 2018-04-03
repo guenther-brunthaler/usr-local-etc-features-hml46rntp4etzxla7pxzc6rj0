@@ -6,7 +6,7 @@
 # This script is free software.
 # Distribution is permitted under the terms of the GPLv3.
 
-utilities='enter_psw gbkdf gbosslcrypt idn openssl'
+utilities='enter_psw gbkdf gbosslcrypt openssl uconv'
 more_search_paths=$CONFDIR/hooks/install:/usr/local/sbin:/usr/sbin:/sbin
 
 set -e
