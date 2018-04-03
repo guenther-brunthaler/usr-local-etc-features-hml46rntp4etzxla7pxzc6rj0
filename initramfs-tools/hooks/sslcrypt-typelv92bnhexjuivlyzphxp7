@@ -6,7 +6,7 @@
 # This script is free software.
 # Distribution is permitted under the terms of the GPLv3.
 
-utilities='enter_psw gbkdf gbosslcrypt openssl uconv'
+utilities='enter_psw gbkdf gbosslcrypt idn openssl'
 more_search_paths=$CONFDIR/hooks/install:/usr/local/sbin:/usr/sbin:/sbin
 
 set -e
@@ -49,7 +49,7 @@ do
 	mkdir -p -- "${DESTDIR%%/}$d"
 	case `file --mime-type "$f"` in
 		*text/*) cp -p -- "$f" "${DESTDIR%%/}$d";;
-		*executable) copy_exec "$f" "$d";;
+		*-executable | *-sharedlib) copy_exec "$f" "$d";;
 		*) false || exit
 	esac
 done
