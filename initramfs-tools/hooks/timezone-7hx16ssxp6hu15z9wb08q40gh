@@ -6,7 +6,7 @@
 # This script is free software.
 # Distribution is permitted under the terms of the GPLv3.
 
-copy='/etc/timezone /etc/localtime'
+copy='/etc/localtime'
 
 set -e
 
