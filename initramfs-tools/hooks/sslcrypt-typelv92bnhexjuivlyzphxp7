@@ -6,7 +6,7 @@
 # This script is free software.
 # Distribution is permitted under the terms of the GPLv3.
 
-utilities='enter_psw gbkdf gbosslcrypt openssl'
+utilities='enter_psw gbkdf gbosslcrypt idn openssl'
 more_search_paths=$CONFDIR/hooks/install:/usr/local/sbin:/usr/sbin:/sbin
 
 set -e
@@ -53,3 +53,11 @@ do
 		*) false || exit
 	esac
 done
+
+# The Debian initramfs uses a non-POSIX compliant "tr" which does not support
+# character classes. Our scripts need that feature, so install the
+# full-fledged utility rather than that stripped down version. BTW: BusyBox
+# "tr" *does* support character classes! But obviously Debian has disabled it
+# when building "to save space".
+rm -- "$DESTDIR"/bin/tr
+copy_exec /usr/bin/tr /bin/

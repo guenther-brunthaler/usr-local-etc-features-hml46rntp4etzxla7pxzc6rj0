@@ -13,4 +13,4 @@
 #
 # $ zless /usr/share/doc/libklibc/README.ipconfig.gz
 #IP=<client-ip>:[<server-ip>]:[<gw-ip>]:<netmask>:<hostname>:<device>:<autoconf>
-ip='<$IPADDR>:::<$NETMASK>:<$HOSTNAME>:<$NICNAME>:static'
+IP='<$IPADDR>:::<$NETMASK>:<$HOSTNAME>:<$NICNAME>:static'

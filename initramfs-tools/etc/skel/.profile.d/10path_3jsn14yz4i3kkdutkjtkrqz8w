@@ -1,2 +1,2 @@
 #! /bin/false
-export PATH=/usr/sbin:/sbin:/usr/bin:/bin
+export PATH=/usr/local/sbin:/usr/sbin:/sbin:/usr/local/bin:/usr/bin:/bin

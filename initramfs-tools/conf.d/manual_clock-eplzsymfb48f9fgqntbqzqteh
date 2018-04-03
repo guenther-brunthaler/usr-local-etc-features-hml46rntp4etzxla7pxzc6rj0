@@ -9,7 +9,7 @@
 # Distribution is permitted under the terms of the GPLv3.
 
 b=busybox
-if $b test "`$b id`" = 0
+if $b test $$ = 1
 then
 
 	ask4sth() {

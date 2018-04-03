@@ -6,20 +6,23 @@
 
 set -e
 
-DAEMON=rngd
-DEVICELIST="hwrng hw_random hwrandom intel_rng i810_rng"
-HRNGDEVICE=/dev/hwrng
+# For start/stop
+DAEMON=/usr/sbin/rngd
+NAME=rngd
 PIDFILE=/var/run/rngd.pid
-RNGDOPTIONS=
 SETTINGS=/conf/conf.d/hwrng-le2e77uym5ybexyl2ah6mhmix
+
+# For starting.
+RNGDOPTIONS=
+HRNGDEVICE=/dev/hwrng
+DEVICELIST="hwrng hw_random hwrandom intel_rng i810_rng"
 
 case $1 in
 	prereqs) echo; exit
 esac
 
-. /scripts/functions
-
 . "$SETTINGS"
+. /scripts/functions
 
 
 finddevice () {
@@ -46,7 +49,17 @@ finddevice () {
 log_begin_msg "Starting hardware random daemon"
 PATH=$PATH:/sbin:/usr/sbin
 finddevice
-"$DAEMON" -r $HRNGDEVICE $RNGDOPTIONS
+START="--start --quiet --pidfile $PIDFILE --startas $DAEMON --name $NAME"
+START="$START -- -r $HRNGDEVICE $RNGDOPTIONS"
+if start-stop-daemon $START > /dev/null 2>& 1
+then
+	:
+else
+	if start-stop-daemon --test $START > /dev/null 2>& 1
+	then
+		false || exit 1
+	fi
+fi
 while test ! -f "$PIDFILE"
 do
 	sleep 1

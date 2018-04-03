@@ -6,8 +6,8 @@ set -e
 while test ! -e "$where/$tagfile"
 do
 	echo
-	echo "Please be so good and mount the REAL filesystem root"
-	echo "at $where! Then enter 'exit' to continue."
+	echo "Please be so good and read-only mount the REAL filesystem"
+	echo "root on $where! Then enter 'exit' to continue."
 	ash
 	sleep 1
 done

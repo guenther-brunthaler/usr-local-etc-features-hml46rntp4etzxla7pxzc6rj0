@@ -6,20 +6,33 @@
 
 set -e
 
+# For start/stop
+DAEMON=/usr/sbin/rngd
+NAME=rngd
 PIDFILE=/var/run/rngd.pid
+SETTINGS=/conf/conf.d/hwrng-le2e77uym5ybexyl2ah6mhmix
 
 case $1 in
 	prereqs) echo; exit
 esac
 
+. "$SETTINGS"
 . /scripts/functions
 
 log_begin_msg "Stopping hardware random daemon"
-test -f "$PIDFILE"
-read pid < "$PIDFILE"
-kill $pid
-while test -e "$PIDFILE"
-do
-	sleep 1
-done
+if
+	start-stop-daemon --stop --quiet --pidfile $PIDFILE \
+		--startas $DAEMON --retry 10 --name $NAME \
+		> /dev/null 2>& 1
+then
+	:
+else
+	if start-stop-daemon --test $START > /dev/null 2>& 1
+	then
+		:
+	else
+		false || exit
+	fi
+	rm -- "$PIDFILE"
+fi
 log_end_msg
