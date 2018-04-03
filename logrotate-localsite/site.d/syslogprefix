@@ -1,12 +1,21 @@
 /var/log/syslogprefix {
 	prerotate
 		set -e
-		fifo=/var/lib/misc/logrotate-4vzntsgfwksyilhv27klxte5l
 		locker=/etc/cron.daily/save_logs-4vzntsgfwksyilhv27klxte5l
-		test ! -p "$fifo" || mkfifo -m 600 -- "$fifo"
-		"$locker" --exec-locked sh -c "read waiting < '$fifo'" &
+		fifo=logrotate-serializer-4vzntsgfwksyilhv27klxte5l
+		fifo=/var/lib/misc/$fifo
+		while test ! -e "$fifo"
+		do
+			mkdir -p -- "`dirname -- "$fifo"`"
+			mkfifo -m 600 -- "$fifo" 2> /dev/null || :
+			sleep 1
+		done
+		"$locker" --exec-locked sh -c \
+			"exec 5< '"$fifo"' && flock 5 && read waiting <& 5" &
 	endscript
 	postrotate
+		fifo=logrotate-serializer-4vzntsgfwksyilhv27klxte5l
+		fifo=/var/lib/misc/$fifo
 		echo > "$fifo"
 	endscript
 }
