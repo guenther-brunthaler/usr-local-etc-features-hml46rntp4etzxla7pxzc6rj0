@@ -1,4 +1,16 @@
+# "logrotate" configuration file for periodically appended BusyBox syslogd
+# ringbuffer segments.
+#
+# Version 2018.94
+#
+# Copyright (c) 2018 Guenther Brunthaler. All rights reserved.
+#
+# This configuration file is free software.
+# Distribution is permitted under the terms of the GPLv3.
+
 /var/log/syslogprefix {
+	missingok
+	create 0640 root adm
 	prerotate
 		set -e
 		locker=/etc/cron.daily/save_logs-4vzntsgfwksyilhv27klxte5l

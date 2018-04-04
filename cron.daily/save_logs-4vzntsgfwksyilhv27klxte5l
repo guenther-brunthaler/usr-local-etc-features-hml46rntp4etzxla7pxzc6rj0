@@ -4,7 +4,7 @@
 # frequently than the ring buffer needs time to fill completely, or some
 # entries will be lost.
 #
-# Version 2018.93
+# Version 2018.94
 #
 # Copyright (c) 2018 Guenther Brunthaler. All rights reserved.
 #
@@ -13,6 +13,9 @@
 
 state_file=/var/lib/misc/log_saver-4vzntsgfwksyilhv27klxte5l
 syslog=/var/log/syslogprefix
+syslog_mode=640
+syslog_owner=root
+syslog_group=adm
 
 test "$1" = "--debug" && shift || exec > /dev/null 2>& 1
 set -e
@@ -71,6 +74,16 @@ else
 	logger -p user.crit -t "$0" "Logs are being flooded!"
 fi
 
+if test ! -e "$syslog"
+then
+	> "$syslog"
+	chmod "$syslog_mode" -- "$syslog"
+	chown "$syslog_owner" -- "$syslog"
+	chgrp "$syslog_group" -- "$syslog" || {
+		chgrp 0 -- "$syslog" # Fallback.
+		logger -p user.crit -t "$0" "Cannot set group for '$syslog'!"
+	}
+fi
 cat "$TDIR"/dump >> "$syslog"
 printf '%s\n' "$nmark" > "$state_file"
 flock -u 5
