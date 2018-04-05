@@ -6,6 +6,10 @@
 /etc/cron.d/uucp.disabled +
 /etc/cron.daily/uucp -
 /etc/cron.daily/uucp.disabled +
+/etc/logrotate.d/psaccs_atop -
+/etc/logrotate.d/psaccs_atop.disabled +
+/etc/logrotate.d/psaccu_atop -
+/etc/logrotate.d/psaccu_atop.disabled +
 /lib/udev/rules.d/75-persistent-net-generator.rules =
 /lib/udev/rules.d/75-persistent-net-generator.rules.distrib +
 /sbin/ifscheme =
