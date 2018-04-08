@@ -14,7 +14,7 @@ create
 compress
 
 # old logs go there
-olddir /var/log/archive
+##olddir /var/log/archive
 
 notifempty
 nomail
