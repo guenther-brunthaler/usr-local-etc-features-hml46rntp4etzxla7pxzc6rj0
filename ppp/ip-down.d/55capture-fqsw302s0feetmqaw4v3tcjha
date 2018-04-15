@@ -1,5 +1,5 @@
 #! /bin/sh
-ARCHIVE=/tmp/ppp-cap
+ARCHIVE=/tmp/ppp-cap.gz
 LOG_GROUP=adm
 LOG_MODE=600
 LIVE=/tmp/ppp-live-cap
@@ -24,7 +24,7 @@ test ! -s "$ARCHIVE" || sperm "$ARCHIVE"
 
 if test -e "$LIVE" && uok "$LIVE"
 then
-	cat < "$LIVE" >> "$ARCHIVE"
+	gzip -c9 < "$LIVE" >> "$ARCHIVE"
 	> "$LIVE"
 else
 	> "$LIVE"
