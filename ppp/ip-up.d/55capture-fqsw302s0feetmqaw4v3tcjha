@@ -1,5 +1,4 @@
 #! /bin/sh
-ARCHIVE=/tmp/ppp-cap.gz
 LOG_GROUP=adm
 LOG_MODE=640
 LIVE=/tmp/ppp-live-cap
@@ -18,17 +17,8 @@ sperm() {
 	chmod "$LOG_MODE" -- "$1"
 }
 
-if uok "$ARCHIVE"
-then
-	:
-else
-	rm -f -- "$ARCHIVE"
-	> "$ARCHIVE"
-fi
-sperm "$ARCHIVE"
-
 if uok "$LIVE"
 then
-	gzip -c9 < "$LIVE" >> "$ARCHIVE"
+	sperm "$LIVE"
+	sperm "$LIVE" # In case there has been a race condition.
 fi
-> "$LIVE"
