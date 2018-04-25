@@ -3,5 +3,4 @@
 iface ppp0 inet ppp
 	provider 100%
 	options demand ktune holdoff 1 idle 2700 \
-		active-filter 'not port ntp' \
-		record /tmp/ppp-live-cap
+		active-filter 'not port ntp'
