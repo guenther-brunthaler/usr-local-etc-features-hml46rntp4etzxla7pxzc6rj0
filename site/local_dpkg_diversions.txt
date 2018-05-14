@@ -1,3 +1,5 @@
+/etc/X11/Xsession.d/90consolekit -
+/etc/X11/Xsession.d/90consolekit.disabled +
 /etc/cron.d/atop -
 /etc/cron.d/atop.disabled +
 /etc/cron.d/dma -
