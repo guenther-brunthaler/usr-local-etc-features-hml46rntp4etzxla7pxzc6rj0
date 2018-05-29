@@ -1,0 +1,2 @@
+#! /bin/sh
+exec invoke-rc.d --force chrony start > /dev/null

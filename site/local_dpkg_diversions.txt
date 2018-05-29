@@ -12,6 +12,12 @@
 /etc/logrotate.d/psaccs_atop.disabled +
 /etc/logrotate.d/psaccu_atop -
 /etc/logrotate.d/psaccu_atop.disabled +
+/etc/network/if-up.d/chrony -
+/etc/network/if-up.d/chrony.disabled +
+/etc/ppp/ip-down.d/chrony -
+/etc/ppp/ip-down.d/chrony.disabled +
+/etc/ppp/ip-up.d/chrony -
+/etc/ppp/ip-up.d/chrony.disabled +
 /lib/udev/rules.d/75-persistent-net-generator.rules =
 /lib/udev/rules.d/75-persistent-net-generator.rules.distrib +
 /sbin/ifscheme =
