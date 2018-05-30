@@ -22,3 +22,5 @@
 /lib/udev/rules.d/75-persistent-net-generator.rules.distrib +
 /sbin/ifscheme =
 /sbin/ifscheme.distrib +
+/usr/share/dbus-1/system-services/org.freedesktop.ConsoleKit.service -
+/usr/share/dbus-1/system-services/org.freedesktop.ConsoleKit.service.disabled +
