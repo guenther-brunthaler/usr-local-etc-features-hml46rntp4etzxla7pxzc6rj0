@@ -17,4 +17,4 @@ connect "/usr/sbin/chat -v -f /etc/chatscripts/common_AT"
 persist
 defaultroute
 usepeerdns
-record /tmp/ppp-live-cap
+#record /tmp/ppp-live-cap
