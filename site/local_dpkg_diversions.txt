@@ -20,6 +20,8 @@
 /etc/ppp/ip-down.d/chrony.disabled +
 /etc/ppp/ip-up.d/chrony -
 /etc/ppp/ip-up.d/chrony.disabled +
+/etc/tmux.conf =
+/etc/tmux.conf.disabled +
 /lib/udev/rules.d/75-persistent-net-generator.rules =
 /lib/udev/rules.d/75-persistent-net-generator.rules.distrib +
 /sbin/ifscheme =
