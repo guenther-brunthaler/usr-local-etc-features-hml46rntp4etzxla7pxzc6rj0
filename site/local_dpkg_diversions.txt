@@ -12,6 +12,8 @@
 /etc/logrotate.d/psaccs_atop.disabled +
 /etc/logrotate.d/psaccu_atop -
 /etc/logrotate.d/psaccu_atop.disabled +
+/etc/network/if-post-down.d/chrony -
+/etc/network/if-post-down.d/chrony.disabled +
 /etc/network/if-up.d/chrony -
 /etc/network/if-up.d/chrony.disabled +
 /etc/ppp/ip-down.d/chrony -
