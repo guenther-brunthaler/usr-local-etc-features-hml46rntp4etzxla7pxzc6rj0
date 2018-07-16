@@ -1,0 +1,83 @@
+#! /bin/sh
+# vim:ts=4:et:sts=4
+### BEGIN INIT INFO
+# Provides:          syslog
+# Required-Start:    mountkernfs
+# Required-Stop:     mountkernfs
+# Default-Start:     S 4 5
+# Default-Stop:      0 6
+# Short-Description: Busybox-based klog and syslog daemon
+### END INIT INFO
+
+NAME=syslog
+DESC="syslog and klog servers"
+DEFAULTSFILE="/etc/default/$NAME"
+
+# Set defaults
+
+# The Busybox executable to use.
+BUSYBOX=/usr/local/bin/busybox-pbyqxzl1ktqlk3fjm3arlrclg
+
+# A helper which flushes the current contents of the ring buffer to a
+# persistent disk file.
+LOG_SAVER=/etc/cron.daily/save_logs-4vzntsgfwksyilhv27klxte5l
+
+# This syslog will not write to disk in order to save your flash media's life.
+# Instead it will write to a circular buffer in RAM with the size specified by
+# the following variable. Consider adding a cron job for appending new entries
+# found in the circular RAM buffer to a log file on disk.
+SYSLOGD_BUFFER_MB=1536
+
+# Add arbitrary additional options to BusyBox's syslogd. This can be used, for
+# instance, to immediately send a copy of syslog entries to an external syslog
+# server using the -R or -L options.
+SYSLOGD_ADDITIONAL_OPTIONS=-D
+SYSLOGD_PIDFILE=/run/syslogd.pid
+KLOGD_OPTIONS=""
+KLOGD_PIDFILE=/run/klogd.pid
+
+# Read configuration variable file if it is present
+test -r "$DEFAULTSFILE" && . "$DEFAULTSFILE"
+
+# Exit if the package is not installed
+test -x "$BUSYBOX" || exit 0
+
+# Define LSB log_* functions.
+. /lib/lsb/init-functions
+
+set -e
+
+ssd() {
+	local mode=$1; shift
+	"$BUSYBOX" start-stop-daemon $mode -x "$BUSYBOX" "$@"
+}
+
+status=0
+
+case "$1" in
+    start)
+        log_daemon_msg "Starting $DESC" "$NAME"
+	ssd -S -p "$SYSLOGD_PIDFILE" \
+		-- syslogd -C"$SYSLOGD_BUFFER_MB" \
+		$SYSLOGD_ADDITIONAL_OPTIONS \
+		|| status=$?
+	ssd -S -p "$KLOGD_PIDFILE" -- klogd $KLOGD_OPTIONS && dmesg -D \
+		|| status=$?
+        log_end_msg $status
+        ;;
+
+    stop)
+        log_daemon_msg "Stopping $DESC" "$NAME"
+	"$LOG_SAVER" || status=$?
+	ssd -K -qp "$KLOGD_PIDFILE" && dmesg -E || status=$?
+	ssd -K -qp "$SYSLOGD_PIDFILE" || status=$?
+        log_end_msg $status
+        ;;
+
+    *)
+        log_failure_msg "Usage: /etc/init.d/$NAME {start|stop}" 2 >& 1
+        exit 1
+        ;;
+esac
+
+exit $status
