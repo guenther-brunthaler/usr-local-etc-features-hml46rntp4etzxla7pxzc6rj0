@@ -2,7 +2,7 @@ Runlevels defined for this installation:
 
 0 "halt": Shut down system. Do not use directly.
 1 "shutdown": Helper for runlevels 0 or 6. Do not use directly.
-S "single": Work on the system console only. Requires root password login.
+S "bootinit": Initialize on boot (Debian). Single-user mode if boot problem.
 2 "local": Stop all services except local consoles.
 3 "radmin": Stop all services except administrative remote connections.
 4 "text": Multi-user non-GUI mode with all networking services.
@@ -11,10 +11,10 @@ S "single": Work on the system console only. Requires root password login.
 
 Extended Description:
 
-Runlevel S is used for basic administrative tasks via the local system console
-without multiuser access. Unfortunately, it requires that a root password has
-been configured, and therefore cannot be used on systems which rely solely on
-SSH logins or "sudo" to gain root access.
+Runlevel S is used on Debian as a temporary runlevel to initialize the system
+on boot. If successful, it switches to the actual runlevel afterwards. If a
+boot problem occurs, it stays on S and enters single-user mode after asking
+for the superuser password. Runlevel S can also be entered explicitly.
 
 Runlevel 2 is a substitute for runlevel S on systems which do not define a
 root password. It allows normal multiuser login, but only from local terminals
