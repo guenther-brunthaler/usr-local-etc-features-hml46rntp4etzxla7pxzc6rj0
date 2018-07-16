@@ -75,7 +75,7 @@ case "$1" in
         ;;
 
     *)
-        log_failure_msg "Usage: /etc/init.d/$NAME {start|stop}" 2 >& 1
+        log_failure_msg "Usage: /etc/init.d/$NAME {start|stop}" 2>& 1
         exit 1
         ;;
 esac

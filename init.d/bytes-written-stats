@@ -1,0 +1,47 @@
+#! /bin/sh
+# vim:ts=4:et:sts=4
+### BEGIN INIT INFO
+# Provides:          bytes-written-stats
+# Required-Start:    $local_fs $time
+# Required-Stop:     $local_fs
+# Default-Start:  
+# Default-Stop:      0 6
+# Short-Description: Save write-counters for monitored block devices
+### END INIT INFO
+
+NAME=bytes-written-stats
+DESC="Save write-counters for monitored block devices"
+DEFAULTSFILE="/etc/default/$NAME"
+
+# Set defaults
+
+# A helper which flushes the current contents of the write counters to a
+# persistent disk file.
+SAVE_HELPER=/etc/cron.daily/lifetime-writes-9yn49901qr24n1v48s6u05w38
+
+# Read configuration variable file if it is present
+test -r "$DEFAULTSFILE" && . "$DEFAULTSFILE"
+
+test -x "$SAVE_HELPER" || exit 0
+
+# Define LSB log_* functions.
+. /lib/lsb/init-functions
+
+set -e
+
+status=0
+
+case "$1" in
+    stop)
+        log_action_msg "Saving disk write counters to persistent storage"
+	"$SAVE_HELPER" || status=$?
+        log_end_msg $status
+        ;;
+
+    *)
+        log_failure_msg "Usage: /etc/init.d/$NAME stop" 2>& 1
+        exit 1
+        ;;
+esac
+
+exit $status
