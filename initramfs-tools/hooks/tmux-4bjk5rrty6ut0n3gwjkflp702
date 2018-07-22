@@ -1,11 +1,12 @@
 #! /bin/sh
+#
+# Version 2018.203
 # Copyright (c) 2018 Guenther Brunthaler. All rights reserved.
 #
 # This script is free software.
 # Distribution is permitted under the terms of the GPLv3.
 
-EXTRA_CONFIG=$CONFDIR/etc/tmux/screenlike.conf
-COMPAT=$CONFDIR/hooks/install/screen
+EXTRA_CONFIG=$CONFDIR/etc/tmux.conf
 
 # Since some time, tmux won't start any more without a UTF-8 locale.
 # A terminfo database is also required for actually using the shell remotely.
@@ -39,6 +40,3 @@ dest=$DESTDIR${EXTRA_CONFIG#"$CONFDIR"}
 
 mkdir -p -- `dirname -- "$dest"`
 cp -- "$EXTRA_CONFIG" "$dest"
-
-test -f "$COMPAT"
-copy_exec "$COMPAT" /usr/bin/
