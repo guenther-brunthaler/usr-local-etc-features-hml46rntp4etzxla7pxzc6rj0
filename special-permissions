@@ -53,6 +53,7 @@ F 640 root dip ppp/peers/provider
 F 640 root lp cups/ppd/PDF.ppd
 F 640 root mail dma/auth.conf
 F 640 root mail dma/dma.conf
+F 640 root root chrony/chrony.keys
 F 640 root shadow gshadow
 F 640 root shadow gshadow.sha2
 F 640 root shadow shadow
