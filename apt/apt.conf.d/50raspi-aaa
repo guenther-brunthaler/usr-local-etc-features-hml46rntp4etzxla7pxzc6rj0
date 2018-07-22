@@ -1,0 +1,6 @@
+# The upstream version of "50raspi" says: "never use pdiffs. Current
+# implementation is very slow on low-powered devices"
+#
+# ...yes, that may be. But our Internet bandwidth is low enough to outweigh
+# this!
+Acquire::PDiffs "1";
