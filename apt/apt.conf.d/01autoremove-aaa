@@ -1,0 +1,13 @@
+# This file should be included between "01autoremove" and
+# "01autoremove-kernels". It reverts unwanted settings from "01autoremove".
+
+# No limits to automatic removal! The admin is expected to verify removals
+# before actually allowing them.
+
+#clear APT::NeverAutoRemove;
+
+# No limits for marking dependencies as "automatically installed"! How on
+# earth would anyone mark dependencies as "automatically installed" by
+# accident? If packages are marked as such, then with good reason.
+
+#clear APT::Never-MarkAuto-Sections;
