@@ -9,8 +9,8 @@
 # really are, and will not really be checked. supported filesystems. This
 # script supported being run in an initramfs in a BusyBox environment.
 #
-# Version 2018.51
-# Copyright (c) 2017 Guenther Brunthaler. All rights reserved.
+# Version 2018.71
+# Copyright (c) 2017-2018 Guenther Brunthaler. All rights reserved.
 # 
 # This script is free software.
 # Distribution is permitted under the terms of the GPLv3.
@@ -158,7 +158,7 @@ process() {
 	set -f;	set fsck -M -t $TYPE "$DEVNAME" -- $opts; set +f
 	if $dry_run
 	then
-		echo SIMULATION: "$@"
+		echo SIMULATION: "$@"; rc=0
 	else
 		"$@" > "$T" 2>& 1 && rc=$? || rc=$?
 	fi
