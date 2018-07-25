@@ -1,0 +1,8 @@
+This is a maintenance directory for migrating changes.
+
+It is *not* supposed to be copied over to a real /etc!
+
+It just contains scripts and other documents for helping with synchronizing
+the available changes between the etc/ and tpl/ directories, which is where5~
+they are supposed to have been checked out from git (in a temporary common
+base directory).
