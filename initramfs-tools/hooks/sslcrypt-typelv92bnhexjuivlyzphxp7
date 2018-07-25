@@ -1,5 +1,5 @@
 #! /bin/sh
-# Version 2018.92
+# Version 2018.206
 #
 # Copyright (c) 2018 Guenther Brunthaler. All rights reserved.
 #
@@ -18,7 +18,7 @@ esac
 
 if test -f ~/.profile
 then
-	. ~/.profile > /dev/null 2>& 1 < /dev/null
+	set +e; . ~/.profile > /dev/null 2>& 1 < /dev/null; set -e
 fi
 PATH=$PATH:$more_search_paths
 
