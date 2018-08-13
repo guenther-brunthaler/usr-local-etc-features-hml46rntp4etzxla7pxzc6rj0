@@ -1,0 +1,79 @@
+#! /bin/sh
+# Non-recursively process all list files in $list_dir which contain (one entry
+# per line) either absolute pathnames or just basenames of executables. It
+# then locates those files and copies them to suitable locations within the
+# initramfs.
+#
+# Empty lines and shell-like comments will be ignored in the list files. List
+# file names must not contain a "." or they will be ignored completely.
+#
+# The idea is that all hooks which need additional files in the intramfs where
+# the exact path is not known or might change later drop file lists in
+# $list_dir, and *this* hook ensures the files will get copied to initramfs
+# properly.
+#
+# Version 2018.225
+#
+# Copyright (c) 2018 Guenther Brunthaler. All rights reserved.
+#
+# This script is free software.
+# Distribution is permitted under the terms of the GPLv3.
+
+list_dir=$CONFDIR/hooks/install/utilities.d
+more_search_paths=$CONFDIR/hooks/install:/usr/local/sbin:/usr/sbin:/sbin
+
+set -e
+case $1 in
+	prereqs) echo; exit
+esac
+
+. /usr/share/initramfs-tools/hook-functions
+
+if test -f ~/.profile
+then
+	set +e; . ~/.profile > /dev/null 2>& 1 < /dev/null; set -e
+fi
+PATH=$PATH:$more_search_paths
+
+test "$DESTDIR"
+test "$list_dir"
+
+find "$list_dir" \
+	-path "$list_dir/*/*" -prune -o ! -name "*.*" -type f -print \
+| while IFS= read -r listfile
+do
+ 	while read -r utility
+	do
+		case $utility in
+			"#"* | "") continue;;
+			/) f=$utility;;
+			*) f=`command -v -- "$utility"`
+		esac
+		test -f "$f" || {
+			echo "E: Cannot find required utility '$utility'!" >& 2
+			false || exit
+		}
+		d=$f
+		case $d in
+			/usr/local/*/*) k=5;;
+			/usr/*/*) k=4;;
+			/bin/* | /sbin/*) k=3;;
+			*) d=/usr/; k=3
+		esac
+		o=
+		while k=`expr $k - 1`
+		do
+			r=${d#*/}
+			o=$o${d%"$r"}
+			d=$r
+		done
+		d=$o
+		
+		mkdir -p -- "${DESTDIR%%/}$d"
+		case `file --mime-type "$f"` in
+			*text/*) cp -p -- "$f" "${DESTDIR%%/}$d";;
+			*-executable | *-sharedlib) copy_exec "$f" "$d";;
+			*) false || exit
+		esac
+	done < "$listfile"
+done

@@ -1,0 +1,23 @@
+# "<block device>"			"<mount point>"		"<fs type>"	"<options> <dump> <order>"
+
+# Order group 1.
+/dev/mapper/HOSTNAME-level0-dec		/			nilfs2		defaults,noatime 0 1
+
+# Order group 2.
+/dev/mmcblk0p1				/boot			vfat		defaults,noatime,ro,umask=117,dmask=007,uid=root,gid=disk 0 2
+
+# Should be unnecessary because those are mounted explicitly be boot scripts. Present here just in case they are not.
+devpts					/dev/pts		devpts		noauto,noexec,nosuid,gid=5,mode=620 0 0
+
+# Mounted by startup scripts.
+proc					/proc			proc		noauto,defaults 0 0
+cgroup					/sys/fs/cgroup		cgroup		noauto,defaults 0 0
+cgroup_memory				/sys/fs/cgroup/memory	cgroup		noauto,memory 0 0
+
+# Mounted manually by superuser.
+none					/sys/kernel/debug	debugfs		noauto,defaults 0 0
+none					/sys/kernel/tracing	tracefs		noauto,defaults 0 0
+/dev/mapper/HOSTNAME-level1-dec		/home/mnt/level1	ext4		noauto,defaults,noatime 0 0
+/dev/mapper/HOSTNAME-level2-dec		/home/mnt/level2	ext4		noauto,defaults,noatime 0 0
+
+# Mounted manually by users.

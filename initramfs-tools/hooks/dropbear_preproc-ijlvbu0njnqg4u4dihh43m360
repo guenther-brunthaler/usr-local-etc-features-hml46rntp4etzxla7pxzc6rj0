@@ -1,0 +1,38 @@
+#! /bin/sh
+# Ensure host keys for unwanted public key algorithm do not exist before the
+# upstream dropbear hook copies them into initramfs.
+#
+# Unfortunately, it is not possible to just store those keys as empty files,
+# because dropbear will then exit with the error message "Early exit: Bad
+# buf_getptr" (see [ https://bugs.launchpad.net/cirros/+bug/1564948 ])
+#
+# But it the files are just missing, some overly eager update script might
+# just re-generate the "missing" keys.
+#
+# This script allows empty keys to be placed in /etc/dropbear-initramfs/, and
+# will silently delete the copies of those files from the generated initramfs.
+#
+# Version 2018.218
+# Copyright (c) 2018 Guenther Brunthaler. All rights reserved.
+#
+# This script is free software.
+# Distribution is permitted under the terms of the GPLv3.
+exec >> /tmp/d 2>& 1 && date && set -xv
+PREREQS=dropbear
+outdir=$DESTDIR/etc/dropbear
+key_mask='dropbear_*_host_key'
+
+set -e
+case $1 in
+	prereqs) echo "$PREREQS"; exit
+esac
+
+. /usr/share/initramfs-tools/hook-functions
+
+for k in "$outdir"/$key_mask
+do
+	test ! -e "$k" || test -s "$k" && continue
+	# Zero-sized unwanted key files will just be removed silently
+	# from initramfs.
+	rm -- "$k"
+done

@@ -1,4 +1,7 @@
 #! /bin/sh
+# Start a local shell in TTY $TTY_N to complement non-local SSH logins.
+#
+# 2018.211
 # Copyright (c) 2018 Guenther Brunthaler. All rights reserved.
 # 
 # This script is free software.
@@ -22,5 +25,8 @@ esac
 TTY=/dev/tty$TTY_N
 log_begin_msg "Starting a local shell on $TTY"
 (
-	ash > "$TTY" < "$TTY" 2>& 1 & echo $! > "$PIDFILE"
+	HOME=`grep ^root: /etc/passwd | cut -d : -f 6`
+	test "$HOME" && test -d "$HOME" || HOME=/
+	env -i TERM="$TERM" HOME="$HOME" ash -l > "$TTY" < "$TTY" 2>& 1 &
+	echo $! > "$PIDFILE"
 ) && log_end_msg || log_end_msg

@@ -1,5 +1,12 @@
 #! /bin/sh
+# Version 2018.225
+# Copyright (c) 2018 Guenther Brunthaler. All rights reserved.
+#
+# This hook script is free software.
+# Distribution is permitted under the terms of the GPLv3.
+#
 # Install start scripts for the login shell (as used by dropbear).
+
 rel_root_home=root
 
 set -e

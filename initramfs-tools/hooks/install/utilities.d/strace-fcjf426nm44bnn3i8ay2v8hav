@@ -1,0 +1,10 @@
+# Install "strace" utility for debugging problems with executables during
+# initramfs boot phase.
+#
+# Version 2018.211
+# Copyright (c) 2018 Guenther Brunthaler. All rights reserved.
+#
+# This listing file is free software.
+# Distribution is permitted under the terms of the GPLv3.
+
+strace

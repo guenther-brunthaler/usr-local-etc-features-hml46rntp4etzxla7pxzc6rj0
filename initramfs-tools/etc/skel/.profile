@@ -1,4 +1,10 @@
 #! /bin/false
+# Version 2018.225
+# Copyright (c) 2018 Guenther Brunthaler. All rights reserved.
+#
+# This shell startup script is free software.
+# Distribution is permitted under the terms of the GPLv3.
+#
 # This will be sourced by login shells only.
 
 # According to POSIX, normal shells only have to source $ENV.
