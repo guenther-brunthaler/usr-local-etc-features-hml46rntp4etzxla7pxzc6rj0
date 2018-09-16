@@ -1,0 +1,5 @@
+Put symlinks to the files in this directory into directory
+
+./git/hooks/
+
+in order to activate the hooks *and* version-control them.
