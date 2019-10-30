@@ -27,8 +27,8 @@ fallback() {
 trap fallback 0
 set -e
 
-vg=vg_xquad
-mapping=pv_xquad-dec
+vg=vg_xduo
+mapping=pv_xduo-dec
 
 mount -t tmpfs -o mode=1777,size=2g tmp /tmp
 cryptsetup-bm1fu35d94e5tbvvfib9bzgi0 $mapping
