@@ -1,0 +1,2 @@
+#     m  h dom mon dow user command
+7-59/30  *   *   *   * root /etc/cron.daily/save_logs-4vzntsgfwksyilhv27klxte5l

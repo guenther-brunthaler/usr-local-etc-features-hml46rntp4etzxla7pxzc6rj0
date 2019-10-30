@@ -1,0 +1,30 @@
+#! /bin/sh
+# Filters into/from "sysv-rc-conf-services"-format.
+
+set -e
+trap 'test $? = 0 || echo "\"$0\" failed!" >& 2' 0
+
+LC_COLLATE=C sort -t ' ' -k 4 -k 1,3 | sed '
+	# Hold buffer lines:
+	# 1: Previous input line
+	# 2: Current input line (only within cycle)
+	# 3: Current output line (only within cycle)
+	x #  HOLD = current input line, PAT = old HOLD
+	/^$/ b first # old HOLD was empty?
+	x; H; H # PAT = current input line, HOLD = prev\ncurr\ncurr
+	:loop
+	# Try to remove a common suffix from line 2 and 3 of HOLD.
+	g
+	s/\(.*\n.*\)\( [^ ]*\)\(\n.*\)\2/\1\3/; t shrunk
+	# No more matching suffixes.
+	s/.*\n\(.*\)\n.*/\1/ # Extract current input line.
+	x # Set HOLD to current input line.
+	s/.*\n.*\n// # Set PAT to current output line.
+	b
+	:shrunk
+	# Suffixes has actually been removed.
+	h # Save updated result in PAT into HOLD
+	b loop
+	:first
+	g # both PAT and HOLD contain current input line now.
+'

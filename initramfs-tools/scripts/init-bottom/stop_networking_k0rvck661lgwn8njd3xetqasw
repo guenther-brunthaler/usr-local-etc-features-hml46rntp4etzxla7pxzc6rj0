@@ -1,0 +1,19 @@
+#! /bin/sh
+# Shut down the networking interface used by Dropbear.
+#
+# This is necessary because ifup refuses to take over an interface which is
+# already up.
+
+PREREQS="dropbear"
+
+case $1 in
+	prereqs) echo "$PREREQS"; exit 0
+esac
+
+. /scripts/functions
+
+ifc=`echo "$IP" | cut -d: -f6`
+log_begin_msg "Stopping initramfs networking on $ifc"
+PATH=/sbin:$PATH
+ifconfig $ifc down 0.0.0.0
+log_end_msg

@@ -1,0 +1,5 @@
+#! /bin/sh
+# Version 2019.296
+clear
+busybox logread | tail -n 150 # Fill terminal, excess output will scroll out.
+exec busybox logread -f

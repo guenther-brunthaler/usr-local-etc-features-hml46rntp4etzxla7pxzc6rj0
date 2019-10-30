@@ -1,2 +1,2 @@
 #! /bin/sh
-exec /etc/libexec/log_bytes_written_mmcblk0 --log
+exec /etc/libexec/log_bytes_written_sda

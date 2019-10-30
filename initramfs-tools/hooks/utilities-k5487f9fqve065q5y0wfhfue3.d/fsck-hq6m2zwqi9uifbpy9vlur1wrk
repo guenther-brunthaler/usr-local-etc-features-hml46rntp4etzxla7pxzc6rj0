@@ -1,0 +1,6 @@
+fsck-check-and-repair
+? fsck.ext4
+? fsck.fat
+? fsck.reiserfs
+? fsck.vfat
+? reiserfsck

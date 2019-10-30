@@ -1,0 +1,45 @@
+#! /bin/false
+# This is sourced by init before the init-top scripts, which means it will be
+# run even before the vendor-provided scripts there.
+
+(
+# Bail out in case of an unexpecte error, but just out of this subshell.
+set -e
+
+RESET_TIMEOUT_EVERY_SECONDS=3
+REBOOT_TIMEOUT_SECONDS=10
+DEVNODE_TIMEOUT=3
+WATCHDOG_MODULE=it87_wdt
+WATCHDOG_DEV=/dev/watchdog
+WATCHDOG_PID=/run/watchdog.pid
+
+. /scripts/functions
+
+log_begin_msg "Arming hardware watchdog timer"
+
+modprobe "$WATCHDOG_MODULE"
+while test ! -e "$WATCHDOG_DEV"
+do
+	case $DEVNODE_TIMEOUT in
+		0)
+			# Device node has not appeared yet. Maybe udev is not
+			# running, or we don't use a devtmpfs? Try to create
+			# the node ourselves!
+			mknod -m 660 "$WATCHDOG_DEV" c 10 130
+			chown root:root "$WATCHDOG_DEV" # Just to be sure.
+			;;
+		-1)	false; # Give up!
+	esac
+	sleep 1
+	DEVNODE_TIMEOUT=`expr $DEVNODE_TIMEOUT - 1 || :`
+done
+busybox watchdog \
+	-T "$REBOOT_TIMEOUT_SECONDS" -t "$RESET_TIMEOUT_EVERY_SECONDS" -F \
+	"$WATCHDOG_DEV" &
+echo $! > "$WATCHDOG_PID"
+log_end_msg
+
+)
+# Although no-one seems to check the return code of this shell snippet, make
+# sure that it won't abort the init script in case this is changed later.
+true

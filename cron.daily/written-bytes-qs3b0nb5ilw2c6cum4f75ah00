@@ -1,0 +1,6 @@
+#! /bin/sh
+drive=sda
+written=`awk '{print $7}' /sys/block/$drive/stat`
+written=`expr $written \* 512`
+logger -p daemon.notice -t `basename -- "$0"` \
+	"Bytes written to $drive since last boot: $written"

@@ -1,0 +1,9 @@
+#! /bin/sh
+out=/var/log/ConsoleKit/fake.log
+test -e "$out" || > "$out"
+chown root:root -- "$out"
+{
+	date
+	echo "Run as >>>$0${1+ $*}<<<"
+	pstree -lsp "$$"
+} >> "$out"

@@ -1,0 +1,83 @@
+#! /bin/sh
+exit_version() {
+	cat << '.'; false || exit
+Version 2019.296
+Copyright (c) 2019 Guenther Brunthaler. All rights reserved.
+
+This script is free software.
+Distribution is permitted under the terms of the GPLv3.
+.
+}
+
+set -e
+trap 'test $? = 0 || echo "$0 failed!" >& 2' 0
+
+exit_help() {
+		cat << '.' # 66 columns in help text
+How to add job control to a resue shell
+
+These instructions will help you to set up any number of
+additional shells with job control as well as [Ctrl]+[c] support
+when running from a Linux rescue shell, such as after adding
+"init=/bin/sh" to the kernel command line from within your boot
+loader.
+
+The shell environment of the original rescue shell will not be
+touched, allowing it to continue the boot process (such as by
+"exec /sbin/init") once the problems have been fixed using the
+new shells.
+
+When running this script from a shell using /dev/console (if
+"tty" displays "/dev/console") on tty1, just run this script in
+the foreground with argument "1" first. This is usually the case
+when a rescue shell has just been started.
+
+This will start a new temporary nested shell on the same
+terminal, where job control and [Ctrl]+[c] support have been
+enabled.
+
+In that temporary shell, run the script again with argument "2",
+but this time as a background job. Then enter "exit" to exit the
+temporary shell and return to the original rescue shell as it was
+before.
+
+Now switch to tty2 by pressing [Ctrl]+[F2]. A new shell has been
+started there, which already has job control and supports
+[Ctrl]+[c]. This is your new master template shell.
+
+Now setup and initialize that shell further in order to make it a
+proper template shell for cloning into any number of addtional
+tty's. For instance, set up and export $HOME, $LANG, $TERM, chdir
+there (the current directory will also be inherited by the shells
+spawned later), source any ~/.profile, etc.
+
+When this shell is ready to be forked into more tty's, run the
+script again from within the template shell as multiple
+background jobs, each time passing the number "3", "4", "5",
+etc., of a virtual terminal where there is no shell yet. This
+will populate as many virtual terminals with instances of the
+template shell as you like to have at your disposal.
+
+I do not recommend to use the template shell for actual work.
+Better leave it alone for spawning more shells in case some of
+the spawned shells need to be respawned. You can also kill shells
+from other virtual consoles there in case they got stuck and
+respawn them after killing.
+.
+		echo; exit_version
+}
+
+case $# in
+	1) expr x"$1" : x'[1-9][0-9]*$' > /dev/null || exit_help;;
+	*) exit_help
+esac
+t=/dev/tty$1
+test -t 5 5> "$t"
+# Below is the real magic: If you cannot run the script or want to use a
+# different shell such as bash, just stick to the instructions but type in the
+# "setsid" command below manually rather than running the script. Replace $t
+# with the tty where the shell should appear. I. e. use /dev/tty21 for $t when
+# spawning a shell on virtual console # 21. And replace "ash" with the shell
+# you would like to run instead.
+exec setsid sh -c "exec ash < \"$t\" > \"$t\" 2>& 1"
+	

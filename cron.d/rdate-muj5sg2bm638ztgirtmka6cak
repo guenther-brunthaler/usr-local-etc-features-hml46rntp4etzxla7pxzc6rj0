@@ -1,0 +1,2 @@
+#  m  h dom mon dow user command
+   1  0   *   *   * root /usr/local/bin/busybox-pbyqxzl1ktqlk3fjm3arlrclg rdate xrpi3 > /dev/null 2>& 1

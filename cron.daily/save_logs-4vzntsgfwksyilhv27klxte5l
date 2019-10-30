@@ -4,7 +4,7 @@
 # frequently than the ring buffer needs time to fill completely, or some
 # entries will be lost.
 #
-# Version 2018.115
+# Version 2018.94
 #
 # Copyright (c) 2018 Guenther Brunthaler. All rights reserved.
 #
@@ -40,14 +40,6 @@ esac
 
 IFS= read -r omark <& 5 || omark=
 
-logread=logread
-for bb in busybox-pbyqxzl1ktqlk3fjm3arlrclg busybox-localsite busybox
-do
-	command -v "$bb" > /dev/null 2>& 1 || continue
-	logread="$bb $logread"
-	break
-done
-
 nmark=`
 	dd if=/dev/urandom bs=1 count=12 2> /dev/null \
 	| od -t x1 -A n | tr -dc '[:xdigit:]'
@@ -55,7 +47,7 @@ nmark=`
 nmark="Saving system log to persistent storage (transaction ID $nmark)"
 TDIR=`mktemp -d -- "${TMPDIR:-/tmp}/${0##*/}".XXXXXXXXXX`
 logger -p user.notice -t "$0" "$nmark"
-$logread > "$TDIR"/dump
+logread > "$TDIR"/dump
 nmark=`grep -F "$nmark" "$TDIR"/dump | head -n 1`
 
 lno() {
