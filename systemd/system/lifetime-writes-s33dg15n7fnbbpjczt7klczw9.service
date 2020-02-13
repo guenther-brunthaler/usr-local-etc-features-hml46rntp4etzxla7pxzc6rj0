@@ -1,0 +1,13 @@
+[Unit]
+Description=Save the number of bytes written to the primary storage volume
+DefaultDependencies=no
+Before=sysinit.target systemd-fsck-root.service
+Conflicts=shutdown.target
+
+[Service]
+ExecStop=sh /var/lib/lifetime-writes/bytes_written-update.sh
+Type=oneshot
+RemainAfterExit=yes
+
+[Install]
+WantedBy=sysinit.target

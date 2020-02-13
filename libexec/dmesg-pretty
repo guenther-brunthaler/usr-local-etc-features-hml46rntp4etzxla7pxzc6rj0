@@ -1,0 +1,52 @@
+#! /usr/bin/perl
+# "dmesg" pretty-printer
+#
+# Invokes "dmesg" with arguments to produce output like this:
+#
+# >>>kern  :warn  : 2020-01-13T06:29:50,703435+01:00 MSG<<<
+#
+# then converts this into a format looking like that:
+#
+# >>>2019-11-27 00:33:52 +0100 xrpi2 syslog.info MSG<<<
+#
+# Version 2020.13.2
+# Copyright (c) 2020 Guenther Brunthaler. All rights reserved.
+#
+# This script is free software.
+# Distribution is permitted under the terms of the GPLv3.
+
+my $dump_command= 'dmesg -xp --time-format=iso --color=never';
+
+use strict;
+use warnings qw(all);
+use autodie;
+use open ':locale';
+use Getopt::Std;
+
+getopts('') or die;
+
+my $rx= qr/
+   #       1:fac         2:pri
+   ^ (?: ( \S+ ) \s* : ( \S+ ) \s* : \s* )?
+   # 3:date                       4:time
+   ( \d\d\d\d - \d\d - \d\d ) T ( \d\d : \d\d : \d\d )
+   #      5:tz1          6:tz2       7:msg
+   ,\d+ ( [-+]\d\d ) : ( \d\d ) \s+( \S.*+ )
+/x;
+
+my $h= `hostname`; chomp $h;
+my($msg, $facpri);
+my $bad= 0;
+open my $fh, "$dump_command |" or die $!;
+OUTER: while (defined($_= <$fh>)) {
+   unless (/$rx/) {
+      ++$bad; next OUTER;
+   }
+   $facpri= ($1 || "none") . "." . ($2 || "none");
+   $msg= $7; $msg =~ s/\s+$//;
+   print "$3 $4 $5$6 $h $facpri $msg\n" or die $!;
+}
+close $fh or die $!;
+if ($bad) {
+   system(qq'logger -p user.err -t "$0" "Failed to format $bad log line(s)"');
+}

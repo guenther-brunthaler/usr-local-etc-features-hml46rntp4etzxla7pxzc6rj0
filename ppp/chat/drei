@@ -6,10 +6,8 @@
 ABORT BUSY ABORT 'NO CARRIER' ABORT VOICE ABORT 'NO DIALTONE' ABORT 'NO DIAL TONE' ABORT 'NO ANSWER' ABORT DELAYED
 # modeminit
 '' ATZ
-# display IMSI (SIM card identifier)
-OK-AT-OK "AT+CIMI"
 # ispnumber
-OK "ATDT*99#"
+OK-AT-OK "ATDT*99#"
 # ispconnect
 CONNECT \d\c
 # prelogin

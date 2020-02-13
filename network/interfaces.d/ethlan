@@ -1,0 +1,23 @@
+# The primary network interface
+# Hardware: Intel Corporation 82567LM-3 Gigabit Network Connection (rev 02)
+# Module: e1000e
+
+rename mac/55:55:55:55:55:55=ethlan
+
+allow-hotplug ethlan
+allow-primary_boot ethlan
+auto ethlan
+
+iface ethlan inet static
+	address 10.157.55.555
+	netmask 255.255.0.0
+	#gateway 10.157.555.555
+	#pre-up sh -c 'ifquery --state niclan > /dev/null || ifup niclan'
+	#bridge_ports niclan
+	# dns-* options are implemented by the resolvconf package, if installed
+	#
+	# OpenDNS.com nameservers fail with HSTS connections as of 2018-01
+	#dns-nameservers 208.67.222.222 208.67.220.220
+	# https://www.heise.de/newsticker/meldung/Quad9-Datenschutzfreundliche-Alternative-zum-Google-DNS-3890741.html
+	dns-nameservers 9.9.9.9
+	dns-search eth.emgenxx69lwyn5ctlr4nl64ul.local

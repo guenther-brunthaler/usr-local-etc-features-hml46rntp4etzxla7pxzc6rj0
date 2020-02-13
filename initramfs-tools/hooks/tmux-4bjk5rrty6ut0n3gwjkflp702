@@ -1,0 +1,15 @@
+#! /bin/sh
+# Copyright (c) 2018 Guenther Brunthaler. All rights reserved.
+#
+# This script is free software.
+# Distribution is permitted under the terms of the GPLv3.
+
+# Since some time, tmux won't start any more without a UTF-8 locale.
+# A terminfo database is also required for actually using the shell remotely.
+PREREQS='locale-j2mkmlcr0gu1pkjv7vn84ksnl terminfo-l0km6uwmh25jblf7a05w7eh5n'
+
+set -e
+
+case $1 in
+	prereqs) echo "$PREREQS"; exit
+esac

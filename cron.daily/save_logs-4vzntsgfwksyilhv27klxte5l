@@ -1,18 +1,56 @@
 #! /bin/sh
-# Save those parts of BusyBox syslogd's "logread" ring to $syslog which have
-# not been written there yet. Obviously, this script must be executed more
-# frequently than the ring buffer needs time to fill completely, or some
-# entries will be lost.
+# Cron job for saving a RAM-based syslog to persistent storage.
 #
-# Version 2018.94
+# Saves those parts of a ring-buffer in RAM containing syslog-entries to
+# permanent storage which have not been written there yet. Obviously, this
+# script must be executed more frequently than the ring buffer needs time to
+# fill completely, or some entries will be lost.
 #
-# Copyright (c) 2018 Guenther Brunthaler. All rights reserved.
+# The command which is used to read the current contents of the ring buffer
+# can be specified via the /etc/default-mechanism. By default the command
+# "logread" is used which dumps the ring buffer of busybox' syslogd
+# implementation using the -C option.
+#
+# A different solution would be to use journald and instruct it to forward
+# log-messages to the kernel message ring buffer. In this case, the
+# "dmesg"-utility can be defined via /etc/default as the command for dumping
+# the ring buffer.
+#
+# Note that the command for dumping the ring buffer will be passed to the
+# shell, so it can actually be something more complex than a simple command,
+# such as a whole pipeline of commands.
+#
+# The dump command can also be used to reformat and filter the log. Whatever
+# is returned by the dump command will be considered the data to be made
+# permanent. Just make sure the "transaction ID" log-messages created by this
+# script do not get filtered out - they are needed for synchronization and
+# ring-buffer overflow detection.
+#
+# Version 2020.38
+#
+# Copyright (c) 2018-2020 Guenther Brunthaler. All rights reserved.
 #
 # This script is free software.
 # Distribution is permitted under the terms of the GPLv3.
 
+defaults_file=/etc/default/${0##*/}
+# Settings which can be overriden by $defaults_file:
+#
+# Where to store the log saver's state.
 state_file=/var/lib/misc/log_saver-4vzntsgfwksyilhv27klxte5l
+# Command for pretty-printing and optionally filtering the non-persistent log.
+# Whatever new data this command returns will be saved to persistent storage.
+dump_command='/etc/libexec/dmesg-pretty'
+# The persistant storage file where the saves log entries shall be added to.
+# This should normally be log-rotated by someone (such as "logrotate").
+#
+# Log-rotation frameworks should implement the rotation of $syslog by calling
+# THIS script with the arguments "--exec-locked some_command ..." where
+# "some_command ..." is the command which actually rotates the logs. The
+# command will then be run protected by a lock, ensuring the cron job will not
+# disturb it during its effort to rotate the logs.
 syslog=/var/log/syslogprefix
+# The properties for creating $syslog for output if it does not yet exist.
 syslog_mode=640
 syslog_owner=root
 syslog_group=adm
@@ -26,6 +64,18 @@ cleanup() {
 }
 TDIR=
 trap cleanup 0
+
+if test -f "$defaults_file"
+then
+	# Assign a custom $dump_command - or any of the other settings above.
+	. "$defaults_file"
+fi
+
+dir=`dirname -- "$state_file"`
+if test ! -d "$dir"
+then
+	mkdir -p -- "$dir"
+fi
 
 exec 5<> "$state_file"
 flock 5
@@ -47,7 +97,7 @@ nmark=`
 nmark="Saving system log to persistent storage (transaction ID $nmark)"
 TDIR=`mktemp -d -- "${TMPDIR:-/tmp}/${0##*/}".XXXXXXXXXX`
 logger -p user.notice -t "$0" "$nmark"
-logread > "$TDIR"/dump
+$dump_command > "$TDIR"/dump
 nmark=`grep -F "$nmark" "$TDIR"/dump | head -n 1`
 
 lno() {

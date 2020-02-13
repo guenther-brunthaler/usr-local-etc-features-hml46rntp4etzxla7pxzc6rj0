@@ -1,0 +1,14 @@
+allow-x-wifi-hotspot hotspot
+
+# $ ifscheme hotspot
+# $ ifup wifilan
+# $ gateway_setup -e wifilan
+
+iface wifilan-hotspot inet static
+	pre-up rfkill unblock wlan
+	post-up invoke-rc.d --quiet --force dnsmasq start > /dev/null
+	address 10.246.55.555
+	netmask 255.255.0.0
+	hostapd /etc/hostapd/hostapd.conf
+	pre-down invoke-rc.d --quiet --force dnsmasq stop > /dev/null
+	post-down rfkill block wlan

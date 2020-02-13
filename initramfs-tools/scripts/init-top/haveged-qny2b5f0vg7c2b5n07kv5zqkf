@@ -1,0 +1,28 @@
+#! /bin/sh
+# Copyright (c) 2018 Guenther Brunthaler. All rights reserved.
+#
+# This script is free software.
+# Distribution is permitted under the terms of the GPLv3.
+
+set -e
+
+PIDFILE=/var/run/haveged.pid
+SETTINGS=/conf/conf.d/haveged-qny2b5f0vg7c2b5n07kv5zqkf
+
+case $1 in
+	prereqs) echo; exit
+esac
+
+. /scripts/functions
+
+DAEMON_ARGS=
+. "$SETTINGS"
+
+log_begin_msg "Starting ramdomness gathering daemon"
+PATH=$PATH:/sbin:/usr/sbin
+haveged $DAEMON_ARGS
+while test ! -f "$PIDFILE"
+do
+	sleep 1
+done
+log_end_msg

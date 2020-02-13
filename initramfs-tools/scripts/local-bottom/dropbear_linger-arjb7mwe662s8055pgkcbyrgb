@@ -8,7 +8,7 @@
 # dropbear is stopped, in order to avoid this happening immediately after
 # mounting the real root filesystem (not that of the initramfs).
 
-TIMEOUT_SECONDS=90
+TIMEOUT_SECONDS=10
 
 set -e
 

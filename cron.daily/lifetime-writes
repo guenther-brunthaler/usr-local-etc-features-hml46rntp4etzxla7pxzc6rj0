@@ -1,0 +1,3 @@
+#! /bin/sh
+logger updating lifetime-writes
+exec sh /var/lib/lifetime-writes/bytes_written-update.sh > /dev/null

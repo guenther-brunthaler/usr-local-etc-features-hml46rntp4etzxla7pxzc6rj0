@@ -1,0 +1,12 @@
+--- ifscheme-mapping.distrib	2005-12-03 00:31:44.000000000 +0000
++++ ifscheme-mapping	2019-11-17 12:19:31.189997198 +0000
+@@ -5,7 +5,8 @@
+ # Arguments : on the command line, we have the name of the interface.
+ # If the mapping contains some "map" statements, we get them from stdin.
+ 
+-SCHEME=/etc/network/run/scheme
++. /etc/libexec/update-patch-helper
++SCHEME=/var/run/network/scheme
+ 
+ # Take care of users calling this program directly.
+ if [ -z "$1" ] ; then

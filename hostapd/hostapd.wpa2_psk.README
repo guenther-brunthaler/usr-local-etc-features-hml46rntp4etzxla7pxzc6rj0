@@ -1,0 +1,43 @@
+Comments for file "./hostapd.wpa2_psk".
+
+Version 2019.321
+
+These comments are kept in a separate file, because they should be put under
+version control, while the file actually containing the PSKs ("pre-shared
+keys") should not.
+
+That file will therefore contain only a copy of the following single comment
+line at its beginning:
+
+# See comments in file "./hostapd.wpa2_psk.README".
+
+Now for the actual comments.
+
+List of WPA PSKs. Each line, except for empty lines and lines starting with
+"#" must contain a MAC address and PSK separated with a space. Special MAC
+address 00:00:00:00:00:00 can be used to configure PSKs that anyone can use.
+
+http://en.wikipedia.org/wiki/Wpa2 states:
+
+"Each wireless network device encrypts the network traffic using a 256 bit
+key. This key may be entered either as a string of 64 hexadecimal digits, or
+as a passphrase of 8 to 63 printable ASCII characters. If ASCII characters are
+used, the 256 bit key is calculated by applying the PBKDF2 key derivation
+function to the passphrase, using the SSID as the salt and 4096 iterations of
+HMAC-SHA1."
+
+Note that the hostapd.wpa2_psk file contains the actual key, not the pass
+phrases from which the keys are derived using the above algorithm, unless
+hexadecimal keys are used which are specified directly.
+
+If pass phrases are used, they should provide 256 bit of information. For
+example, 43 alphanumeric characters (A..Z, a..z, 0..9) provide this.
+
+The following utility from the "wpasupplicant" package can be used to derive
+the PSKs from pass phrases:
+
+$ wpa_passphrase "$SSID" "$PASS_PHRASE"
+
+After changing the PSK file, don't forget to run
+
+$ /etc/init.d/hostapd reload

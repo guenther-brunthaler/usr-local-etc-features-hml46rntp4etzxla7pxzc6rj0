@@ -1,0 +1,46 @@
+#! /bin/sh
+# Copyright (c) 2018 Guenther Brunthaler. All rights reserved.
+#
+# This script is free software.
+# Distribution is permitted under the terms of the GPLv3.
+
+DEFAULTS=/etc/default/haveged
+
+set -e
+
+case $1 in
+	prereqs) echo; exit
+esac
+
+. /usr/share/initramfs-tools/hook-functions
+
+test -f "$DEFAULTS" || DEFAULTS=/dev/null
+
+RUN_CONF=$DESTDIR/conf/conf.d/haveged-qny2b5f0vg7c2b5n07kv5zqkf
+
+mkdir -p -- `dirname -- "$RUN_CONF"`
+grep ^DAEMON_ARGS= "$DEFAULTS" > "$RUN_CONF" || :
+
+# haveged places the PID file in /var/run, which should be a symlink to /run
+# (which will have been mounted as its own tmpfs).
+vr=$DESTDIR/var/run
+tgt=../run
+while
+		test ! -e "$vr" \
+	||	test "`readlink -- "$vr"`" != "$tgt"
+do
+	if test -d "$vr"
+	then
+		rmdir "$vr"
+	elif test -L "$vr"
+	then
+		rm "$vr"
+	elif test -e "$vr"
+	then
+		echo "initramfs /var/run is neither a directory" \
+			"nor a symlink!" >& 2
+		false || exit
+	fi
+	mkdir -p "`dirname -- "$vr"`"
+	ln -s "$tgt" "$vr"
+done

@@ -1,0 +1,5 @@
+# USB device 148f:7601 (mt7601u)
+# Wi-Fi Dongle "Digitus DN-7042-1 Rev. 2" (a.k.a. "DIGITUS Wi-Fi 802.11 N_G_B
+# USB 2 Adapter", vendor "Ralink" 0x148f product 0x7601) and do *not* use the
+# original vendor-provided driver mt7601sta but rather the above one.
+SUBSYSTEM=="net", ACTION=="add", DRIVERS=="?*", ATTR{address}=="00:11:22:33:44:55", ATTR{dev_id}=="0x0", ATTR{type}=="1", KERNEL=="wlan*", NAME="wifilan"

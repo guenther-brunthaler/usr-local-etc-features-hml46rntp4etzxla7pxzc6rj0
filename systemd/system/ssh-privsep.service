@@ -1,0 +1,11 @@
+[Unit]
+Description=Create SSH privilege separatation directory for inetd usage
+Before=inetd.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/etc/rc.local.d/55sshd_inetd
+
+[Install]
+WantedBy=inetd.service

@@ -1,0 +1,62 @@
+# Version 2019.265
+
+# Besides comments, all strings are grouped as "expect send" pairs (need not
+# be on the same line). Some predefined strings like ABORT or TIMEOUT are
+# special.
+#
+# All "send" strings automatically append an '\r' to the string, unless '\c'
+# suppresses this.
+#
+# If an "expect" string is not received during TIMEOUT, the script fails
+# unless an "-altsend-altexpect"-suffix has been appended to the "expect"
+# string. This will then alternatively send the "altsend" string first and
+# then wait for the alternative "expect"-string before giving up.
+
+# Add overrides for the current "expect" string which make the script fail.
+ABORT ERROR
+ABORT 'COMMAND NOT SUPPORT'
+ABORT BUSY
+ABORT VOICE
+ABORT DELAYED
+ABORT 'NO ANSWER'
+ABORT 'NO CARRIER'
+ABORT 'NO DIAL TONE'
+ABORT 'NO DIALTONE'
+
+# Expect nothing and send a no-op command which should emit OK.
+# This will verify that the modem is reacting to commands at all.
+'' AT
+
+# Try to enable echoing if not. Then soft-reset the modem.
+TIMEOUT 3
+'OK-AT E1-OK' 'AT Z'
+TIMEOUT 5
+
+# Ensure the SIM card is ready and unlocked.
+OK 'AT +CPIN?'
+TIMEOUT 1
+READY \c
+
+# Try to display SIM/modem-specific identication command.
+ECHO ON
+'' 'AT $ICMD'
+OK \c
+ECHO OFF
+
+# Leave low-power if applicable.
+'' 'AT +CFUN?'
+TIMEOUT 3
+'+CFUN: 1-AT +CFUN=1\r\d\dAT +CFUN?-+CFUN: 1' \c
+OK \c
+
+# Query APN and change if wrong one.
+TIMEOUT 2
+'' 'AT +CGDCONT?'
+'1,"IP","$APN"-AT +CGDCONT=1,"IP","$APN"-OK' \c
+
+# Dial ISP's access point number.
+'' 'AT DT*99#'
+
+# Wait for "CONNECT", then wait a second and send nothing before script ends.
+TIMEOUT 10
+CONNECT \d\c

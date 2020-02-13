@@ -1,0 +1,61 @@
+#! /bin/sh
+# Version 2019.318
+
+FSTAB_IN=/etc/fstab
+# Copy '!'-prefixed entries as "noauto", otherwise as non-"noauto".
+COPY_ENTRIES='!/boot !/dev !/proc /run /run/lock /run/shm !/sys !/tmp /usr'
+OPT_SEP=','
+
+set -e
+case $1 in
+	prereqs) echo; exit
+esac
+
+. /usr/share/initramfs-tools/hook-functions
+
+FSTAB_OUT=$DESTDIR/$FSTAB_IN
+
+test -e "$FSTAB_OUT"
+test ! -e "$FSTAB_IN" && exit
+
+# Remove "auto" and "noauto" in $opt from within $line then add $auto_opt.
+re_auto() {
+	pfx=${line%"$opt"*}; sfx=${line##*"$opt"}
+	set -f; IFS="$OPT_SEP"; set -- $opt; IFS="$old_ifs"; set +f
+	opt=$auto_opt
+	while test $# != 0
+	do
+		case $1 in
+			auto | noauto) ;;
+			*) opt=$opt${opt:+"$OPT_SEP"}$1
+		esac
+		shift
+	done
+	line=$pfx$opt$sfx
+}
+
+old_ifs=$IFS
+while IFS= read -r line
+do
+	case $line in
+		"" | "#"*) continue
+	esac
+	set -f; set -- $line; set +f
+	mp=$2; opt=$4
+	set -f; set -- $COPY_ENTRIES; set +f
+	while test $# != 0
+	do
+		cmp=$1
+		case $cmp in
+			'!'*) cmp=${cmp#"!"}; auto_opt=noauto;;
+			*) auto_opt=
+		esac
+		case $cmp in
+			"$mp")
+				re_auto
+				printf "%s\n" "$line"
+				break
+		esac
+		shift
+	done
+done < "$FSTAB_IN" >> "$FSTAB_OUT"

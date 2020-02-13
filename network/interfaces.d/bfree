@@ -1,6 +1,6 @@
 # iface <if> <afamily> <method> # Followed by supported statements.
 
-iface ppp0 inet ppp
-	provider 100%
+iface bfree inet ppp
+	provider B.FREE
 	options demand ktune holdoff 1 idle 2700 \
 		active-filter 'not port ntp'

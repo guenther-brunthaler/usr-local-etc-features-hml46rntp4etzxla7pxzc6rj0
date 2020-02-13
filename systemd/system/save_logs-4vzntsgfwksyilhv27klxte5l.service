@@ -1,0 +1,13 @@
+[Unit]
+Description=Save unsaved syslog entries to persistent storage
+DefaultDependencies=no
+Before=sysinit.target systemd-fsck-root.service
+Conflicts=shutdown.target
+
+[Service]
+ExecStop=/etc/cron.daily/save_logs-4vzntsgfwksyilhv27klxte5l
+Type=oneshot
+RemainAfterExit=yes
+
+[Install]
+WantedBy=sysinit.target

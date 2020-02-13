@@ -1,0 +1,55 @@
+#! /bin/sh
+drop_caps=$1; rootmnt=$2; init=$3; shift 3
+
+# What has happened so far:
+#
+# * Encrypted $rootmnt has been mounted (normally read-only)
+# * Mounted /run and /dev have been moved to $rootmnt/
+# * /proc and /sys are still mounted at /.
+
+# First chance to do something.
+test -f /fix0 && . /fix0
+
+# Start a rescue shell if the "istop" argument has been passed to init.
+case " `cat /proc/cmdline` " in
+	*' istop '*) stop=true;;
+	*)
+		if test -e /fix
+		then
+			stop=true
+		else
+			stop=false
+		fi
+esac
+
+case $stop in
+	false) ;;
+	*)
+		echo "Entering a rescue shell for manual fixing things."
+		echo "Exit this shell to switch over to actual system!"
+		t=/dev/tty2
+		if test ! -c $t
+		then
+			mknod -m 0620 $t c 4 2
+			chown 0:5 $t
+		fi
+		setsid sh -c "exec ash < $t > $t 2>& 1"
+esac
+# Chance to setup environment variables for PID 1 or exec into a shell.
+test -f /fix && . /fix
+
+# Unmount everything.
+umount "$rootmnt/dev/pts"
+umount "$rootmnt/dev"
+umount /run
+umount /sys
+umount /proc
+
+# One last chance to do something.
+test -f /fix2 && . /fix2
+
+# Chain to real filesystem
+exec run-init ${drop_caps} ${rootmnt} ${init} "$@" <${rootmnt}/dev/console >${rootmnt}/dev/console 2>&1
+echo "Something went badly wrong in the initramfs."
+echo "Dropping into an interactive shell (do not kill, it's PID # 1)."
+exec /bin/busybox ash

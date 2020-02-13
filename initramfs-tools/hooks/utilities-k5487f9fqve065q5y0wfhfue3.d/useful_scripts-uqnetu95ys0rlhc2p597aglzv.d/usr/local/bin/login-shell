@@ -1,0 +1,8 @@
+#! /bin/sh
+# Exec into a shell with properly set up environment.
+# Gets rid of all that PID # 1 env stuff.
+#
+# Version 2019.318
+r=`ls -d /root-* 2> /dev/null`
+test -d "$r" || r=/root
+exec env -i HOME="$r" TERM=$TERM ash -l

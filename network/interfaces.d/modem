@@ -1,0 +1,6 @@
+# iface <if> <afamily> <method> # Followed by supported statements.
+
+iface modem inet ppp
+	provider 100%
+	options demand ktune holdoff 1 idle 2700 \
+		active-filter 'not port ntp'

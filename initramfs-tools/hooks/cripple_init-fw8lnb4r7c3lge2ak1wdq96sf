@@ -1,0 +1,40 @@
+#! /bin/sh
+# Version 2019.318
+
+PATCH_TARGET=$DESTDIR/init
+
+set -e
+case $1 in
+	prereqs) echo; exit
+esac
+
+. /usr/share/initramfs-tools/hook-functions
+
+test -f "$PATCH_TARGET"
+tmp=$PATCH_TARGET.tmp
+
+replacement() {
+	cat << '.'
+exec /init_finish "$drop_caps" "$rootmnt" "$init" "$@"
+panic "Where is /init_finish???."
+.
+}
+
+ht=`printf '\t:'`; ht=${ht%:}
+while IFS= read -r line
+do
+	case $line in
+		"# Move virtual filesystems"*)
+			replacement; break
+			;;
+		"${ht}panic=*)")
+			line="${ht}xpanic=*)"
+			;;
+		"$ht${ht}panic=\"\${x#panic=}\"")
+			line="$ht${ht}panic=\"\${x#xpanic=}\""
+	esac
+	printf "%s\n" "$line"
+done < "$PATCH_TARGET" > "$tmp"
+
+cat < "$tmp" > "$PATCH_TARGET"
+rm -- "$tmp"

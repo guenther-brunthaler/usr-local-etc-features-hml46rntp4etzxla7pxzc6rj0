@@ -1,0 +1,22 @@
+# Version 2019.349
+ABORT ERROR
+ABORT 'COMMAND NOT SUPPORT'
+ABORT BUSY
+ABORT VOICE
+ABORT DELAYED
+
+# Expect nothing and send a no-op command which should emit OK.
+# This will verify that the modem is reacting to commands at all.
+'' AT
+
+OK 'AT &V'
+
+# Try to enable echoing if not. Then soft-reset the modem.
+TIMEOUT 3
+'OK-AT E1-OK' 'AT Z'
+TIMEOUT 5
+
+# Set the modem to low-power mode.
+OK 'AT $SUSPEND'
+TIMEOUT 3
+OK \c

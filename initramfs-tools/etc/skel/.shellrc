@@ -1,2 +1,3 @@
 #! /bin/false
 alias ps='ps | grep -v \]\$'
+alias joe='busybox vi'
