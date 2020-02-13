@@ -174,7 +174,7 @@ UID_MAX			60000
 # Min/max values for automatic gid selection in groupadd
 #
 GID_MIN			 1000
-GID_MAX			60000
+GID_MAX			 8399
 # System accounts
 #SYS_GID_MIN		  100
 #SYS_GID_MAX		  999

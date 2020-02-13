@@ -1,5 +1,6 @@
 #! /bin/sh
-# Copyright (c) 2018 Guenther Brunthaler. All rights reserved.
+# Version 2020.43
+# Copyright (c) 2018-2020 Guenther Brunthaler. All rights reserved.
 #
 # This script is free software.
 # Distribution is permitted under the terms of the GPLv3.
@@ -16,9 +17,7 @@ case $1 in
 	prereqs) echo; exit
 esac
 
-. /usr/share/initramfs-tools/scripts/functions
-
-log_begin_msg "Installing $locale locale"
+test "$verbose" != n && echo "Installing $locale locale" >& 2
 find -H "$locale_data" \
 | while IFS= read -r fso
 do
@@ -31,4 +30,3 @@ do
 		cp -Pp -- "$fso" "$dest"
 	fi
 done
-log_end_msg

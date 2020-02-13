@@ -16,8 +16,8 @@
 # interface of the bridge as the interface name, assuming the bridge itself
 # will not exist yet during initramfs execution.
 #
-# Version 2018.73
-# Copyright (c) 2018 Guenther Brunthaler. All rights reserved.
+# Version 2020.43
+# Copyright (c) 2018-2020 Guenther Brunthaler. All rights reserved.
 #
 # This script is free software.
 # Distribution is permitted under the terms of the GPLv3.
@@ -32,15 +32,13 @@ case $1 in
 	prereqs) echo "$PREREQS"; exit
 esac
 
-. /usr/share/initramfs-tools/scripts/functions
-
 t=$IFC_CONFIG_TEMPLATE.tmp
 ifquery -l -a --allow=$BOOT_IFC_CLASS > "$t"
 if test "`wc -l < "$t"`" != 1
 then
 	m="Not exactly one network interface has been declared as"
 	m=$m" allow-$BOOT_IFC_CLASS!"
-	log_failure_msg "$m"
+	echo "ERROR: $m" >& 2
 	false || exit
 fi
 
@@ -78,7 +76,7 @@ done
 
 m="The initramfs boot interface will be $NICNAME"
 m=$m" ($IPADDR with netmask $NETMASK and hostname '$HOSTNAME')"
-log_success_msg "$m"
+test "$verbose" != n && echo "$m" >& 2
 
 sed "$rx" < "$IFC_CONFIG_TEMPLATE" > "$t"
 cat < "$t" > "$IFC_CONFIG_TEMPLATE"
