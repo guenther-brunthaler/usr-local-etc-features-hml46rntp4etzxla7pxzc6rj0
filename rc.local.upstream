@@ -11,4 +11,6 @@
 #
 # By default this script does nothing.
 
+[ -d /etc/boot.d ] && run-parts /etc/boot.d
+
 exit 0
