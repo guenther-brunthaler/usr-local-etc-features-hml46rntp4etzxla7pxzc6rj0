@@ -1,13 +1,19 @@
+# Version 2020.54
+
 allow-x-wifi-hotspot hotspot
 
-# $ ifscheme hotspot
-# $ ifup wifilan
+# $ ifup wifilan=hotspot
 # $ gateway_setup -e wifilan
+# ...
+# $ gateway_setup -d wifilan
+# $ ifdown wifilan
 
-iface wifilan-hotspot inet static
+# Qualcomm Atheros AR9285 Wireless Network Adapter (PCI-Express). Requires no
+# special firmware. Driver module is "ath9k.ko".
+iface hotspot inet static
 	pre-up rfkill unblock wlan
 	post-up invoke-rc.d --quiet --force dnsmasq start > /dev/null
-	address 10.246.55.555
+	address 10.246.555.555
 	netmask 255.255.0.0
 	hostapd /etc/hostapd/hostapd.conf
 	pre-down invoke-rc.d --quiet --force dnsmasq stop > /dev/null

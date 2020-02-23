@@ -1,0 +1,13 @@
+# Version 2020.54
+
+rename mac/55:55:55:55:55:55=wifilan
+
+# $ ifup wifilan=wifilan-static
+
+iface wifilan-static inet static
+	address 10.246.55.555
+	netmask 255.255.0.0
+	#gateway 10.246.555.555
+	# dns-* options are implemented by the resolvconf package, if installed
+	dns-nameservers 9.9.9.9
+	dns-search wifi.wlan.emgenxx69lwyn5ctlr4nl64ul.local

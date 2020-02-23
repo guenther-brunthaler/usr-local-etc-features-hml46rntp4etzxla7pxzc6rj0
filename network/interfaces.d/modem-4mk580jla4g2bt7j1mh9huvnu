@@ -1,4 +1,6 @@
-# iface <if> <afamily> <method> # Followed by supported statements.
+# Version 2020.54
+#
+# $ ifup modem
 
 iface modem inet ppp
 	provider 100%

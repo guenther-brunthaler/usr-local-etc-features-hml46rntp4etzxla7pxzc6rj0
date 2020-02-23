@@ -1,0 +1,16 @@
+# Version 2020.54
+#
+# usb0 with static IP address.
+#
+# $ ifup usb0
+
+iface usb0 inet static
+	# thishost.usb.emgenxx69lwyn5ctlr4nl64ul.local
+	address 10.92.555.555
+	netmask 255.255.0.0
+	network 10.92.0.0
+	broadcast 10.92.255.255
+	#gateway 10.92.56.89
+	# dns-* options are implemented by the resolvconf package, if installed
+	dns-nameservers 208.67.222.222 208.67.220.220
+	dns-search usb.emgenxx69lwyn5ctlr4nl64ul.local

@@ -1,0 +1,11 @@
+# Version 2020.54
+#
+# Use this for DHCP connections which need no further setup (such as rfkill).
+# Just specify the device to be used before the "=" in the example below.
+#
+# Use the next line for connecting to the Internet through a USB-cable via
+# some cell phone with USB-tethering enabled at the other end.
+
+# $ ifup usb0=dhcp
+
+iface dhcp inet dhcp

@@ -1,6 +1,6 @@
+# Version: 2020.54
+#
 # The primary network interface
-# Hardware: Intel Corporation 82567LM-3 Gigabit Network Connection (rev 02)
-# Module: e1000e
 
 rename mac/55:55:55:55:55:55=ethlan
 

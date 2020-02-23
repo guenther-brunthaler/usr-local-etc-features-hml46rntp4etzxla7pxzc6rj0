@@ -1,3 +1,6 @@
+# Version 2020.54
+#
 # The loopback network interface
+
 auto lo
 iface lo inet loopback
