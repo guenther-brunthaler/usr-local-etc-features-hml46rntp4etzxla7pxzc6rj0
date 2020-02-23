@@ -1,0 +1,8 @@
+# Incrementally update the package list files used by "apt-get update".
+#
+# Only makes sense if the network bandwidth is limites, because applying
+# package list deltas is slower than just downloading the new files.
+#
+# Version 2020.54
+
+APT::Acquire::Pdiffs "1";

@@ -6,7 +6,7 @@
 #
 # Command line options to pass to dropbear(8)
 #
-DROPBEAR_OPTIONS='-sK 600 -p 49151'
+#DROPBEAR_OPTIONS=
 
 #
 # On local (non-NFS) mounts, interfaces matching this pattern are
@@ -15,4 +15,4 @@ DROPBEAR_OPTIONS='-sK 600 -p 49151'
 # The special value 'none' keeps all interfaces up and preserves routing
 # tables and addresses.
 #
-IFDOWN=ethlan
+#IFDOWN=*

@@ -1,0 +1,38 @@
+#! /bin/sh
+# Version 2020.46
+# Copyright (c) 2018-2020 Guenther Brunthaler. All rights reserved.
+#
+# This script is free software.
+# Distribution is permitted under the terms of the GPLv3.
+
+hook_dir=/etc/initramfs-tools/hooks
+self_uuid=1b6yezwr6zqi7en1de24r8x4x
+
+set -e
+
+# Hooks containing any of those triggers shall be run before THIS hook script.
+triggers() {
+	cat <<- ===
+		add_modules_from_file
+		copy_modules_dir
+		force_load
+		manual_add_modules
+===
+}
+
+dump_prereqs() {
+	rx=`triggers | paste -d '|' -s`
+	rx='(^|[[:space:]])('$rx')([[:space:]]|$)'
+	grep -El "$rx" "$hook_dir"/* 2> /dev/null \
+	| sed 's|.*/||' \
+	| grep -v $self_uuid
+}
+
+case $1 in
+	prereqs) dump_prereqs | paste -d ' ' -s; exit
+esac
+
+kmods=$DESTDIR/lib/modules
+test -d "$kmods"
+
+find -H "$kmods" -name '*.ko' -exec strip -s {} +

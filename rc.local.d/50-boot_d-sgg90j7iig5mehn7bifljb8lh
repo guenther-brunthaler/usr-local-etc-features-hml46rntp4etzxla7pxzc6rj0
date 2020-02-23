@@ -1,0 +1,7 @@
+#! /bin/sh
+# Version 2020.53
+set -e
+if test -d /etc/boot.d
+then
+	run-parts /etc/boot.d
+fi

@@ -1,5 +1,6 @@
-# We don't want to keep the archives twice, so delete as much as
-# possible. All archives are cached by apt-cacher locally anyway.
+# Don't automatically remove any deb files except outdated ones.
+#
+# Version 2020.54
 
 #  - Enable the update/upgrade script (0=disable) Note that this
 #    will effect the settings in "10periodic" too.

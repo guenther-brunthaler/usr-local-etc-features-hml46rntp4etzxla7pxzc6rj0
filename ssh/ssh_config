@@ -20,8 +20,6 @@ Host *
 #   ForwardAgent no
 #   ForwardX11 no
 #   ForwardX11Trusted yes
-#   RhostsRSAAuthentication no
-#   RSAAuthentication yes
 #   PasswordAuthentication yes
 #   HostbasedAuthentication no
 #   GSSAPIAuthentication no
@@ -33,20 +31,14 @@ Host *
 #   AddressFamily any
 #   ConnectTimeout 0
 #   StrictHostKeyChecking ask
-#   IdentityFile ~/.ssh/identity
 #   IdentityFile ~/.ssh/id_rsa
 #   IdentityFile ~/.ssh/id_dsa
+#   IdentityFile ~/.ssh/id_ecdsa
+#   IdentityFile ~/.ssh/id_ed25519
 #   Port 22
-#   Protocol 2,1
-#   Cipher 3des
-#   Ciphers aes128-ctr,aes192-ctr,aes256-ctr,arcfour256,arcfour128,aes128-cbc,3des-cbc
-#   MACs hmac-md5,hmac-sha1,umac-64@openssh.com,hmac-ripemd160
-Protocol 2
-SendEnv LANG LC_*
-Ciphers blowfish-cbc,3des-cbc
-HostKeyAlgorithms ssh-rsa
-MACs hmac-ripemd160,hmac-sha1
-KexAlgorithms diffie-hellman-group-exchange-sha256,diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha1
+#   Protocol 2
+Ciphers chacha20-poly1305@openssh.com,3des-cbc,aes256-gcm@openssh.com,aes256-ctr
+MACs hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com,hmac-sha2-256,hmac-sha2-512,hmac-sha1
 #   EscapeChar ~
 #   Tunnel no
 #   TunnelDevice any:any
@@ -55,6 +47,9 @@ KexAlgorithms diffie-hellman-group-exchange-sha256,diffie-hellman-group14-sha1,d
 #   ProxyCommand ssh -q -W %h:%p gateway.example.com
 #   RekeyLimit 1G 1h
     SendEnv LANG LC_*
-    HashKnownHosts yes
-    GSSAPIAuthentication yes
-    GSSAPIDelegateCredentials no
+    HashKnownHosts no
+    GSSAPIAuthentication no
+
+# Non-default options that have been added to the config file
+KexAlgorithms diffie-hellman-group-exchange-sha256
+HostKeyAlgorithms ssh-rsa-cert-v01@openssh.com,ssh-rsa

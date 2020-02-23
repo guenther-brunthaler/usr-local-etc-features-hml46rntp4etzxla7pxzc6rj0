@@ -1,0 +1,16 @@
+# Disable "Competition Pro" joystick from being used by default as a normal
+# input pointer device. This is useful with game emulators such as VICE that
+# get the input from the joystick directly, rather than the joystick
+# controlling the X11 mouse cursor.
+#
+# Alternative to this Xorg snippet:
+# $ CPRO=`xinput --list --id-only 'MOSIC      SPEED-LINK Competition Pro '`
+# $ test "$CPRO" || echo 'Joystick not found!' >& 2
+# $ xinput --set-prop $CPRO 'Generate Mouse Events' 0
+# $ xinput --set-prop $CPRO 'Generate Key Events' 0
+
+Section "InputClass"
+	Identifier "Competition Pro Joystick"
+	MatchProduct "MOSIC      SPEED-LINK Competition Pro "
+	Option "Floating" "True"
+EndSection

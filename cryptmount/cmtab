@@ -1,0 +1,37 @@
+# /etc/cryptmount/cmtab - encrypted filesystem information for cryptmount
+# try 'man 8 cryptmount' or 'man 5 cmtab' for more details
+
+_DEFAULTS_ {
+	passwdretries=4
+}
+
+level1_dec {
+	dev=/dev/vg_thishost/level1-enc
+	flags=user,nofsck,nomkswap
+	dir=/home/mnt/level1
+	fstype=ext4
+	fsckoptions=-f;-y
+	keyformat=luks
+	mountoptions=noatime,rw,exec,nosuid,nodev
+}
+
+level2_dec {
+	dev=/home/mnt/level1/user/root/.local/share/cryptmount/level2_enc.img
+	flags=user,nofsck,nomkswap
+	loop=/dev/loop7
+	dir=/home/mnt/level2
+	fstype=ext4
+	fsckoptions=-f;-y
+	keyformat=luks
+	mountoptions=noatime,rw,exec,nosuid,nodev
+}
+
+#swap_dec {
+#	dev=/dev/vg_thishost/swap_enc
+#	flags=nouser,mkswap
+#	fstype=swap
+#	cipher=des3_ede-cbc-plain
+#	keyformat=raw
+#	keyfile=/dev/random
+#	keymaxlen=24
+#}

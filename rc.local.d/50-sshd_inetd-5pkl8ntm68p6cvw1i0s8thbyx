@@ -1,0 +1,8 @@
+#! /bin/sh
+# Version 2020.53
+set -e
+d=/var/run/sshd
+if test ! -d "$d"
+then
+	mkdir "$d"
+fi

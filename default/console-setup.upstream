@@ -6,7 +6,7 @@ ACTIVE_CONSOLES="/dev/tty[1-6]"
 
 CHARMAP="UTF-8"
 
-CODESET="Lat15"
+CODESET="guess"
 FONTFACE="Fixed"
 FONTSIZE="8x16"
 

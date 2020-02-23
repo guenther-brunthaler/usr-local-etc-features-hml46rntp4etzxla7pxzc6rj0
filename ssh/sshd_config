@@ -1,4 +1,4 @@
-#	$OpenBSD: sshd_config,v 1.100 2016/08/15 12:32:04 naddy Exp $
+#	$OpenBSD: sshd_config,v 1.103 2018/04/09 20:41:22 tj Exp $
 
 # This is the sshd server system-wide configuration file.  See
 # sshd_config(5) for more information.
@@ -93,8 +93,6 @@ X11Forwarding yes
 PrintMotd no
 #PrintLastLog yes
 #TCPKeepAlive yes
-#UseLogin no
-#UsePrivilegeSeparation sandbox
 #PermitUserEnvironment no
 #Compression delayed
 ClientAliveInterval 1800
@@ -102,7 +100,7 @@ ClientAliveInterval 1800
 #UseDNS no
 #PidFile /var/run/sshd.pid
 #MaxStartups 10:30:100
-#PermitTunnel no
+PermitTunnel yes
 #ChrootDirectory none
 #VersionAddendum none
 
@@ -115,15 +113,15 @@ AcceptEnv LANG LC_*
 # override default of no subsystems
 Subsystem	sftp	/usr/lib/openssh/sftp-server
 
-# Non-default options that have been added to the config file
-AllowGroups sshlogin
-Ciphers blowfish-cbc
-MACs hmac-ripemd160,hmac-sha1
-KexAlgorithms diffie-hellman-group-exchange-sha256
-
 # Example of overriding settings on a per-user basis
 #Match User anoncvs
 #	X11Forwarding no
 #	AllowTcpForwarding no
 #	PermitTTY no
 #	ForceCommand cvs server
+
+# Non-default options that have been added to the config file
+AllowGroups sshlogin
+Ciphers chacha20-poly1305@openssh.com,3des-cbc,aes256-gcm@openssh.com,aes256-ctr
+MACs hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com,hmac-sha2-256,hmac-sha2-512
+KexAlgorithms diffie-hellman-group-exchange-sha256

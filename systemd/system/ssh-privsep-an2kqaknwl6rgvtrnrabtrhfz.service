@@ -5,7 +5,7 @@ Before=inetd.service
 [Service]
 Type=oneshot
 RemainAfterExit=yes
-ExecStart=/etc/rc.local.d/55sshd_inetd
+ExecStart=/etc/rc.local.d/50-sshd_inetd-5pkl8ntm68p6cvw1i0s8thbyx
 
 [Install]
 WantedBy=inetd.service

@@ -3,6 +3,16 @@ This is a maintenance directory for migrating changes.
 It is *not* supposed to be copied over to a real /etc!
 
 It just contains scripts and other documents for helping with synchronizing
-the available changes between the etc/ and tpl/ directories, which is where5~
-they are supposed to have been checked out from git (in a temporary common
-base directory).
+the available changes between the /etc/ and /etc/$TPL_SYMLINK/ directories.
+
+$TPL_SYMLINK is a symlink with an arbitrary name to where the repository
+containing THIS file you are reading has been checked out. Alternatively,
+you can also check the repository out there directly as a subdirectory
+rather than using a symlink.
+
+This might not be the best idea, however, because the etc-templates repository
+might be much larger than /etc itself.
+
+Scripts contained in /etc/$TPL_SYMLINK/maint are not meant to be part of the
+files copied to /etc, but rather contains scripts for helping the
+administrator perform the synchronization.

@@ -1,4 +1,5 @@
-#! /bin/sh -e
+#! /bin/sh
+# Version 2020.53
 #
 # rc.local
 #
@@ -11,7 +12,8 @@
 #
 # By default this script does nothing.
 
-d=/etc/rc.local.d
-# Run all executables in subdirectory $d in lexicographic order.
-test ! -d "$d" && exit
-exec /bin/run-parts "$d"
+set -e
+if test -d /etc/rc.local.d
+then
+	run-parts /etc/rc.local.d
+fi

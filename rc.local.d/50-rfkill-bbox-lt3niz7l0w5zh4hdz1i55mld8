@@ -1,3 +1,5 @@
 #! /bin/sh
+# Version 2020.53
+set -e
 export PATH="$PATH:/usr/local/sbin:/usr/local/bin"
 exec busybox-pbyqxzl1ktqlk3fjm3arlrclg rfkill block all

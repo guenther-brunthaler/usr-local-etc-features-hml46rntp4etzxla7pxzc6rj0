@@ -1,0 +1,8 @@
+# Use debdeltas for upgrading if possible
+#
+# Only makes sense if debdelta servers are actually available for the
+# distribution used by the local installation.
+#
+# Version 2020.54
+
+APT::Periodic::Download-Upgradeable-Packages-Debdelta "1";

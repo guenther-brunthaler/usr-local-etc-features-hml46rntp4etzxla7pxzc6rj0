@@ -1,0 +1,16 @@
+# Disable "dangerous" automatic actions taken by the apt cron job.
+#
+# It disables actions which will eat up Internet-access data volume or will
+# prevent debdelta from working effectively.
+#
+# Running "apt-get autoclean" must only be done *after* "debdelta-upgrade",
+# because the outdated deb files might be needed as basis for applying
+# delta-patches to.
+#
+# Version 2020.54
+
+APT::Periodic {
+	Update-Package-Lists "0";
+	Download-Upgradeable-Packages "0";
+	AutocleanInterval "0";
+};
