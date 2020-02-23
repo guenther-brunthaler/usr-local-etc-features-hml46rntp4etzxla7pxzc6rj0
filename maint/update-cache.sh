@@ -1,4 +1,4 @@
-# Version 2020.54
+# Version 2020.54.1
 #
 # Refresh a cache of local and template upstream diffs. For files present
 # locally and in the template but whithout upstream diffs, diffs between
@@ -109,4 +109,44 @@ do
 	else
 		may_update "$f" "$t" "$c".lt.diff
 	fi
+done
+
+# Delete $1 unless $2 (as well as $3 if present) also exists. $1 must exist.
+delete_unless() {
+	if test -e "$2"
+	then
+		test -z "$3" && return
+		test -e "$3" && return
+	fi
+	echo "Deleting orphaned $1" >& 2
+	rm -- "$1"
+}
+
+find -H "$cachedir" -type f \
+| while IFS= read -r c
+do
+	f=${c#"$cachedir/"}
+	case $c in
+		*.ll.diff)
+			delete_unless "$c" \
+				"${f%.ll.diff}" "${f%.ll.diff}.upstream"
+			;;
+		*.tt.diff)
+			delete_unless "$c" \
+				"$tpl/${f%.tt.diff}" \
+				"$tpl/${f%.tt.diff}.upstream"
+			;;
+		*.lt.diff)
+			delete_unless "$c" \
+				"${f%.lt.diff}" "$tpl/${f%.lt.diff}"
+			;;
+		*.ck) ;;
+		*) echo "Unexpected cache file '$f'!" >& 2; false || exit
+	esac
+done
+
+find -H "$cachedir" -name '*.ck' -type f \
+| while IFS= read -r c
+do
+	delete_unless "$c" "${c%.*}.diff"
 done
