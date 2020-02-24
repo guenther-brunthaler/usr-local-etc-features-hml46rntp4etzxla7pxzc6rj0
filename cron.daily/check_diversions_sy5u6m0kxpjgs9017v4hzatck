@@ -1,5 +1,5 @@
 #! /bin/sh
-# Version 2020.51
+# Version 2020.55
 save_file=/etc/site-6n580p79r0flmgyv0feaxchll/local_dpkg_diversions.txt
 
 set -e
@@ -45,6 +45,7 @@ do
 done
 shift `expr $OPTIND - 1 || :`
 
+test -z "${LC_ALL+must_not_be_set}" || exit
 test $# = 0
 test -f "$save_file"
 exec 9< "$save_file"; flock 9; # Will be released by script termination.
