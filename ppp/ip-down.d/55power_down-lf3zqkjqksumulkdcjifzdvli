@@ -1,0 +1,5 @@
+#! /bin/sh -e
+exit
+
+# Does not work because of tty control problems:
+exec /usr/sbin/chat -vEf /etc/ppp/chat/power_down > "$DEVICE" < "$DEVICE"

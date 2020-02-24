@@ -1,0 +1,18 @@
+#! /bin/sh -e
+echo "`date`: $0 $*" >> /tmp/shit
+
+SAVED_CONFIG=/var/run/misc/ppp_config_gv9kxy687d1ccqdi6k2y1jy4r
+
+PATH=/sbin:/usr/sbin:/bin:/usr/bin
+export PATH
+
+cdir=`dirname "$SAVED_CONFIG"`
+test -d "$cdir" || mkdir -p "$cdir"
+(
+	flock 9 || exit
+	cat <<- . > "$SAVED_CONFIG"
+		SAVED="`LC_ALL=C date`"
+		MODEM="$DEVICE"
+		INET_IFC="$IFNAME"
+.
+) 9>> "$SAVED_CONFIG"
