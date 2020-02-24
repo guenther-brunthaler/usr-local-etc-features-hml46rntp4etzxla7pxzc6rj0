@@ -1,4 +1,4 @@
-# Version 2020.54
+# Version 2020.55
 #
 # Report differences between which exist in the local /etc as well as in the
 # shared template for /etc.
@@ -109,6 +109,17 @@ upatch() {
 		false || exit
 	}
 }
+
+any=false
+for f in "$fignore" "$dignore"
+do
+	LC_COLLATE=C sort -u < "$f" > "$TD"/local
+	cmp -s -- "$f" "$TD"/local && continue
+	echo "Re-sorting $f" >& 2
+	cat < "$TD"/local > "$f"
+	any=true
+done
+$any && echo
 
 "$@" | cut -d / -f 2- \
 | LC_COLLATE=C sort | LC_COLLATE=C comm -23 - "$fignore" \

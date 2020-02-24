@@ -9,7 +9,7 @@
 # Short-Description: Busybox-based klog and syslog daemon
 ### END INIT INFO
 
-NAME=syslog
+NAME=syslog-ring
 DESC="syslog and klog servers"
 DEFAULTSFILE="/etc/default/$NAME"
 
@@ -31,7 +31,7 @@ SYSLOGD_BUFFER_MB=1536
 # Add arbitrary additional options to BusyBox's syslogd. This can be used, for
 # instance, to immediately send a copy of syslog entries to an external syslog
 # server using the -R or -L options.
-SYSLOGD_ADDITIONAL_OPTIONS=-D
+SYSLOGD_ADDITIONAL_OPTIONS="-D -t"
 SYSLOGD_PIDFILE=/run/syslogd.pid
 KLOGD_OPTIONS=""
 KLOGD_PIDFILE=/run/klogd.pid
