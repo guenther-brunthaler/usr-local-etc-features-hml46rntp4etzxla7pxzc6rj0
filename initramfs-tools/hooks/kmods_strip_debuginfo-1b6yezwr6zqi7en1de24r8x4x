@@ -1,5 +1,5 @@
 #! /bin/sh
-# Version 2020.46
+# Version 2020.55
 # Copyright (c) 2018-2020 Guenther Brunthaler. All rights reserved.
 #
 # This script is free software.
@@ -35,4 +35,4 @@ esac
 kmods=$DESTDIR/lib/modules
 test -d "$kmods"
 
-find -H "$kmods" -name '*.ko' -exec strip -s {} +
+find -H "$kmods" -name '*.ko' -exec strip -g {} +
