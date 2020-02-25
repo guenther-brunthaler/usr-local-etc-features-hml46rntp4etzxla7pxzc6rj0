@@ -1,4 +1,5 @@
 #! /bin/sh
+# Version 2020.56
 tagfile_no_bootloader=/boot/bootcode.bin
 
 text() {
@@ -56,7 +57,7 @@ Anweisungen zum Abschalten des Computers:
   Falls Sie zu langsam waren um den Countdown noch abbrechen zu k+APY-nnen und
   Sie bereits nach dem Passwort f+APw-r die Festplatten-Entschl+APw-sselung
   gefragt werden, dr+APw-cken Sie
-  +AFs-Strg+AF0AKwBb-Alt+AF0AKwBb-SyReq+AF0AKwBb-r+AF0 f+APw-r einen
+  +AFs-Strg+AF0AKwBb-Alt+AF0AKwBb-S-Abf+AF0AKwBb-r+AF0 f+APw-r einen
   sofortigen Neustart, nach welchem der Boot-Manager erneut sein Men+APw
   anzeigt und ihnen die Chance auf einen neuen Versuch zum Abbruch des
   Countdowns bietet.
@@ -73,7 +74,7 @@ Anweisungen zum Abschalten des Computers:
   Warten Sie bis der Neustart abgeschlossen wurde und der Computer nach dem
   Passwort f+APw-r die Festplatten-Entschl+APw-sselung fragt. Anstatt das
   Passwort einzugeben, dr+APw-cken Sie jedoch
-  +AFs-Strg+AF0AKwBb-Alt+AF0AKwBb-SyReq+AF0AKwBb-o+AF0 um den Computer
+  +AFs-Strg+AF0AKwBb-Alt+AF0AKwBb-S-Abf+AF0AKwBb-o+AF0 um den Computer
   abzuschalten.
 EOF
 }
