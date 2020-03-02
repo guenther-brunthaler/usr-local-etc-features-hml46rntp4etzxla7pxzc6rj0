@@ -1,0 +1,13 @@
+/sbin/mkfs.nilfs2
+/sbin/mount.nilfs2
+/sbin/nilfs_cleanerd
+/sbin/umount.nilfs2
+/usr/bin/chcp
+/usr/bin/dumpseg
+/usr/bin/lscp
+/usr/bin/lssu
+/usr/bin/mkcp
+/usr/bin/rmcp
+/usr/sbin/nilfs-clean
+/usr/sbin/nilfs-resize
+/usr/sbin/nilfs-tune

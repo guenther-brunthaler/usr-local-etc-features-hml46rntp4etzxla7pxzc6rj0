@@ -1,0 +1,15 @@
+127.0.0.1	localhost
+# === start of emgenxx69lwyn5ctlr4nl64ul.local similar block (sort -k2) ===
+8.8.8.8		google-public-dns-a.google.com
+8.8.4.4		google-public-dns-b.google.com
+194.24.128.100	ns1.orange.at
+81.3.216.100	ns2.orange.at
+208.67.222.222	resolver1.opendns.com
+208.67.220.220	resolver2.opendns.com
+194.24.158.1	vie-lim-ge-1-2.onenet.at
+# === end of emgenxx69lwyn5ctlr4nl64ul.local similar block (sort -k2) ===
+::1		localhost ip6-localhost ip6-loopback
+fe00::0		ip6-localnet
+ff00::0		ip6-mcastprefix
+ff02::1		ip6-allnodes
+ff02::2		ip6-allrouters

@@ -1,0 +1,20 @@
+#! /bin/sh
+# Version 2019.358
+# Copyright (c) 2018-2019 Guenther Brunthaler. All rights reserved.
+#
+# This script is free software.
+# Distribution is permitted under the terms of the GPLv3.
+
+# Install GNU tar, which (other than BusyBox tar) supports also EAs and ACLs,
+# which is necessary for copying modern filesystem contents and its metadata
+# completely.
+
+set -e
+
+case $1 in
+	prereqs) echo; exit
+esac
+
+. /usr/share/initramfs-tools/hook-functions
+
+manual_add_modules nilfs2
