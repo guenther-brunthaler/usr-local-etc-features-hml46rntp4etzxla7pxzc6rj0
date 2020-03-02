@@ -7,5 +7,5 @@ me=`readlink -f -- "$0"` \
 && okey=`stat -c %i+%Z -- "$ofile"` \
 && ukeyloc=/var/lib/diversion-patches-5cj2dtd975yp5yah4ku3ll4ia/$me \
 && { read ukey < "$ukeyloc" && test x"$ukey" = x"$okey"; } 2> /dev/null \
-|| exec /etc/libexec/update-patch "$0" "$ofile" "$@"
+|| exec /etc/libexec/update-patch-5cj2dtd975yp5yah4ku3ll4ia "$0" "$ofile" "$@"
 unset me ofile_ext ofile okey ukeyloc ukey

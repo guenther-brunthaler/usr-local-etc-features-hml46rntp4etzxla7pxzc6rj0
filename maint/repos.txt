@@ -1,0 +1,10 @@
+/usr/local/bin/xworld https://github.com/guenther-brunthaler/usr-local-bin-xworld-jv3gwuidf2ezyr5vbqavqtxyh.git
+/usr/local/bin/xworld_debian https://github.com/guenther-brunthaler/usr-local-bin-xworld_debian-mwkvzw1aut5wtrn8qj00r3n20.git
+/usr/local/bin/xworld_raspbian https://github.com/guenther-brunthaler/usr-local-bin-xworld_raspbian-l3nayn4063rcnis8dcr7xa48g.git
+/usr/local/etc/features https://github.com/guenther-brunthaler/usr-local-etc-features-hml46rntp4etzxla7pxzc6rj0.git
+/usr/local/etc/shellrc https://github.com/guenther-brunthaler/shellrc-raxjyvp9gv2krg9ltyrqyvxuf.git
+/usr/local/libexec/xworld https://github.com/guenther-brunthaler/usr-local-libexec-xworld-qxmubuysqa30u0q0iia8wuk90.git
+/usr/local/libexec/xworld_debian https://github.com/guenther-brunthaler/usr-local-libexec-xworld_debian-1grttl7suj3lu607wqm792a9m.git
+/usr/local/sbin/xworld https://github.com/guenther-brunthaler/usr-local-sbin-xworld-kc9tlsxdgsgaaydrhzc10qr7p.git
+/usr/local/sbin/xworld_debian https://github.com/guenther-brunthaler/usr-local-sbin-xworld_debian-i7plqrb7887azjcnxws0tsve0.git
+/usr/local/sbin/xworld_raspbian https://github.com/guenther-brunthaler/usr-local-sbin-xworld_raspbian-kfxvie4bshkb2va3n8jj2sj63.git

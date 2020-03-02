@@ -1,7 +1,7 @@
 #! /bin/sh
 # This script will be called by patched scripts as
 #
-# $ exec /etc/libexec/update-patch "$0" "$ofile" "$@"
+# $ exec /etc/libexec/update-patch-5cj2dtd975yp5yah4ku3ll4ia "$0" "$ofile" "$@"
 #
 # where
 #
@@ -14,11 +14,17 @@
 # * Apply patch $PATCHES_BASE/$0.patch (see below).
 # * Write result of "stat -c %i+%Z $ofile" to $UPDATE_KEYS/$0 (see below).
 # * Re-exec "$0" "$@".
+#
+# Version 2020.62
+# Copyright (c) 2020 Guenther Brunthaler. All rights reserved.
+#
+# This script is free software.
+# Distribution is permitted under the terms of the GPLv3.
 
-# Keep the following values in sync with ./update-patch-helper!
+# Keep the following values in sync with ./update-patch-helper-5cj2dtd975yp5yah4ku3ll4ia!
 HYPE_NAME=diversion-patches
 UUID=5cj2dtd975yp5yah4ku3ll4ia
-PATCHES_REL_BASE=../$HYPE_NAME.d
+PATCHES_REL_BASE=../$HYPE_NAME-$UUID
 UPDATE_KEYS=/var/lib/$HYPE_NAME-$UUID
 
 set -e

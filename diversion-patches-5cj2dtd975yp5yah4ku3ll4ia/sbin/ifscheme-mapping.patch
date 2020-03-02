@@ -5,7 +5,7 @@
  # If the mapping contains some "map" statements, we get them from stdin.
  
 -SCHEME=/etc/network/run/scheme
-+. /etc/libexec/update-patch-helper
++. /etc/libexec/update-patch-helper-5cj2dtd975yp5yah4ku3ll4ia
 +SCHEME=/var/run/network/scheme
  
  # Take care of users calling this program directly.
