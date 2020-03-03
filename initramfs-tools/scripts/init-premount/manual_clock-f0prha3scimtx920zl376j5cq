@@ -1,0 +1,75 @@
+#! /bin/sh
+# Manually set the system clock.
+#
+# Version 2020.62
+#
+# Copyright (c) 2018-2020 Guenther Brunthaler. All rights reserved.
+# 
+# This shell snippet is free software.
+# Distribution is permitted under the terms of the GPLv3.
+
+TAG_FILE=/date_set
+
+set -e
+case $1 in
+	prereqs) echo; exit
+esac
+
+test $$ = 1
+ask4sth() {
+	local dval nval dp
+	eval dval=\$$1
+	nval=$dval
+	if test "$dval"
+	then
+		dp=" ($dval)"
+	else
+		dp=
+	fi
+	while :
+	do
+		printf %s "$2$dp? "
+		read nval \
+		&& test "$nval" || nval=$dval \
+		&& expr x"$nval" : x"${3#^}" > /dev/null \
+		&& break
+		echo
+		echo "Invalid input '$nval':"
+		echo "Needs to match the regex"
+		printf '%s\n' "$3"
+		echo
+	done
+	eval $1=\$nval
+}
+
+sx='s/\(....\)\(..\)\(..\)\(..\)\(..\)/\1-\2-\3 \4:\5/'
+
+while :
+do
+	test -e "$TAG_FILE" && exit
+	echo
+	echo "You need to set a date (using the local time zone)!"
+	ask4sth d YYYYMMDD '^2[0-9]\{3\}[0-1][0-9][0-3][0-9]$'
+	ask4sth t HHMM '^[0-2][0-9][0-5][0-9]$'
+	echo
+	dt=`echo "$d$t" | sed "$sx"`
+	echo "Set date/time to $dt."
+	r=Y
+	ask4sth r "Is this correct" '^[YyNnJj]'
+	case $r in
+		[Nn]) ;;
+		*) break
+	esac
+	echo 'Trying again.'
+done
+
+date -s "$dt" || {
+	echo
+	echo "Could not set date/time to $dt!"
+	echo
+	echo "Do it yourself, then enter 'exit' to continue."
+	ash
+	echo
+	echo "Assuming you have set the date/time correctly."
+	echo "Continuing boot sequence."
+}
