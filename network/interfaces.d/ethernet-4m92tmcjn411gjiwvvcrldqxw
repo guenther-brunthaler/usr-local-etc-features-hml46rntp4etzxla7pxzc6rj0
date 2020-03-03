@@ -1,14 +1,14 @@
-# Version: 2020.54
+# Version: 2020.63
 #
 # The primary network interface
 
-rename mac/55:55:55:55:55:55=ethlan
+rename mac/55:55:55:55:55:55=ethernet
 
-allow-hotplug ethlan
-allow-primary_boot ethlan
-auto ethlan
+allow-hotplug ethernet
+allow-primary_boot ethernet
+auto ethernet
 
-iface ethlan inet static
+iface ethernet inet static
 	address 10.157.55.555
 	netmask 255.255.0.0
 	#gateway 10.157.555.555

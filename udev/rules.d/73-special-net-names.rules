@@ -1,0 +1,2 @@
+SUBSYSTEM=="net", ACTION=="add", DRIVERS=="?*", ATTR{address}=="11:22:33:44:55:66", ATTR{dev_id}=="0x0", ATTR{type}=="1", KERNEL=="wlan*", NAME="wifi"
+SUBSYSTEM=="net", ACTION=="add", DRIVERS=="?*", ATTR{address}=="77:88:99:aa:bb:cc", ATTR{dev_id}=="0x0", ATTR{type}=="1", KERNEL=="eth*", NAME="ethernet"

@@ -1,7 +1,7 @@
 #! /bin/sh
 # Manually set the system clock.
 #
-# Version 2020.62
+# Version 2020.63.1
 #
 # Copyright (c) 2018-2020 Guenther Brunthaler. All rights reserved.
 # 
@@ -9,13 +9,13 @@
 # Distribution is permitted under the terms of the GPLv3.
 
 TAG_FILE=/date_set
+PREREQS='dropbear'
 
 set -e
 case $1 in
-	prereqs) echo; exit
+	prereqs) echo "$PREREQS"; exit
 esac
 
-test $$ = 1
 ask4sth() {
 	local dval nval dp
 	eval dval=\$$1
@@ -63,7 +63,10 @@ do
 	echo 'Trying again.'
 done
 
-date -s "$dt" || {
+if date -s "$dt"
+then
+	> "$TAG_FILE"
+else
 	echo
 	echo "Could not set date/time to $dt!"
 	echo
@@ -72,4 +75,4 @@ date -s "$dt" || {
 	echo
 	echo "Assuming you have set the date/time correctly."
 	echo "Continuing boot sequence."
-}
+fi

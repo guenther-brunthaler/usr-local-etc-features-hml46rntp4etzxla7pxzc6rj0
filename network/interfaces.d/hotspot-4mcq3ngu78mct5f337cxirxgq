@@ -2,11 +2,11 @@
 
 allow-x-wifi-hotspot hotspot
 
-# $ ifup wifilan=hotspot
-# $ gateway_setup -e wifilan
+# $ ifup wifi=hotspot
+# $ gateway_setup -e wifi
 # ...
-# $ gateway_setup -d wifilan
-# $ ifdown wifilan
+# $ gateway_setup -d wifi
+# $ ifdown wifi=hotspot
 
 # Qualcomm Atheros AR9285 Wireless Network Adapter (PCI-Express). Requires no
 # special firmware. Driver module is "ath9k.ko".

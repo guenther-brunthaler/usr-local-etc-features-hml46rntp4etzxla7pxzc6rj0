@@ -1,10 +1,10 @@
-# Version 2020.54
+# Version 2020.63
 
-rename mac/55:55:55:55:55:55=wifilan
+rename mac/55:55:55:55:55:55=wifi
 
-# $ ifup wifilan=wifilan-static
+# $ ifup wifi=wifi-static
 
-iface wifilan-static inet static
+iface wifi-static inet static
 	address 10.246.55.555
 	netmask 255.255.0.0
 	#gateway 10.246.555.555
