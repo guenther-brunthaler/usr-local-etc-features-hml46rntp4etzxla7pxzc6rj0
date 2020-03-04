@@ -1,23 +1,153 @@
 #! /bin/sh
-# Manually set the system clock.
+# Let the user of the current interactive shell set the system clock via
+# manual entry of the current date and time, but only if the current system
+# time is not yet valid.
 #
-# Version 2020.63.1
+# Check every couple of seconds whether a valid system time has been set by
+# some external mechanism (such as NTP or by running another instance of this
+# script in an SSH session) while waiting for the user's interactive entry of
+# date/time, and abort interactive entry in this case.
+#
+# The system time is assumed to be valid if it is later than the THIS script's
+# time of last modification.
+#
+# Version 2020.64
 #
 # Copyright (c) 2018-2020 Guenther Brunthaler. All rights reserved.
-# 
-# This shell snippet is free software.
+#
+# This script is free software.
 # Distribution is permitted under the terms of the GPLv3.
 
-TAG_FILE=/date_set
+CHECK_INTERVAL_SECS=3
 PREREQS='dropbear'
+CLOCK_EMULATION_FILE= # For debugging only, otherwise empty.
 
 set -e
 case $1 in
 	prereqs) echo "$PREREQS"; exit
 esac
 
+date_wrapper() {
+	case $CLOCK_EMULATION_FILE in
+		'') date ${1+"$@"} && return || return
+	esac
+	test $# = 1
+	# Debugging-mode only: Uses "local" and GNU extensions of "date".
+	local dt
+	if test -f "$CLOCK_EMULATION_FILE"
+	then
+		read dt < "$CLOCK_EMULATION_FILE"
+	else
+		dt=0
+	fi
+	case $1 in
+		+*) date -d "@$dt" "$1"; return;;
+	esac
+	dt='s/\(..\)\(..\)\(..\)\(..\)\(....\)/\5-\1-\2 \3:\4/'
+	dt=`echo $1 | sed "$dt"`
+	date -d "$dt" +%s > "$CLOCK_EMULATION_FILE"
+}
+
+# Output certain formatted metadata of all files passed as remaining arguments
+# using a format string passed as the first argument.
+#
+# This function should work without any changes on all POSIX-compliant
+# operating systems.
+#
+# If symlinks are passed, the metadata of the referenced actual files will be
+# displayed instead.
+#
+# The format string can contain literal shell variable references which will
+# be interpolated by the shell.
+#
+# The following shell variables may be referenced by the format string:
+#
+# $pathname: the pathname to which the metadata belongs
+# $sym_mode: first column of "ls -l" output, containing that 'rwx' stuff
+# $links: number of hard links
+# $uid: numeric user ID
+# $gid: numeric group ID
+# $bytes: file size in bytes
+# $minute: minute 00-59 of $pathname's last modification time or 00 if unknown
+# $hour: hour 00-23 for $minute or 12 if unknown
+# $day: day 01-31 of $pathname's last modification date
+# $month: month 01-12 for $day
+# $year: year 1901-9999 (since start of C. E.) for $month
+#
+# Besides files, directories can also be passed as arguments. In this case,
+# $bytes shall not be used in the format string.
+#
+# Version 2020.64
+format_file_metadata() {
+	format_6n281lim0c0nge6nmpv4h7vlk=$1; shift # POSIX sh has no "local".
+	LC_ALL= LC_NUMERIC=POSIX LC_TIME=POSIX ls -lnLd -- ${1+"$@"} \
+	| {
+		format=$format_6n281lim0c0nge6nmpv4h7vlk
+		cy=
+		while read sym_mode links uid gid bytes month day time pathname
+		do
+			day=${day# }
+			case $month in
+				Jan) month=1;; Feb) month=2;; Mar) month=3;;
+				Apr) month=4;; May) month=5;; Jun) month=6;;
+				Jul) month=7;; Aug) month=8;; Sep) month=9;;
+				Oct) month=10;; Nov) month=11;;	Dec) month=12;;
+				*) false || exit
+			esac
+			case ${time%:*} in
+				"$time")
+					year=$time
+					hour=12; minute=00
+					;;
+				*)
+					hour=${time%%:*}; minute=${time#*:}
+					case $cy in
+						'')
+							cm=`date +%Y:%m`
+							cy=${cm%%:*}
+							cm=${cm##*:}
+							cm=${cm#0}
+							ly=`expr $cy - 1`
+					esac
+					if test $month -le $cm
+					then
+						year=$cy
+					else
+						year=$ly
+					fi
+			esac
+			len=4
+			for var in year month day
+			do
+				eval val=\$$var
+				while :
+				do
+					case ${#val} in
+						$len) break
+					esac
+					val=0$val
+				done
+				eval $var=\$val
+				len=2
+			done
+			eval "printf '%s\\n' \"$format\""
+		done
+	}
+	unset format_6n281lim0c0nge6nmpv4h7vlk
+}
+
+test -f "$0"
+new_enough=`format_file_metadata '$year$month$day$hour$minute' "$0"`
+
+is_clock_set() {
+	expr x`date_wrapper +%Y%m%d%H%M` '>=' x$new_enough > /dev/null \
+		|| return
+}
+
+is_clock_set && exit
+
 ask4sth() {
-	local dval nval dp
+	# Work variables: dval nval dp
 	eval dval=\$$1
 	nval=$dval
 	if test "$dval"
@@ -42,37 +172,119 @@ ask4sth() {
 	eval $1=\$nval
 }
 
-sx='s/\(....\)\(..\)\(..\)\(..\)\(..\)/\1-\2-\3 \4:\5/'
+# Sets $ds to 'mmddHHMMyyyy' and $dt to 'YYYY-MM-DD HH:MM' as interactively
+# entered by user.
+interactive_entry() {
+	# Work variables: sx r d t
+	sx='s/\(....\)\(..\)\(..\)\(..\)\(..\)/\1-\2-\3 \4:\5/'
+	while :
+	do
+		echo
+		echo "You need to set a date (using the local time zone)!"
+		ask4sth d YYYYMMDD '^2[0-9]\{3\}[0-1][0-9][0-3][0-9]$'
+		is_clock_set && return
+		ask4sth t HHMM '^[0-2][0-9][0-5][0-9]$'
+		is_clock_set && return
+		echo
+		dt=`echo "$d$t" | sed "$sx"`
+		echo "Set date/time to $dt."
+		r=Y
+		ask4sth r "Is this correct" '^[YyNnJj]'
+		case $r in
+			[Nn]) ;;
+			*) break
+		esac
+		is_clock_set && return
+		echo 'Trying again.'
+	done
+	sx='s/\(....\)\(..\)\(..\)\(..\)\(..\)/\2\3\4\5\1/'
+	ds=`echo $d$t | sed "$sx"`
+}
+
+intervention_msg() {
+	echo; echo
+	echo "Some other process has just set the current date/time."
+	echo "No need to specify it manually any more!"
+	echo
+	echo "Aborting interactive input."
+	echo
+}
+
+interactive_loop() {
+	while :
+	do
+		is_clock_set && return
+		interactive_entry
+		if is_clock_set
+		then
+			intervention_msg
+			return
+		fi
+		if date_wrapper "$ds"
+		then
+			:
+		else
+			echo
+			echo "Could not set date/time to $dt!"
+			echo
+			echo "Do it yourself, then enter 'exit' to continue."
+			"${SHELL:-sh}" -i
+			echo
+		fi
+		if is_clock_set
+		then
+			echo
+			echo "The new current system date/time has" \
+				"successfully been set."
+			return
+		fi
+		echo
+		echo "The new system time which has been set is in the past."
+		echo "Please set the current local time instead!"
+	done
+}
+
+background_loop() {
+	while :
+	do
+		sleep $CHECK_INTERVAL_SECS
+		is_clock_set && break
+	done
+	intervention_msg
+}
+
+interactive_monitor() {
+	interactive_loop
+	case $b_pid in
+		'') ;;
+		*) kill $b_pid
+	esac
+}
+
+background_monitor() {
+	read i_pid < "$fifo"
+	rm -- "$fifo"
+	background_loop
+	case $i_pid in
+		'') ;;
+		*) kill $i_pid
+	esac
+}
 
 while :
 do
-	test -e "$TAG_FILE" && exit
-	echo
-	echo "You need to set a date (using the local time zone)!"
-	ask4sth d YYYYMMDD '^2[0-9]\{3\}[0-1][0-9][0-3][0-9]$'
-	ask4sth t HHMM '^[0-2][0-9][0-5][0-9]$'
-	echo
-	dt=`echo "$d$t" | sed "$sx"`
-	echo "Set date/time to $dt."
-	r=Y
-	ask4sth r "Is this correct" '^[YyNnJj]'
-	case $r in
-		[Nn]) ;;
-		*) break
-	esac
-	echo 'Trying again.'
+	fifo=`mktemp -u -- "${TMPDIR:-/tmp}/${0##*/}.XXXXXXXXXX"`
+	mkfifo -m 600 "$fifo" && break
 done
 
-if date -s "$dt"
-then
-	> "$TAG_FILE"
-else
-	echo
-	echo "Could not set date/time to $dt!"
-	echo
-	echo "Do it yourself, then enter 'exit' to continue."
-	ash
-	echo
-	echo "Assuming you have set the date/time correctly."
-	echo "Continuing boot sequence."
-fi
+background_monitor & b_pid=$!
+{
+	interactive_monitor <& 5 &
+	echo $! > "$fifo"
+} 5<& 0
+wait
+
+case $CLOCK_EMULATION_FILE in
+	'') ;;
+	*) echo "All processes terminated. Exiting successfully."
+esac
