@@ -1,0 +1,10 @@
+# Supposedly, this will "apt autoremove" also make uninstall packages that are
+# only recommended or suggested by other packages, but have not been marked
+# as being manually installed.
+#
+# Version 2020.83
+
+APT::AutoRemove {
+	RecommendsImportant "false";
+	SuggestsImportant "false";
+};
