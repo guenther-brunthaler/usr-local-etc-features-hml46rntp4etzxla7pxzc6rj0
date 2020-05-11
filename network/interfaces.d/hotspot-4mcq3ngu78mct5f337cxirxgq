@@ -1,4 +1,4 @@
-# Version 2020.54
+# Version 2020.132
 
 allow-x-wifi-hotspot hotspot
 
@@ -8,8 +8,6 @@ allow-x-wifi-hotspot hotspot
 # $ gateway_setup -d wifi
 # $ ifdown wifi=hotspot
 
-# Qualcomm Atheros AR9285 Wireless Network Adapter (PCI-Express). Requires no
-# special firmware. Driver module is "ath9k.ko".
 iface hotspot inet static
 	pre-up rfkill unblock wlan
 	post-up invoke-rc.d --quiet --force dnsmasq start > /dev/null

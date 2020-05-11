@@ -1,4 +1,4 @@
-# Version: 2020.63
+# Version: 2020.132
 #
 # The primary network interface
 
@@ -12,8 +12,8 @@ iface ethernet inet static
 	address 10.157.55.555
 	netmask 255.255.0.0
 	#gateway 10.157.555.555
-	#pre-up sh -c 'ifquery --state niclan > /dev/null || ifup niclan'
-	#bridge_ports niclan
+	#pre-up sh -c 'ifquery --state ethernic > /dev/null || ifup ethernic'
+	#bridge_ports ethernic
 	# dns-* options are implemented by the resolvconf package, if installed
 	#
 	# OpenDNS.com nameservers fail with HSTS connections as of 2018-01
