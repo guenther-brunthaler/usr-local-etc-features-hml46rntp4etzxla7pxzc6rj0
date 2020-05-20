@@ -15,4 +15,4 @@ DROPBEAR_OPTIONS='-sK 600 -p 49151'
 # The special value 'none' keeps all interfaces up and preserves routing
 # tables and addresses.
 #
-IFDOWN=ethlan
+IFDOWN=ethernet
