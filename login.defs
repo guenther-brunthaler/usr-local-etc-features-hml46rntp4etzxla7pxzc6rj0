@@ -165,7 +165,7 @@ PASS_WARN_AGE	7
 # Min/max values for automatic uid selection in useradd
 #
 UID_MIN			 1000
-UID_MAX			60000
+UID_MAX			 8399
 # System accounts
 #SYS_UID_MIN		  100
 #SYS_UID_MAX		  999

@@ -16,7 +16,7 @@
 # specified as an argument, will will be filled with patches that are
 # available but which could not be applied and need manual help.
 #
-# Version 2020.141
+# Version 2020.143
 
 set -e
 cleanup() {
@@ -171,6 +171,7 @@ do
 	then
 		test "$failed" && continue
 		udiff "$m" "$TD"/m p e2
+		test ! -s "$TD"/p && continue
 		echo "[x] patch $m"
 		{
 			if test -s "$TD"/e
