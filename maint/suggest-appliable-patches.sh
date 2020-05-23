@@ -1,7 +1,7 @@
 #! /bin/sh
 exit_version() {
 	wr -s << === && exit
-$APP version 2020.144.1
+$APP version 2020.144.2
 
 Copyright (c) 2020 Guenther Brunthaler. All rights reserved.
 
@@ -246,7 +246,7 @@ qin() {
 	println "$out"
 }
 
-set find -H "$tpl" -path "$tpl"/maint -prune
+set find -H "$tpl" \( -path "$tpl"/maint -o -path "$tpl"/.git \) -prune
 case $action in
 	symlinks)
 		nfirst=
@@ -304,7 +304,12 @@ do
 	else
 		cat < "$m" > "$TD"/o
 	fi
-	udiff "$tu" "$tm" p e
+	if test -e "$tu"
+	then
+		udiff "$tu" "$tm" p e
+	else
+		udiff "$m" "$tm" p e
+	fi
 	cat < "$TD"/o > "$TD"/m
 	if upatch p m e
 	then
