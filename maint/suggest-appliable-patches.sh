@@ -1,3 +1,16 @@
+#! /bin/sh
+exit_version() {
+	wr -s << === && exit
+$APP version 2020.144
+
+Copyright (c) 2020 Guenther Brunthaler. All rights reserved.
+
+This script is free software.
+Distribution is permitted under the terms of the GPLv3.
+===
+}
+APP=${0##*/}
+
 exit_help() {
 	wr << === && echo && exit_version
 $APP - suggest cumulative patch to be applied to `pwd`
@@ -25,20 +38,15 @@ be empty.
 -F: An existing and empty subdirectory must be specified as an option
 argument, which will be filled with failed patches that are available but
 which could not be applied and need manual help.
+
+-L: Emit a list of executable commands which will create a copy of all
+(relative) symbolic links which exist in `pwd`/$tpl/* but not in `pwd` yet.
+Already existing filesystem objects with the same names will not be
+overwritten. Instead, commented-out creation commands will be written for such
+symlinks. The output can be feeded back into a shell (after possible manual
+editing), typically with also passing the -xe options to the shell invocation.
 ===
 }
-
-exit_version() {
-	wr -s << === && exit
-$APP version 2020.143.1
-
-Copyright (c) 2020 Guenther Brunthaler. All rights reserved.
-
-This script is free software.
-Distribution is permitted under the terms of the GPLv3.
-===
-}
-APP=${0##*/}
 
 set -e
 cleanup() {
@@ -51,17 +59,16 @@ trap cleanup 0
 trap 'exit $?' HUP QUIT INT TERM
 
 failed=
-rejected=false
-selectively_apply=false
 action=
-while getopts SR:F:hV opt
+while getopts LSR:F:hV opt
 do
 	case $opt in
-		S) selectively_apply=true;;
+		L) action=symlinks;;
+		S) action=selectively_apply;;
 		F) failed=$OPTARG;;
-		R) failed=$OPTARG; rejected=true;;
-		h) action=exit_help;;
-		V) action=exit_version;;
+		R) failed=$OPTARG; action=rejected;;
+		h) action=help;;
+		V) action=version;;
 		*) false || exit
 	esac
 done
@@ -91,9 +98,13 @@ done
 etc=`dirname -- "$tpl"`
 test "$etc" != "$tpl"
 
-# chdir to $etc and make $tpl relative to it.
+# chdir to $etc and make $tpl relative to it as an appropriate starting
+# pathname argument to "find" (i. e. not starting with '-").
 cd -- "$etc"
 tpl=${tpl#"$etc"}; tpl=${tpl##/}
+case $tpl in
+	-*) tpl=./$tpl
+esac
 test -d "$tpl/maint"
 
 wr() {
@@ -125,7 +136,10 @@ LINEWIDTH=`
 	|| echo ${COLUMNS:-66}
 `
 
-test "$action" && $action
+case $action in
+	help) exit_help;;
+	version) exit_version;;
+esac
 
 TD=`mktemp -d -- "${TMPDIR:-/tmp}/${0##*/}".XXXXXXXXXX`
 
@@ -135,85 +149,147 @@ upatch() {
 	test ! -e "$TD"/$2.rej || return
 }
 
+println() {
+	printf '%s\n' "$*"
+}
+
 mkfailname() {
-	o=`printf '%s\n' "$1" | sed 's|[/]|--|g; y/ /_/'`
+	o=`println "$1" | sed 's|[/]|--|g; y/ /_/'`
 	o=$failed/$o.patch
 	test ! -e "$o"
 }
 
-if $selectively_apply || $rejected
-then
-	yespat='[x] patch '
-	nopat='[ ] patch '
-	follow2='lines'
-	cat > "$TD"/instructions
-	for phase in prepare apply
-	do
-		while IFS= read -r line
+case $action in
+	selectively_apply | rejected)
+		yespat='[x] patch '
+		nopat='[ ] patch '
+		follow2='lines'
+		cat > "$TD"/instructions
+		for phase in prepare apply
 		do
-			case $line in
-				"$yespat"*) no=false;;
-				"$nopat"*) no=true;;
-				*)
-					echo "Unrecognized '$line'!" >& 2
-					false || exit
-			esac
-			read lines more rest
-			expr x"$lines" : x'[1-9][0-9]*$' > /dev/null
-			test "$more" = "$follow2"
-			# Avoid including the separating "---"...-line within
-			# the patch because it would confuse "recountdiff".
-			lines=`expr $lines - 1`
-			head -n $lines > "$TD"/p
-			IFS= read -r rest
-			expr x"$rest" : x'-\{5,\}$' > /dev/null
-			if $no
-			then
-				m=${line#"$nopat"}
-				if $rejected
+			while IFS= read -r line
+			do
+				case $line in
+					"$yespat"*) no=false;;
+					"$nopat"*) no=true;;
+					*)
+						echo "Unrecognized" \
+							"'$line'!" >& 2
+						false || exit
+				esac
+				read lines more rest
+				expr x"$lines" : x'[1-9][0-9]*$' > /dev/null
+				test "$more" = "$follow2"
+				# Avoid including the separating "---"...-line
+				# within the patch because it would confuse
+				# "recountdiff".
+				lines=`expr $lines - 1`
+				head -n $lines > "$TD"/p
+				IFS= read -r rest
+				expr x"$rest" : x'-\{5,\}$' > /dev/null
+				if $no
 				then
-					mkfailname "$m"
-					echo "Saving unapplied patch for $m"
-					cat < "$TD"/p > "$o"
+					m=${line#"$nopat"}
+					case $action in
+						rejected)
+							mkfailname "$m"
+							echo "Saving" \
+								"unapplied" \
+								"patch" \
+								"for $m"
+							cat < "$TD"/p > "$o"
+							;;
+					esac
+					continue
 				fi
-				continue
-			fi
-			$rejected && continue
-			m=${line#"$yespat"}
-			test -f "$m"
-			cat < "$m" > "$TD"/m
-			upatch p m e
-			case $phase in
-				prepare)
-					u=$m.upstream
-					test -f "$u" && continue
-					test ! -e "$u"
-					cp -p -- "$m" "$u"
-					git add -- "$u"
-					;;
-				apply)
-					cat < "$TD"/m > "$m"
-					git add -- "$m"
-					;;
-				*) false || exit
+				case $action in
+					rejected) continue
+				esac
+				m=${line#"$yespat"}
+				test -f "$m"
+				cat < "$m" > "$TD"/m
+				upatch p m e
+				case $phase in
+					prepare)
+						u=$m.upstream
+						test -f "$u" && continue
+						test ! -e "$u"
+						cp -p -- "$m" "$u"
+						git add -- "$u"
+						;;
+					apply)
+						cat < "$TD"/m > "$m"
+						git add -- "$m"
+						;;
+					*) false || exit
+				esac
+			done < "$TD"/instructions
+			case $action in
+				rejected) break
 			esac
-		done < "$TD"/instructions
-		$rejected && break
-	done
-	exit
-fi
+		done
+		exit
+esac
 
 udiff() {
 	TZ=UTC0 diff -u -- "$1" "$2" > "$TD"/$3 2> "$TD"/$4 || :
 }
 
-find -H "$tpl" -name '*.upstream' -type f \
-| while IFS= read -r tu
+qin() {
+	out=
+	for arg
+	do
+		expr x"$arg" : x'[-_%/=,.[:alnum:]]*$' > /dev/null \
+		|| arg="'`println "$arg" | sed "s/'/&\\&&/g"`'"
+		out=$out${out:+ }$arg
+	done
+	println "$out"
+}
+
+set find -H "$tpl" -path "$tpl"/maint -prune
+case $action in
+	symlinks)
+		nfirst=
+		"$@" -o -type l -print \
+		| while IFS= read -r tm
+		do
+			m=${tm#"$tpl/"}
+			target=`readlink -- "$tm"`
+			bad=
+			if test -L "$m"
+			then
+				case $target in
+					"`readlink -- "$m"`") continue ;;
+					*) bad=y;;
+				esac
+			elif test -e "$m"
+			then
+				bad=y
+			fi
+			case $nfirst in
+				'') nfirst=yes;;
+				*) echo
+			esac
+			case $m in
+				*/*)
+					set -- "`dirname -- "$m"`"
+					case $1 in
+						-*) set -- -- "$@"
+					esac
+					qin mkdir -p "$@";;
+			esac
+			echo "${bad:+"#"}`
+				qin ln -s${bad:+"nf"} "$target" "$m"
+			`"
+		done
+		exit
+esac
+"$@" -o -type f -print \
+| while IFS= read -r tm
 do
-	tm=${tu%.upstream}
-	test ! -e "$tm" && continue
-	u=${tu#"$tpl/"}
 	m=${tm#"$tpl/"}
+	tu=$tm.upstream
+	u=${tu#"$tpl/"}
 	test ! -e "$m" && continue
 	if test -e "$u"
 	then
