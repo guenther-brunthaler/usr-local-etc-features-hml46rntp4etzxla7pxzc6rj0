@@ -1,7 +1,7 @@
 #! /bin/sh
 exit_version() {
 	wr -s << === && exit
-$APP version 2020.144
+$APP version 2020.144.1
 
 Copyright (c) 2020 Guenther Brunthaler. All rights reserved.
 
@@ -276,11 +276,18 @@ case $action in
 					case $1 in
 						-*) set -- -- "$@"
 					esac
-					qin mkdir -p "$@";;
+					echo "${bad:+"#"}`qin mkdir -p "$@"`"
 			esac
-			echo "${bad:+"#"}`
-				qin ln -s${bad:+"nf"} "$target" "$m"
-			`"
+			set -- "$target" "$m"
+			case $1 in
+				-*) set -- -- "$@"
+			esac
+			echo "${bad:+"#"}`qin ln -s${bad:+"nf"} "$@"`"
+			set -- "$m"
+			case $1 in
+				-*) set -- -- "$@"
+			esac
+			echo "${bad:+"#"}`qin git add "$@"`"
 		done
 		exit
 esac
