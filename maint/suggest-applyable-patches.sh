@@ -1,22 +1,44 @@
-# Find all files in $etc for which there are can patches still be applied
-# from $tpl and emit a patch for applying those changes to the current
-# user's version of the files.
-#
-# When feeding the output of the script back into it and specifying the -S
-# option, it will apply those patches where the check-mark has not been
-# removed. It will create *.upstream copies of the patched files unless such
-# copies already exist. The script will first check whether all patches can be
-# applied before actually modifying any files.
-#
-# -R is like -S, except that no patches will be applies, but rather the
-# un-checked patches will be written to a subdirectory which must exist but be
-# empty, and which is the option argument to -R.
-#
-# When called with option -F, an existing and empty subdirectory must be
-# specified as an argument, will will be filled with patches that are
-# available but which could not be applied and need manual help.
-#
-# Version 2020.143
+exit_help() {
+	wr << === && echo && exit_version
+$APP - suggest cumulative patch to be applied to `pwd`
+
+Usage: $APP [ <options> ... ]
+
+$APP finds all files in `pwd` for which there are can patches still be applied
+from `pwd`/$tpl/* and emit a patch for applying those changes to the current
+user's version of the files.
+
+-S: When feeding the edited output of an earlier invocation of $APP back into
+it and specifying this option, it will apply those patches where the
+check-mark have not been removed. It will also create *.upstream copies of the
+patched files unless such copies already exist. The script will first check
+whether all patches can be applied successfully before actually modifying any
+files.
+
+-R is like -S, except that no patches will be applied. Instead, all un-checked
+individual patches (i. e. those that have been rejected by the user by editing
+the cumulative patch and manually removing the check-mark) will be extracted
+from the cumulative patch and will be written to a subdirectory which is
+specified as the option argument to -R. This directory must already exist and
+be empty.
+
+-F: An existing and empty subdirectory must be specified as an option
+argument, which will be filled with failed patches that are available but
+which could not be applied and need manual help.
+===
+}
+
+exit_version() {
+	wr -s << === && exit
+$APP version 2020.143.1
+
+Copyright (c) 2020 Guenther Brunthaler. All rights reserved.
+
+This script is free software.
+Distribution is permitted under the terms of the GPLv3.
+===
+}
+APP=${0##*/}
 
 set -e
 cleanup() {
@@ -31,12 +53,15 @@ trap 'exit $?' HUP QUIT INT TERM
 failed=
 rejected=false
 selectively_apply=false
-while getopts SR:F: opt
+action=
+while getopts SR:F:hV opt
 do
 	case $opt in
 		S) selectively_apply=true;;
 		F) failed=$OPTARG;;
 		R) failed=$OPTARG; rejected=true;;
+		h) action=exit_help;;
+		V) action=exit_version;;
 		*) false || exit
 	esac
 done
@@ -70,6 +95,37 @@ test "$etc" != "$tpl"
 cd -- "$etc"
 tpl=${tpl#"$etc"}; tpl=${tpl##/}
 test -d "$tpl/maint"
+
+wr() {
+	case $# in
+		0)
+			{
+				sep=
+				while IFS= read -r line
+				do
+					printf %s%s "$sep" "$line"
+					if test "$line"
+					then
+						sep=' '
+					else
+						echo
+						test -z "$sep" && continue
+						echo; sep=
+					fi
+				done
+				test -z "$sep" || echo
+			} | wr -s
+			;;
+		*) fold -sw $LINEWIDTH | sed 's/[[:space:]]*$//'
+	esac
+}
+LINEWIDTH=`
+	cmd=tput; command -v $cmd > /dev/null 2>& 1 \
+	&& test -t 0 && $cmd cols \
+	|| echo ${COLUMNS:-66}
+`
+
+test "$action" && $action
 
 TD=`mktemp -d -- "${TMPDIR:-/tmp}/${0##*/}".XXXXXXXXXX`
 
