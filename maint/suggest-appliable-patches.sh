@@ -1,7 +1,7 @@
 #! /bin/sh
 exit_version() {
 	wr -s << === && exit
-$APP version 2020.144.2
+$APP version 2020.144.3
 
 Copyright (c) 2020 Guenther Brunthaler. All rights reserved.
 
@@ -159,10 +159,31 @@ mkfailname() {
 	test ! -e "$o"
 }
 
+do_copy() {
+	m=${line#"$cyespat"}
+	t=$tpl/$m
+	case $phase in
+		prepare)
+			test -f "$t"
+			test -r "$t"
+			if test -e "$m"
+			then
+				rm -- "$m"
+			fi
+			;;
+		apply)
+			mkdir -p -- "`dirname -- "$m"`"
+			cp -p -- "$t" "$m"
+			git add -- "$m"
+	esac
+}
+
 case $action in
 	selectively_apply | rejected)
-		yespat='[x] patch '
-		nopat='[ ] patch '
+		pyespat='[x] patch '
+		pnopat='[ ] patch '
+		cyespat='[x] copy '
+		cnopat='[ ] copy '
 		follow2='lines'
 		cat > "$TD"/instructions
 		for phase in prepare apply
@@ -170,8 +191,10 @@ case $action in
 			while IFS= read -r line
 			do
 				case $line in
-					"$yespat"*) no=false;;
-					"$nopat"*) no=true;;
+					"$pyespat"*) no=false;;
+					"$pnopat"*) no=true;;
+					"$cyespat"*) do_copy; continue;;
+					"$cnopat"*) continue;;
 					*)
 						echo "Unrecognized" \
 							"'$line'!" >& 2
@@ -189,7 +212,7 @@ case $action in
 				expr x"$rest" : x'-\{5,\}$' > /dev/null
 				if $no
 				then
-					m=${line#"$nopat"}
+					m=${line#"$pnopat"}
 					case $action in
 						rejected)
 							mkfailname "$m"
@@ -205,7 +228,7 @@ case $action in
 				case $action in
 					rejected) continue
 				esac
-				m=${line#"$yespat"}
+				m=${line#"$pyespat"}
 				test -f "$m"
 				cat < "$m" > "$TD"/m
 				upatch p m e
@@ -250,7 +273,7 @@ set find -H "$tpl" \( -path "$tpl"/maint -o -path "$tpl"/.git \) -prune
 case $action in
 	symlinks)
 		nfirst=
-		"$@" -o -type l -print \
+		"$@" -o -type l -print | sort \
 		| while IFS= read -r tm
 		do
 			m=${tm#"$tpl/"}
@@ -291,13 +314,17 @@ case $action in
 		done
 		exit
 esac
-"$@" -o -type f -print \
+"$@" -o -type f -print | sort \
 | while IFS= read -r tm
 do
 	m=${tm#"$tpl/"}
 	tu=$tm.upstream
 	u=${tu#"$tpl/"}
-	test ! -e "$m" && continue
+	if test ! -e "$m"
+	then
+		echo "[ ] copy $m"
+		continue
+	fi
 	if test -e "$u"
 	then
 		cat < "$u" > "$TD"/o
