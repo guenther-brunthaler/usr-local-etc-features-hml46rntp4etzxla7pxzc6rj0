@@ -1,18 +1,54 @@
+README v2021.302
+================
+
+File format: ASCII, lines up to 79 columns, SPACE+newline marks a line wrap.
+
 This is a maintenance directory for migrating changes.
 
 It is *not* supposed to be copied over to a real /etc!
 
-It just contains scripts and other documents for helping with synchronizing
+It just contains scripts and other documents for helping with synchronizing 
 the available changes between the /etc/ and /etc/$TPL_SYMLINK/ directories.
 
-$TPL_SYMLINK is a symlink with an arbitrary name to where the repository
-containing THIS file you are reading has been checked out. Alternatively,
-you can also check the repository out there directly as a subdirectory
-rather than using a symlink.
+$TPL_SYMLINK is a symlink with an arbitrary name to where the repository 
+containing THIS file you are reading has been checked out. Alternatively, you 
+can also check the repository out there directly as a subdirectory rather than 
+using a symlink.
 
-This might not be the best idea, however, because the etc-templates repository
+This might not be the best idea, however, because the etc-templates repository 
 might be much larger than /etc itself.
 
-Scripts contained in /etc/$TPL_SYMLINK/maint are not meant to be part of the
-files copied to /etc, but rather contains scripts for helping the
+Scripts contained in /etc/$TPL_SYMLINK/maint are not meant to be part of the 
+files copied to /etc, but rather contains scripts for helping the 
 administrator perform the synchronization.
+
+
+Short explanations what the various scripts do
+----------------------------------------------
+
+Look into the comments at the start of every script in order to get more 
+detailed usage instructions.
+
+* ./diffs.sh: Show changes between the real /etc and its template version. 
+Irrelevant changes should be identified and be added to local ignore lists, so 
+they won't show up again in future runs of this script.
+
+* ./newlocals.sh: Display new files in the template directory which might thus 
+be candidates for copying over to the real /etc. New files which are not 
+wanted there should be added to the local ignore lists, so they won't show up 
+again in future runs of this script.
+
+* ./suggest-appliable-patches.sh: Compares all files which are not locally 
+ignored and exist both in the template directory and the real /etc. Then emit 
+a single update patch which would update all non-ignored files in /etc in such 
+a way that they, after applying any locally defined patches, become identical 
+to the template versions.
+
+* ./unverified/*: Scripts which need more work or have not yet been tested 
+properly. WIP.
+
+* ./upstreams.sh: Find any new unmodified upstream copies in the template 
+directory for files which do exist in the real /etc. They can then be copied 
+over to the real /etc and both versions be put under version control. This 
+allows to see which changes originated from upstream and which changes 
+orinated locally.
