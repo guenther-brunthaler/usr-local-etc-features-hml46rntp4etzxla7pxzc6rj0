@@ -6,8 +6,8 @@
 # script must be executed more frequently than the ring buffer needs time to
 # fill completely, or some entries will be lost.
 #
-# The command which is used to read the current contents of the ring buffer
-# can be specified via the /etc/default-mechanism. By default the command
+# The commands which are used to read the current contents of the ring buffer
+# can be specified via the "/etc/default"-mechanism. By default the command
 # "logread" is used which dumps the ring buffer of busybox' syslogd
 # implementation using the -C option.
 #
@@ -20,15 +20,15 @@
 # shell, so it can actually be something more complex than a simple command,
 # such as a whole pipeline of commands.
 #
-# The dump command can also be used to reformat and filter the log. Whatever
-# is returned by the dump command will be considered the data to be made
+# The dump commands can also be used to reformat and filter the log. Whatever
+# is returned by the dump commands will be considered the data to be made
 # permanent. Just make sure the "transaction ID" log-messages created by this
 # script do not get filtered out - they are needed for synchronization and
 # ring-buffer overflow detection.
 #
-# Version 2020.38
+# Version 2021.92.1
 #
-# Copyright (c) 2018-2020 Guenther Brunthaler. All rights reserved.
+# Copyright (c) 2018-2021 Guenther Brunthaler. All rights reserved.
 #
 # This script is free software.
 # Distribution is permitted under the terms of the GPLv3.
@@ -38,9 +38,11 @@ defaults_file=/etc/default/${0##*/}
 #
 # Where to store the log saver's state.
 state_file=/var/lib/misc/log_saver-4vzntsgfwksyilhv27klxte5l
-# Command for pretty-printing and optionally filtering the non-persistent log.
-# Whatever new data this command returns will be saved to persistent storage.
-dump_command='/etc/libexec/dmesg-pretty'
+# Commands for pretty-printing and optionally filtering the non-persistent
+# log. Can be a single or multiple commands, including shell pipelines,
+# command lists, and shell built-in commands. Whatever new data these commands
+# return will be saved to persistent storage.
+dump_commands='logread'
 # The persistant storage file where the saves log entries shall be added to.
 # This should normally be log-rotated by someone (such as "logrotate").
 #
@@ -59,15 +61,15 @@ test "$1" = "--debug" && shift || exec > /dev/null 2>& 1
 set -e
 cleanup() {
 	rc=$?
-	test "$TDIR" && rm -r -- "$TDIR"
+	test "$TD" && rm -r -- "$TD"
 	test $rc = 0 || logger -p user.err -t "$0" failure
 }
-TDIR=
+TD=
 trap cleanup 0
 
 if test -f "$defaults_file"
 then
-	# Assign a custom $dump_command - or any of the other settings above.
+	# Assign custom $dump_commands - or any of the other settings above.
 	. "$defaults_file"
 fi
 
@@ -89,24 +91,33 @@ case $1 in
 esac
 
 IFS= read -r omark <& 5 || omark=
+TD=`mktemp -d -- "${TMPDIR:-/tmp}/${0##*/}".XXXXXXXXXX`
+dump_log_internal() {
+	(eval "$dump_commands") > "$TD"/dump
+}
+dump_log_internal
+lno() {
+	grep -Fn $2 -- "$1" "$TD"/dump | sed 's/^\([0-9]*\).*/\1/; q'
+}
+if test "$omark" && test "`lno "$omark" -x`" = `wc -l < "$TD"/dump`
+then
+	flock -u 5
+	exit
+fi
 
 nmark=`
 	dd if=/dev/urandom bs=1 count=12 2> /dev/null \
 	| od -t x1 -A n | tr -dc '[:xdigit:]'
 `
 nmark="Saving system log to persistent storage (transaction ID $nmark)"
-TDIR=`mktemp -d -- "${TMPDIR:-/tmp}/${0##*/}".XXXXXXXXXX`
 logger -p user.notice -t "$0" "$nmark"
-$dump_command > "$TDIR"/dump
-nmark=`grep -F "$nmark" "$TDIR"/dump | head -n 1`
+dump_log_internal
+nmark=`grep -F "$nmark" "$TD"/dump | head -n 1`
 
-lno() {
-	grep -Fn -- "$1" "$TDIR"/dump | sed 's/^\([0-9]*\).*/\1/; q'
-}
 if test "$omark" && n=`lno "$omark"` && test "$n"
 then
-	tail -n +`expr $n + 1` < "$TDIR"/dump > "$TDIR"/tmp
-	mv -- "$TDIR"/tmp "$TDIR"/dump
+	tail -n +`expr $n + 1` < "$TD"/dump > "$TD"/tmp
+	mv -- "$TD"/tmp "$TD"/dump
 else
 	logger -p user.warning -t "$0" \
 		"Some log entries before this one have not been saved!"
@@ -115,10 +126,10 @@ if test "$nmark" && n=`lno "$nmark"` && test "$n"
 then
 	if test $n = 1
 	then
-		> "$TDIR"/dump
+		> "$TD"/dump
 	else
-		head -n `expr $n - 1` < "$TDIR"/dump > "$TDIR"/tmp
-		mv -- "$TDIR"/tmp "$TDIR"/dump
+		head -n `expr $n - 1` < "$TD"/dump > "$TD"/tmp
+		mv -- "$TD"/tmp "$TD"/dump
 	fi
 else
 	logger -p user.crit -t "$0" "Logs are being flooded!"
@@ -134,6 +145,6 @@ then
 		logger -p user.crit -t "$0" "Cannot set group for '$syslog'!"
 	}
 fi
-cat "$TDIR"/dump >> "$syslog"
+cat "$TD"/dump >> "$syslog"
 printf '%s\n' "$nmark" > "$state_file"
 flock -u 5

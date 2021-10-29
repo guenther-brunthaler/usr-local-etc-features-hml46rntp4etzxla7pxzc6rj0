@@ -1,0 +1,3 @@
+# Version 2021.298
+
+APT::Acquire::Pdiffs "0";

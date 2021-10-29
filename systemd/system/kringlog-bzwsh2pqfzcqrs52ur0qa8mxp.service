@@ -1,0 +1,11 @@
+[Unit]
+Description=System Logger Daemon writing to the kernel log ringbuffer
+Documentation=man:busybox(1)
+After=
+
+[Service]
+Type=simple
+ExecStart=sh -c 'mkdir -p /run/systemd/journal && test -L /dev/log || { rm -f /dev/log && ln -s ../run/systemd/journal/dev-log /dev/log; } && exec /usr/local/bin/busybox-pbyqxzl1ktqlk3fjm3arlrclg syslogd -nDK'
+
+[Install]
+WantedBy=sysinit.target
