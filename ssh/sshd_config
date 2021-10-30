@@ -10,12 +10,14 @@
 # possible, but leave them commented.  Uncommented options override the
 # default value.
 
-Port 874
-AddressFamily inet
+Include /etc/ssh/sshd_config.d/*.conf
+
+#Port 22
+#AddressFamily any
 #ListenAddress 0.0.0.0
 #ListenAddress ::
 
-HostKey /etc/ssh/ssh_host_rsa_key
+#HostKey /etc/ssh/ssh_host_rsa_key
 #HostKey /etc/ssh/ssh_host_ecdsa_key
 #HostKey /etc/ssh/ssh_host_ed25519_key
 
@@ -53,7 +55,7 @@ HostKey /etc/ssh/ssh_host_rsa_key
 #IgnoreRhosts yes
 
 # To disable tunneled clear text passwords, change to no here!
-PasswordAuthentication no
+#PasswordAuthentication yes
 #PermitEmptyPasswords no
 
 # Change to yes to enable challenge-response passwords (beware issues with
@@ -81,7 +83,7 @@ ChallengeResponseAuthentication no
 # If you just want the PAM account and session checks to run without
 # PAM authentication, then enable this but set PasswordAuthentication
 # and ChallengeResponseAuthentication to 'no'.
-UsePAM no
+UsePAM yes
 
 #AllowAgentForwarding yes
 #AllowTcpForwarding yes
@@ -95,12 +97,12 @@ PrintMotd no
 #TCPKeepAlive yes
 #PermitUserEnvironment no
 #Compression delayed
-ClientAliveInterval 1800
+#ClientAliveInterval 0
 #ClientAliveCountMax 3
 #UseDNS no
 #PidFile /var/run/sshd.pid
 #MaxStartups 10:30:100
-PermitTunnel yes
+#PermitTunnel no
 #ChrootDirectory none
 #VersionAddendum none
 
@@ -119,9 +121,3 @@ Subsystem	sftp	/usr/lib/openssh/sftp-server
 #	AllowTcpForwarding no
 #	PermitTTY no
 #	ForceCommand cvs server
-
-# Non-default options that have been added to the config file
-AllowGroups sshlogin
-Ciphers chacha20-poly1305@openssh.com,3des-cbc,aes256-gcm@openssh.com,aes256-ctr
-MACs hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com,hmac-sha2-256,hmac-sha2-512
-KexAlgorithms diffie-hellman-group-exchange-sha256

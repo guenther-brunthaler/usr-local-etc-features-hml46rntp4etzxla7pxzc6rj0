@@ -1,11 +1,15 @@
 #! /bin/false
 # *Source* this from within patched copies of dpkg-diverted files, don't
 # execute it as a script!
+# v2020.164
 
 me=`readlink -f -- "$0"` \
-&& ofile=$me.${ofile_ext:=distrib} \
+&& {
+test "$ofile" \
+|| ofile=/etc/upstream-versions-dbkkywcqxlt7w1u854dz5hhbk.d/${me#/etc/}
+} \
 && okey=`stat -c %i+%Z -- "$ofile"` \
 && ukeyloc=/var/lib/diversion-patches-5cj2dtd975yp5yah4ku3ll4ia/$me \
 && { read ukey < "$ukeyloc" && test x"$ukey" = x"$okey"; } 2> /dev/null \
 || exec /etc/libexec/update-patch-5cj2dtd975yp5yah4ku3ll4ia "$0" "$ofile" "$@"
-unset me ofile_ext ofile okey ukeyloc ukey
+unset me ofile okey ukeyloc ukey

@@ -1,0 +1,1 @@
+KERNEL=="dummy0", SUBSYSTEM=="net", NAME:="ethvoid"

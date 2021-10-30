@@ -18,8 +18,8 @@
 # the file name "${writes_pfx}${devuuid}${writes_sfx}" (after calculating the
 # values of the variables used in this string expression).
 #
-# Version 2020.37.2
-# Copyright (c) 2019-2020 Guenther Brunthaler. All rights reserved.
+# Version 2021.2
+# Copyright (c) 2019-2021 Guenther Brunthaler. All rights reserved.
 #
 # This script is free software.
 # Distribution is permitted under the terms of the GPLv3.
@@ -114,7 +114,7 @@ do
 		dmsetup table "$mapping" | sed '
 			s|.* \([0-9]\{1,3\}\):\([0-9]\{1,3\}\) .*|\1 \2|
 			t; d
-		'
+		' | head -n 1
 	`
 	test "$mami"
 	ma=${mami%% *}; mi=${mami#"$ma "}
