@@ -1,0 +1,40 @@
+#! /bin/sh
+# Version 2021.297
+#
+# Copyright (c) 2021 Guenther Brunthaler. All rights reserved.
+#
+# This script is free software.
+# Distribution is permitted under the terms of the GPLv3.
+
+KERNEL_VERSION=$1
+
+set -e
+cleanup() {
+	rc=$?
+	test "$TD" && rm -r -- "$TD"
+	test $rc = 0 || echo "\"$0\" failed!" >& 2
+}
+TD=
+trap cleanup 0
+trap 'exit $?' INT HUP TERM QUIT
+
+
+test -w /boot && ro=false || ro=true
+case $ro in
+	true) mount -o remount,rw /boot
+esac
+> /boot/modules-"$KERNEL_VERSION.txz" # Might save needed space.
+
+TD=`mktemp -d -- "${TMPDIR:-/tmp}/${0##*/}".XXXXXXXXXX`
+chmod 700 "$TD"
+(
+	cd -- "$TD"
+	cp -pr /lib/modules/"$KERNEL_VERSION" .
+	find -name "*.ko" -exec strip -g {} +
+)
+tar -C "$TD" -c "$KERNEL_VERSION" \
+	| xz -9c > /boot/modules-"$KERNEL_VERSION".txz
+
+case $ro in
+	true) mount -o remount,ro /boot
+esac
