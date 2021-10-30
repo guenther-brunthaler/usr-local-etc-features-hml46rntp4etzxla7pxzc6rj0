@@ -1,0 +1,33 @@
+# This is an example for configuring your SSH client. It is not needed when
+# accessing the git repositories via https (which is the default).
+#
+# Merge the lines below into to your "~/.ssh/config". Then fill in the ???
+# placeholders and further customize the lines if needed.
+#
+# v2021.303
+
+Host rpo-ro rpo-rw rpo-root
+	IdentitiesOnly yes
+	#ControlPath ~/.ssh/shared_connections/%C
+	Port ???
+	HostName ???
+
+Host rpo-ro
+	User rporead
+	IdentityFile "~/.ssh/keys/???/rporead@???-ssh.prv"
+
+Host rpo-rw
+	User rpowrite
+	IdentityFile "~/.ssh/keys/???/rpowrite@???-ssh.prv"
+
+Host rpo-root
+	User root
+	IdentityFile "~/.ssh/keys/???/root@???-ssh.prv"
+
+Host *
+	#ProxyCommand -nnc6 $HOME/.ssh/proxy proxy 8080 %h %p
+	Compression yes
+	ControlPath none
+	ControlPath ~/.ssh/shared_connections/%C
+	ControlMaster auto
+	ControlPersist 300
