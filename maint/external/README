@@ -1,0 +1,16 @@
+README v2021.303
+
+This directory contains git repository URLs and advice how to 
+access them.
+
+Usage of those additional repositories is completely optional.
+
+At least this is the idea. Because it cannot be ruled out that 
+some of the scripts in THIS repository might use some of the 
+scripts from those other repositories accidentally and 
+unintentionally. This should be considered a bug then.
+
+Otherwise, the additional repositories may be used optionally to 
+customize your system even further. They contain many useful 
+scripts, primarily for system administration, but also for many 
+day-to-day tasks.
