@@ -33,6 +33,11 @@ detailed usage instructions.
 Irrelevant changes should be identified and be added to local ignore lists, so 
 they won't show up again in future runs of this script.
 
+* ./external/*: Information about other external repositories 
+which might be useful for system customization. Completely 
+optional. Should not be needed at all. (Otherwise it should be 
+considered a bug.)
+
 * ./newlocals.sh: Display new files in the template directory which might thus 
 be candidates for copying over to the real /etc. New files which are not 
 wanted there should be added to the local ignore lists, so they won't show up 
