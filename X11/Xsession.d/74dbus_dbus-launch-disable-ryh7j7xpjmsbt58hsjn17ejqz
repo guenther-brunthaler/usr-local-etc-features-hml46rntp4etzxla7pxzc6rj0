@@ -1,0 +1,10 @@
+#! /bin/sh
+# Implicitly remove any "use-session-dbus" from "/etc/X11/Xsession.options".
+
+# Version 2021.75
+# Copyright (c) 2021 Guenther Brunthaler. All rights reserved.
+#
+# This script is free software.
+# Distribution is permitted under the terms of the GPLv3.
+
+OPTIONS=`printf '%s' "$OPTIONS" | grep -vFx use-session-dbus`
