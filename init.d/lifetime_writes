@@ -10,6 +10,8 @@
 #                    devices between restarts.
 ### END INIT INFO
 
+cronscript=/etc/cron.daily/lifetime-writes-sc7km47ls0fx7d0aijdqtn91v
+
 . /lib/init/vars.sh
 
 . /lib/lsb/init-functions
@@ -25,7 +27,7 @@ do_status () {
 case $1 in
   stop)
 	[ "$VERBOSE" = no ] || log_action_begin_msg "Saving disk-written counters"
-	/etc/cron.daily/lifetime-writes-9yn49901qr24n1v48s6u05w38
+	"$cronscript"
 	ES=$?
 	[ "$VERBOSE" = no ] || log_action_end_msg $ES
 	;;

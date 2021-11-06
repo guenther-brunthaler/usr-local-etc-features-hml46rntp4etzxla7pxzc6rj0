@@ -1,4 +1,7 @@
 #! /bin/sh
+#
+# v2021.45
+#
 # vim:ts=4:et:sts=4
 ### BEGIN INIT INFO
 # Provides:          syslog
@@ -26,15 +29,15 @@ LOG_SAVER=/etc/cron.daily/save_logs-4vzntsgfwksyilhv27klxte5l
 # Instead it will write to a circular buffer in RAM with the size specified by
 # the following variable. Consider adding a cron job for appending new entries
 # found in the circular RAM buffer to a log file on disk.
-SYSLOGD_BUFFER_MB=1536
+SYSLOGD_BUFFER_KB=1536
 
 # Add arbitrary additional options to BusyBox's syslogd. This can be used, for
 # instance, to immediately send a copy of syslog entries to an external syslog
 # server using the -R or -L options.
 SYSLOGD_ADDITIONAL_OPTIONS="-D -t"
-SYSLOGD_PIDFILE=/run/syslogd.pid
+SYSLOGD_PIDFILE=/var/run/syslogd.pid
 KLOGD_OPTIONS=""
-KLOGD_PIDFILE=/run/klogd.pid
+KLOGD_PIDFILE=/var/run/klogd.pid
 
 # Read configuration variable file if it is present
 test -r "$DEFAULTSFILE" && . "$DEFAULTSFILE"
@@ -58,7 +61,7 @@ case "$1" in
     start)
         log_daemon_msg "Starting $DESC" "$NAME"
 	ssd -S -p "$SYSLOGD_PIDFILE" \
-		-- syslogd -C"$SYSLOGD_BUFFER_MB" \
+		-- syslogd -C"$SYSLOGD_BUFFER_KB" \
 		$SYSLOGD_ADDITIONAL_OPTIONS \
 		|| status=$?
 	ssd -S -p "$KLOGD_PIDFILE" -- klogd $KLOGD_OPTIONS && dmesg -D \
@@ -76,8 +79,7 @@ case "$1" in
 
     *)
         log_failure_msg "Usage: /etc/init.d/$NAME {start|stop}" 2>& 1
-        exit 1
-        ;;
+        false || exit
 esac
 
 exit $status
