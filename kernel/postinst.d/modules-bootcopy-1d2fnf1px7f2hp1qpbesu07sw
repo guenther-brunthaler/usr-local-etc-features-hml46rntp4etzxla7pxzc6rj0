@@ -1,29 +1,76 @@
 #! /bin/sh
-# Version 2021.297
+# Version 2021.316
 #
 # Copyright (c) 2021 Guenther Brunthaler. All rights reserved.
 #
 # This script is free software.
 # Distribution is permitted under the terms of the GPLv3.
 
-KERNEL_VERSION=$1
+KERNEL_VERSION=${1:?kernel version}
+bb=busybox # Optional.
+pp=pipe_progress # Optional.
+
+retry() {
+	tries=5
+	until "$@" 2> /dev/null
+	do
+		tries=`expr $tries - 1` || exit
+		sleep 1
+	done
+}
 
 set -e
 cleanup() {
 	rc=$?
+	test "$OUTFILE" && rm -- "$OUTFILE"
+	test "$RMTRO" && retry mount -o remount,ro /boot
 	test "$TD" && rm -r -- "$TD"
 	test $rc = 0 || echo "\"$0\" failed!" >& 2
 }
+RMTRO=
 TD=
+OUTFILE=
 trap cleanup 0
 trap 'exit $?' INT HUP TERM QUIT
 
+have() {
+	command -v "$1" > /dev/null 2>& 1 || return
+}
 
-test -w /boot && ro=false || ro=true
-case $ro in
-	true) mount -o remount,rw /boot
-esac
-> /boot/modules-"$KERNEL_VERSION.txz" # Might save needed space.
+not() {
+	if "$@"
+	then
+		false || return
+	fi
+	:
+}
+
+if not have "$pp"
+then
+	if have "$bb" && "$bb" --list 2> /dev/null | grep -q -- "$pp" 
+	then
+		pp="$bb $pp"
+	else
+		pp=
+	fi
+fi
+a=xz
+tarext=t$a
+have "$a"
+a="$a -9c"
+test "$pp" && a="$a | $pp"
+eval "archiver() { $a; }"
+
+if test ! -w /boot
+then
+	mount -o remount,rw /boot
+	RMTRO=yes
+fi
+OUTFILE=/boot/modules-$KERNEL_VERSION.$tarext
+
+a=Creating
+test -e "$OUTFILE" && a=Refreshing
+> "$OUTFILE" # Might save needed space.
 
 TD=`mktemp -d -- "${TMPDIR:-/tmp}/${0##*/}".XXXXXXXXXX`
 chmod 700 "$TD"
@@ -32,9 +79,6 @@ chmod 700 "$TD"
 	cp -pr /lib/modules/"$KERNEL_VERSION" .
 	find -name "*.ko" -exec strip -g {} +
 )
-tar -C "$TD" -c "$KERNEL_VERSION" \
-	| xz -9c > /boot/modules-"$KERNEL_VERSION".txz
-
-case $ro in
-	true) mount -o remount,ro /boot
-esac
+echo "$a $OUTFILE"
+tar -C "$TD" -c "$KERNEL_VERSION" | archiver > "$OUTFILE"
+OUTFILE=
