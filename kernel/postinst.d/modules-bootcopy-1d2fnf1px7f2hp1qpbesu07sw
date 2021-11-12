@@ -1,5 +1,5 @@
 #! /bin/sh
-# Version 2021.316
+# Version 2021.316.1
 #
 # Copyright (c) 2021 Guenther Brunthaler. All rights reserved.
 #
@@ -47,7 +47,7 @@ not() {
 
 if not have "$pp"
 then
-	if have "$bb" && "$bb" --list 2> /dev/null | grep -q -- "$pp" 
+	if have "$bb" && "$bb" --list 2> /dev/null | grep -q -- "$pp"
 	then
 		pp="$bb $pp"
 	else
