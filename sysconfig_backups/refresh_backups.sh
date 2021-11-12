@@ -6,7 +6,8 @@
 # intended to be kept under version control. This allows to detect changes to
 # those configuration details later on.
 #
-# (c) 2011 - 2013 by Guenther Brunthaler.
+# Version 2021.312
+# (c) 2011-2021 by Guenther Brunthaler.
 # This script is free software.
 # Distribution is permitted under the terms of the GPLv3.
 
@@ -76,8 +77,8 @@ print_lvm2_backup_dir() {
 LC_ALL=C
 export LC_ALL
 getcmd -f AWK awk
-getcmd -f TEMPFILE tempfile
-t=`"$TEMPFILE"`
+getcmd -f MKTEMP mktemp
+t=`"$MKTEMP" -- "${TMPDIR:-/tmp}"/${0##*/}.XXXXXXXXX`
 trap "rm -- '$t'" 0
 if getcmd FDISK fdisk && getcmd SFDISK sfdisk
 then
@@ -143,4 +144,8 @@ fi
 if getcmd UNAME uname
 then
 	run "$UNAME" -a > "current_kernel.txt"
+fi
+if getcmd CPUID cpuid
+then
+	run "$CPUID" > cpu_features.txt
 fi

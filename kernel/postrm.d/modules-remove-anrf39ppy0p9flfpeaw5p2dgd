@@ -1,0 +1,42 @@
+#! /bin/sh
+# Version 2021.316
+#
+# Copyright (c) 2021 Guenther Brunthaler. All rights reserved.
+#
+# This script is free software.
+# Distribution is permitted under the terms of the GPLv3.
+
+KERNEL_VERSION=${1:?kernel version}
+
+retry() {
+	tries=5
+	until "$@" 2> /dev/null
+	do
+		tries=`expr $tries - 1` || exit
+		sleep 1
+	done
+}
+
+set -e
+cleanup() {
+	rc=$?
+	test "$RMTRO" && retry mount -o remount,ro /boot
+	test $rc = 0 || echo "\"$0\" failed!" >& 2
+}
+RMTRO=
+trap cleanup 0
+trap 'exit $?' INT HUP TERM QUIT
+
+a=xz
+tarext=t$a
+MODARCH=/boot/modules-$KERNEL_VERSION.$tarext
+
+test ! -e "$MODARCH" && exit
+
+if test ! -w /boot
+then
+	mount -o remount,rw /boot
+	RMTRO=yes
+fi
+
+rm -- "$MODARCH"
