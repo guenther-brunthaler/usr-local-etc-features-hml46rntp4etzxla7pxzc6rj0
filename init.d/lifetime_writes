@@ -10,36 +10,40 @@
 #                    devices between restarts.
 ### END INIT INFO
 
-cronscript=/etc/cron.daily/lifetime-writes-sc7km47ls0fx7d0aijdqtn91v
+# v2021.301
+
+NAME=lifetime_writes
+DESC="record amount of data ever written to configured mass storage"
+DEFAULTSFILE="/etc/default/$NAME"
+
+# Set defaults
+
+lifetime_logger=/etc/cron.daily/lifetime-writes-sc7km47ls0fx7d0aijdqtn91v
+
+# Allow overriding defaults via configuration file, if any.
+test -r "$DEFAULTSFILE" && . "$DEFAULTSFILE"
+
+test -r "$lifetime_logger" || exit
 
 . /lib/init/vars.sh
-
 . /lib/lsb/init-functions
-
-do_status () {
-	if [ -f $SAVEDFILE ] ; then
-		return 0
-	else
-		return 4
-	fi
-}
 
 case $1 in
   stop)
-	[ "$VERBOSE" = no ] || log_action_begin_msg "Saving disk-written counters"
-	"$cronscript"
-	ES=$?
-	[ "$VERBOSE" = no ] || log_action_end_msg $ES
+	test "$VERBOSE" = no \
+		|| log_action_begin_msg "Saving disk-written counters"
+	"$lifetime_logger"; es=$?
+	test "$VERBOSE" = no || log_action_end_msg $es
 	;;
   status | start | "")
 	exit
 	;;
-  restart|reload|force-reload)
+  restart | reload | force-reload)
 	echo "Error: argument '$1' not supported" >&2
 	exit 3
 	;;
   *)
-	echo "Usage: lifetime_writes start|stop" >&2
+	echo "Usage: $0 start | stop" >&2
 	exit 3
 	;;
 esac
