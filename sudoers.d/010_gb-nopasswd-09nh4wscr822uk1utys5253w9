@@ -1,1 +1,7 @@
+# Allow user "gb" to do everything without a password. This is a bit much.
+# Maybe putting the user into group "sudo" would be better, where the same is
+# possible, but only after entering the user's password.
+#
+# v2021.318
+
 gb ALL=(ALL) NOPASSWD: ALL
