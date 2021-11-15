@@ -1,0 +1,47 @@
+# This file is referenced by the main smb.conf via a "username map"-setting.
+#
+# It maps SAMBA remote users to SAMBA UNIX users. The syntax is
+#
+# real_unix_username = samba_remote_username
+
+myunixuser = mywindowuser
+
+# Note that only the real UNIX username is used with the smbpasswd utility,
+# for instance for creating the SAMBA user:
+#
+# $ smbpasswd -a myunixuser
+#
+# While users accessing the shared remotely only use the SAMBA remote
+# usernames in their commands, as shown below.
+#
+# In the particular case of this local SAMBA server installation, attached
+# Microsoft Windows users can connect to the shares as follows:
+#
+# > NET USE \\smbhostname /SAVECRED
+#
+# > NET USE H: /DELETE
+# > NET USE \\smbhostname\HOME\user\myunixuser /USER:mywindowuser /SAVECRED
+# > NET USE H: \\smbhostname\HOME\user\myunixuser /USER:mywindowuser /PERSISTENT:YES
+# > NET USE K: /DELETE
+# > NET USE \\smbhostname\WINE\k /USER:mywindowuser /SAVECRED
+# > NET USE K: \\smbhostname\WINE\k /USER:mywindowuser /PERSISTENT:YES
+# > NET USE N: /DELETE
+# > NET USE \\smbhostname\SCANS /USER:mywindowuser /SAVECRED
+# > NET USE N: \\smbhostname\SCANS /USER:mywindowuser /PERSISTENT:YES
+# > NET USE S: /DELETE
+# > NET USE \\smbhostname\MYWINDOWUSER /USER:mywindowuser /SAVECRED
+# > NET USE S: \\smbhostname\MYWINDOWUSER /USER:mywindowuser /PERSISTENT:YES
+# > NET USE U: /DELETE
+# > NET USE \\smbhostname\FSROOT /USER:mywindowuser /SAVECRED
+# > NET USE U: \\smbhostname\FSROOT /USER:mywindowuser /PERSISTENT:YES
+# > NET USE V: /DELETE
+# > NET USE \\smbhostname\VOUCHERS /USER:mywindowuser /SAVECRED
+# > NET USE V: \\smbhostname\VOUCHERS /USER:mywindowuser /PERSISTENT:YES
+#
+# > NET USE
+#
+# The last command just displays the currently configured shares. The first
+# command prompts for the password and remembers it temporarily for the
+# current session. The /SAVECRED-commands store that password permanently for
+# the various shares. THE /PERSISTENT-commands define the actual permanent
+# connections which will make use of the saved passwords.
