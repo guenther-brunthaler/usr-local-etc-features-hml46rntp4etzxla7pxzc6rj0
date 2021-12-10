@@ -1,0 +1,12 @@
+# Make /dev/hwrng readable by anyone.
+#
+# Read-protecting /dev/hwrng only makes sense when running rng-tools, because
+# it will protect /dev/hwrng from being "sucked dry" by unprivileged readers,
+# making rng-rools starve.
+#
+# But when running haveged instead of rng-tools, there is no reason to deny
+# anyone from reading random bytes from /dev/hwrng.
+#
+# v2021.344
+
+SUBSYSTEM=="misc", KERNEL=="hw_random", MODE="0644"
