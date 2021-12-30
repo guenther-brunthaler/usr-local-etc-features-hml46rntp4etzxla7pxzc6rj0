@@ -1,12 +1,14 @@
 #! /bin/sh
-# Version 2020.55
-# Copyright (c) 2018-2020 Guenther Brunthaler. All rights reserved.
+# Version 2021.363
+# Copyright (c) 2018-2021 Guenther Brunthaler. All rights reserved.
 #
 # This script is free software.
 # Distribution is permitted under the terms of the GPLv3.
 
 hook_dir=/etc/initramfs-tools/hooks
 self_uuid=1b6yezwr6zqi7en1de24r8x4x
+strip='/usr/bin/*linux*-strip'
+strip_opts=-g
 
 set -e
 
@@ -35,4 +37,33 @@ esac
 kmods=$DESTDIR/lib/modules
 test -d "$kmods"
 
-find -H "$kmods" -name '*.ko' -exec strip -g {} +
+(
+	cd -- "$kmods"
+	find -name '*.ko' | $pp | {
+		set -- $strip
+		test $# -ge 1
+		for s
+		do
+			test -x "$s"
+		done
+		while read m
+		do
+			tries=$#
+			while :
+			do
+				if
+					case $tries in
+						1) "$1" $strip_opts "$m";;
+						*)
+							"$1" $strip_opts "$m" \
+								>& 5 2>& 5
+					esac
+				then
+					break
+				fi
+				set -- "$@" "$1"; shift
+				tries=`expr $tries - 1` || exit
+			done
+		done 5> /dev/null
+	}
+)

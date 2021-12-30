@@ -1,3 +1,3 @@
 %video ALL =  NOPASSWD: \
-	/usr/local/sbin/xworld_raspbian/display-on, \
-	/usr/local/sbin/xworld_raspbian/display-off
+	/usr/local/sbin/xworld/raspbian/display-on, \
+	/usr/local/sbin/xworld/raspbian/display-off

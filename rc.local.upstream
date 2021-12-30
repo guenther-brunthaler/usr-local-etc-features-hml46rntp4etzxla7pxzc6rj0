@@ -8,9 +8,7 @@
 #
 # In order to enable or disable this script just change the execution
 # bits.
-#
-# By default this script does nothing.
 
-[ -d /etc/boot.d ] && run-parts /etc/boot.d
-
-exit 0
+if test -d /etc/boot.d ; then
+	run-parts /etc/boot.d
+fi
