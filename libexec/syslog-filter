@@ -1,0 +1,6 @@
+#! /bin/sh
+# Filter out everything unwanted from syslog candidate input.
+#
+# v2021.92
+grep -vFf /etc/site-6n580p79r0flmgyv0feaxchll/syslog-exclusions-plain \
+| grep -vf /etc/site-6n580p79r0flmgyv0feaxchll/syslog-exclusions-bre

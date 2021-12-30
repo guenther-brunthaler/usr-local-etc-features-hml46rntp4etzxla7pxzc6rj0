@@ -1,0 +1,1 @@
+gb ALL = NOPASSWD: /etc/libexec/push_apt_lists.sh
