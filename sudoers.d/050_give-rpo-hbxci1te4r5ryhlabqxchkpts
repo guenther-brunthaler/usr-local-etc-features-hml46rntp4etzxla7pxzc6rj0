@@ -1,0 +1,3 @@
+rpoadm ALL = (root) NOPASSWD: \
+	/etc/libexec/give-rpo rpowrite. /srv/scm/replicas/* \
+	, /etc/libexec/give-rpo rpoprvl. /srv/scm/replicas/*

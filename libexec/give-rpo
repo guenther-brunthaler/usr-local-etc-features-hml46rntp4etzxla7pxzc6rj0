@@ -1,0 +1,74 @@
+#! /bin/sh
+abort_version() {
+	cat << ===; false || exit
+$0 Version 2021.309
+
+Copyright (c) 2021 Guenther Brunthaler. All rights reserved.
+
+This script is free software.
+Distribution is permitted under the terms of the GPLv3.
+===
+}
+
+abort_usage() {
+	cat << ===; echo; abort_version
+$0 - repository ownership delivery tool
+
+Usage: $0 \$to $base/\$repo
+
+Transfers ownership of filesystem object $base/\$repo (which
+must be owned by the invoking user) to user/group \$to.
+
+\$to will be directly passed through to "chown"; see the man
+page of "chown" to a full description of that parameter.
+
+\$repo may contain the following characters:
+
+* alphanumerics (either letter case)
+
+* dash ("-"), underscore ("_"), dot (".")
+
+The dot character is only allowed inside (neither at its first
+nor last character) the \$repo name and no contiguous dot
+characters within the name are allowed.
+
+Also, the name must contain a unique ID sequence of at least 25
+lower case alphanumeric characters which is separated from the
+part before and after by some non-alphanumeric character.
+
+The ID should be a binary UUID or random number at least 128 bit
+wide, encoded as an ASCII number in some radix base between 2 and
+36.
+===
+}
+
+base=/srv/scm/replicas
+
+set -e
+
+trap 'test $? = 0 || echo "\"$0\" failed!" >& 2' 0
+
+case $# in
+	2) ;;
+	*) abort_usage
+esac
+
+LC_NUMERIC=C LC_COLLATE=C expr \
+	0 = x"$2" : x'.*\.\.' \
+	\& 0 = x"$2" : x"$base/"'\.' \
+	\& 0 = x"$2" : x'.*\.$' \
+	\& x"$2" : x'.*[^[:alnum:]][0-9a-z]\{25,\}[^[:alnum:]]' \
+	\& x"$2" : x"$base/"'[-_.[:alnum:]]*$' \
+	> /dev/null
+
+verify_owner() {
+	owner=$2
+	set -- `ls -ld -- "$1"`
+	test "$4" = "$owner"
+}
+
+u=$SUDO_USER
+test -z "$u" && u=`id -un`
+verify_owner "$2" "$u"
+
+chown "$1" -- "$2"
