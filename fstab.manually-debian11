@@ -11,12 +11,12 @@
 # v2021.348
 
 # <file system>	<mount point>	<type>		<options> <dump> <fsck_order>
-proc		/proc		proc		auto,rw,nodiratime,relatime 0 0
-tmpfs		/tmp		tmpfs		auto,mode=1777,nosuid,nodev,relatime,size=30% 0 0
-media_mnt	/media		tmpfs		auto,relatime,size=128k,mode=755 0 0
-udev		/dev		devtmpfs	noauto,nosuid,relatime,size=100m,mode=755 0 0
+proc		/proc		proc		rw,nodiratime,relatime 0 0
+tmpfs		/tmp		tmpfs		mode=1777,nosuid,nodev,relatime,size=30% 0 0
+media_mnt	/media		tmpfs		relatime,size=128k,mode=755 0 0
+udev		/dev		devtmpfs	nosuid,relatime,size=100m,mode=755 0 0
 devpts		/dev/pts	devpts		nosuid,noexec,relatime,gid=5,mode=620,ptmxmode=000 0 0
-lock		/var/lock	tmpfs		auto,nosuid,nodev,noexec,relatime,size=5m 0 0
-run		/run		tmpfs		noauto,mode=0755,nosuid,noexec,relatime,size=100m 0 0
-shm		/dev/shm	tmpfs		auto,mode=1777,nosuid,nodev,noexec,relatime,size=20% 0 0
-sys		/sys		sysfs		noauto,nodiratime,relatime 0 0
+lock		/run/lock	tmpfs		nosuid,nodev,noexec,relatime,size=5m 0 0
+run		/run		tmpfs		mode=0755,nosuid,noexec,relatime,size=100m 0 0
+shm		/dev/shm	tmpfs		mode=1777,nosuid,nodev,noexec,relatime,size=20% 0 0
+sys		/sys		sysfs		nodiratime,relatime 0 0
