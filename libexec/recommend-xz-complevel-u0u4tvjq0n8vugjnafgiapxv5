@@ -1,0 +1,29 @@
+#! /bin/sh
+# Version 2022.3
+#
+# Copyright (c) 2022 Guenther Brunthaler. All rights reserved.
+#
+# This script is free software.
+# Distribution is permitted under the terms of the GPLv3.
+
+set -e
+trap 'test $? = 0 || echo "\"$0\" failed!" >& 2' 0
+
+m=/proc/meminfo
+test -e "$m"
+exec awk -f /dev/fd/5 "$m" 5<< 'EO_AWK'
+
+BEGIN {m= 0}
+
+$1 == "MemAvailable:" && $3 == "kB" {m= $2}
+
+END {
+	c=9
+	if (m < 750000) c=8
+	if (m < 410000) c=7
+	if (m < 210000) c=6
+	if (m < 110000) c=5
+	print c
+}
+
+EO_AWK

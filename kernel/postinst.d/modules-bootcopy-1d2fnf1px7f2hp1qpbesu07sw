@@ -59,14 +59,6 @@ fi
 arc=xz
 tarext=t$arc
 have "$arc"
-arc="$arc -c"
-
-m=/proc/meminfo
-test -e "$m"
-m=`awk '$1 == "MemTotal:" && $3 == "kB" {print $2}' "$m"`
-c=9
-test $m -lt 1000000 && c=8
-arc=$arc$c
 
 if test ! -w /boot
 then
@@ -86,6 +78,10 @@ chmod 700 "$TD"
 	cp -pr /lib/modules/"$KERNEL_VERSION" .
 	find -name "*.ko" -exec strip -g {} +
 )
+
+c=`/etc/libexec/recommend-$arc-complevel-u0u4tvjq0n8vugjnafgiapxv5`
+arc="$arc -c$c"
+
 echo "$a $OUTFILE"
 tar -C "$TD" -c "$KERNEL_VERSION" | $arc | $pp > "$OUTFILE"
 OUTFILE=
