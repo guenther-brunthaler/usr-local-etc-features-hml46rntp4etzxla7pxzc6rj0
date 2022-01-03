@@ -9,7 +9,11 @@
 # with "? ", then it will not be an error if that executable cannot be found.
 # If an entry is prefixed with "= ", then it will be put exactly at the
 # corresponding location in the initramfs, bypassing automatic target
-# directory mapping. (Both prefixes can be combined in arbitrary order.)
+# directory mapping. If an entry is prefixed with "M ", then it must be a
+# kernel driver name, and its associated kernel module (unless already built
+# into the kernel) as well as all its dependency modules will be included
+# within initramfs. (Prefix characters "=" or "M" may be combined with "?" in
+# arbitrary order.)
 #
 # Every file drop tree directory contains a directory tree of related files
 # which shall be placed into the initramfs filesystem root directory, using
@@ -24,9 +28,9 @@
 # directories with actual files in $list_dir, and *this* hook ensures the
 # files will get copied to initramfs properly.
 #
-# Version 2019.309
+# Version 2022.3
 #
-# Copyright (c) 2018-2019 Guenther Brunthaler. All rights reserved.
+# Copyright (c) 2018-2022 Guenther Brunthaler. All rights reserved.
 #
 # This script is free software.
 # Distribution is permitted under the terms of the GPLv3.
@@ -101,20 +105,32 @@ need() {
 	false || exit
 }
 
+mam() {
+	case $optional in
+		'') manual_add_modules "$1";;
+		*) manual_add_modules "$1" > /dev/null 2>& 1 || :
+	esac
+}
+
 process_utility_item() {
-	optional=; exact=
+	optional= exact= module=
 	while :
 	do
 		case $utility in
 			"#"* | "") return;;
 			"? "*) utility=${utility#"? "}; optional=Y;;
 			"= "*) utility=${utility#"= "}; exact=Y;;
+			"M "*) utility=${utility#"M "}; module=Y;;
 			/*)
 				test -e "$utility" && break
 				test "$optional" && return
 				need "$utility"
 				;;
 			*)
+				case $module in
+					'') ;;
+					*) mam "$utility"; return
+				esac
 				f=$utility
 				utility=`command -v -- "$f" 2> /dev/null` \
 					&& break

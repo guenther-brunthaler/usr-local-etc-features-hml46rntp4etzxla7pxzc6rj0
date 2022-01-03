@@ -1,0 +1,5 @@
+# Commands for pretty-printing and optionally filtering the non-persistent
+# log. Can be a single or multiple commands, including shell pipelines,
+# command lists, and shell built-in commands. Whatever new data these commands
+# return will be saved to persistent storage.
+dump_commands='busybox-pbyqxzl1ktqlk3fjm3arlrclg logread | /etc/libexec/syslog-filter'
