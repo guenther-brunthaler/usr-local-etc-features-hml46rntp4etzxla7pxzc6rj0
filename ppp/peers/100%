@@ -5,9 +5,12 @@ ipparam 100%
 ifname modem
 unit 0
 /dev/serial/by-id/usb-HUAWEI_Technology_HUAWEI_Mobile-if00-port0
-# hash(unit0.remote.ppp.0u02q6wjr6zdku9qh4mjbyqdn.local):
 noipdefault
+# hash(unit0.local.ppp.0u02q6wjr6zdku9qh4mjbyqdn.local):\
+# hash(unit0.remote.ppp.0u02q6wjr6zdku9qh4mjbyqdn.local)
+#10.232.208.171:10.85.208.171
 :10.85.208.171
+noipv6
 lock
 hide-password 
 noauth
