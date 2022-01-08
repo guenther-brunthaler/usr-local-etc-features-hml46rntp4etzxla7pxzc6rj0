@@ -1,3 +1,5 @@
+base62encode
 haveged
 keygen-octets-by-harvesting-entropy
+openssl
 pwgen-with-entropy-harvesting-as-base62

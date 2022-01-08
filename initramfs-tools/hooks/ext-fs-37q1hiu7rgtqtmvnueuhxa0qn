@@ -1,10 +1,12 @@
 #! /bin/sh
-# Version 2021.363
+# Version 2022.8
 #
-# Copyright (c) 2021 Guenther Brunthaler. All rights reserved.
+# Copyright (c) 2021-2022 Guenther Brunthaler. All rights reserved.
 #
 # This script is free software.
 # Distribution is permitted under the terms of the GPLv3.
+
+more_search_paths=/usr/local/sbin:/usr/sbin:/sbin
 
 set -e
 
@@ -14,12 +16,32 @@ esac
 
 . /usr/share/initramfs-tools/hook-functions
 
+if test -f ~/.profile
+then
+	set +e; . ~/.profile > /dev/null 2>& 1 < /dev/null; set -e
+fi
+PATH=$PATH:$more_search_paths
+
 have() {
-	result=`command -v $1 2> /dev/null` || return
+	result=`command -v "$1" 2> /dev/null` || return
 }
 
 cpe() {
-	copy_exec "$1" "${1%/*}"
+	tgp=$1
+	while :
+	do
+		# Reduce target choice to only standard executable places.
+		# Assumes additional subdirectory below those places may have
+		# been added to $PATH. /usr/local/* will be redirected to
+		# /usr/*.
+		case $tgp in
+			*/bin | */sbin) break;;
+			/usr/local/*) tgp=/usr/${tgp#/usr/local/};;
+			'') false || exit;;
+			*) tgp=${tgp%/*}
+		esac
+	done
+	copy_exec "$1" "$tgp"
 }
 
 for fs in ext2 ext3 ext4
@@ -29,10 +51,14 @@ do
 		cpe "$result"
 		have mkfs.$fs
 		cpe "$result"
+		if have mkfs.$fs-customized
+		then
+			cpe "$result"
+		fi
 		manual_add_modules $fs
 	fi
 done
-for u in tune2fs resize2fs
+for u in tune2fs resize2fs e4crypt
 do
 	have $u
 	cpe "$result"

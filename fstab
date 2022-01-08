@@ -1,23 +1,23 @@
-# "<block device>"			"<mount point>"		"<fs type>"	"<options> <dump> <order>"
+# "<block device>"				"<mount point>"			"<fs type>"	"<options> <dump> <order>"
 
 # Order group 1.
-/dev/mapper/HOSTNAME-level0-dec		/			nilfs2		defaults,noatime 0 1
+/dev/vg_myhost/fsroot				/					ext4		defaults,relatime 0 1
+/dev/mapper/HOSTNAME-level0-dec			/					nilfs2		defaults,noatime 0 1
 
 # Order group 2.
-/dev/mmcblk0p1				/boot			vfat		defaults,noatime,ro,umask=117,dmask=007,uid=root,gid=disk 0 2
+/dev/mmcblk0p1					/boot					vfat		defaults,noatime,ro,umask=117,dmask=007,uid=root,gid=disk 0 2
+UUID=55555555-5555-5555-5555-555555555555	/boot					ext4		defaults,ro,noatime,errors=remount-ro 0 2
+/dev/vg_myhost/home				/home					ext4		defaults,errors=remount-ro 0 2
+/dev/vg_myhost/usr				/usr					ext4		defaults,noatime,errors=remount-ro 0 2
+/dev/vg_myhost/var				/var					ext4		auto,relatime,errors=remount-ro 0 2
+/dev/mapper/swap-myhost-dec			none					swap		auto 0 3
 
-# Should be unnecessary because those are mounted explicitly be boot scripts. Present here just in case they are not.
-devpts					/dev/pts		devpts		noauto,noexec,nosuid,gid=5,mode=620 0 0
-
-# Mounted by startup scripts.
-proc					/proc			proc		noauto,defaults 0 0
-cgroup					/sys/fs/cgroup		cgroup		noauto,defaults 0 0
-cgroup_memory				/sys/fs/cgroup/memory	cgroup		noauto,memory 0 0
-
-# Mounted manually by superuser.
-none					/sys/kernel/debug	debugfs		noauto,defaults 0 0
-none					/sys/kernel/tracing	tracefs		noauto,defaults 0 0
-/dev/mapper/HOSTNAME-level1-dec		/home/mnt/level1	ext4		noauto,defaults,noatime 0 0
-/dev/mapper/HOSTNAME-level2-dec		/home/mnt/level2	ext4		noauto,defaults,noatime 0 0
+# Mounted manually by superuser on demand.
+/dev/mapper/HOSTNAME-level1-dec			/home/mnt/level1			ext4		noauto,defaults,noatime 0 0
+/dev/mapper/HOSTNAME-level2-dec			/home/mnt/level2			ext4		noauto,defaults,noatime 0 0
 
 # Mounted manually by users.
+https://555.255.555.555:1234/			/media/myuser/Server_Rechenzentrum	davfs		user,noauto 0 0
+https://mediacenter.gmx.net/			/media/myuser/GMX_Cloud_myuser 		davfs		user,noauto 0 0
+https://127.0.0.1:6789/				/media/myuser/koala_wlan_myuser		davfs		user,noauto 0 0
+192.168.0.32:/srv/tftp				/home/mnt/netboot			nfs4		user,noauto 0 0
