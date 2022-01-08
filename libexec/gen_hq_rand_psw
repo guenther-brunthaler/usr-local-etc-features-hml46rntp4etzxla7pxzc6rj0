@@ -1,17 +1,10 @@
 #! /bin/sh
 # Helper for /etc/crypttab.
 #
-# v2022.8
-
-more_search_paths=/usr/local/sbin:/usr/sbin:/sbin
+# v2022.8.1
 
 set -e
 test "$CRYPTTAB_OPTION_keyscript" = "$0"
 
-if test -f ~/.profile
-then
-	set +e; . ~/.profile > /dev/null 2>& 1 < /dev/null; set -e
-fi
-PATH=$PATH:$more_search_paths
-
-exec keygen-octets-by-harvesting-entropy `expr "$CRYPTTAB_OPTION_size" / 8`
+exec /etc/libexec/cached/keygen-octets-by-harvesting-entropy \
+	`expr "$CRYPTTAB_OPTION_size" / 8`

@@ -1,0 +1,134 @@
+#! /bin/sh
+# Write N full-entropy binary octets to standard output. N must be a positive
+# integer and the only argument to the script. If omitted, N defaults to 32
+# (i.e. 256 random bits).
+#
+# The script always generates octets using haveged, which must be installed.
+# But $HW is a readable character devices, the same amount of data will be
+# drawn from it and be mixed into the output of haveged. Also, data from
+# /dev/urandom will be mixed in the same way.
+#
+# Version 2022.4
+#
+# Copyright (c) 2021-2022 Guenther Brunthaler. All rights reserved.
+#
+# This script is free software.
+# Distribution is permitted under the terms of the GPLv3.
+
+HW=/dev/hwrng
+
+set -e
+trap 'test $? = 0 || echo "\"$0\" failed!" >& 2' 0
+
+verbose=false
+while getopts H:v opt
+do
+	case $opt in
+		v) verbose=true;;
+		H) test "$OPTARG"; HW=$OPTARG;;
+		*) false || exit
+	esac
+done
+shift `expr $OPTIND - 1 || :`
+
+case $# in
+	0) count=32;;
+	1) count=$1;;
+	*) false || exit
+esac
+
+expr x"$count" : x'[1-9][0-9]*$' > /dev/null
+
+PATH=$PATH:/usr/local/sbin:/usr/sbin:/sbin:/opt/sbin
+
+verify_installed() {
+	pkg=
+	missing=false
+	for needed
+	do
+		case $needed in
+			*:) pkg=${needed%:};;
+			*)
+				command -v "$needed" > /dev/null 2>& 1 \
+					&& continue
+				echo "Required utility '$needed' is" \
+					" missing!" >& 2
+				echo "On some systems, it may be installed" \
+					" with:" >& 2
+				printf '$ ' >& 2
+				echo "sudo apt-get install $pkg"
+				echo >& 2
+				missing=true
+		esac
+	done
+	if $missing
+	then
+		echo "Please install the missing packages," \
+			" then try again!" >& 2
+		false || exit
+	fi
+}
+
+verify_installed \
+	haveged: haveged \
+	openssl: openssl \
+
+HAVGE() {
+	haveged -f - -n "$1"
+}
+
+gather_entropy_block() {
+	{
+		{
+			HAVGE "$1"
+			# May invoke haveged again if running as a service.
+			dd if=/dev/urandom bs=1 count="$1"
+			if test -r "$HW" && test -c "$HW"
+			then
+				# May still fail - sometimes the device node
+				# is there, but it triggers an error message
+				# when trying to actually read from it.
+				dd if="$HW" bs=1 count=32 || :
+			fi
+		} | openssl sha256 -binary | dd bs="$1" count=1
+	} 2> /dev/null
+}
+
+# Harvest the specified number of entropy bytes and write them to standard
+# output in binary form.
+gather_entropy_bytes() {
+	left=$1
+	while test "$left" -ge 32
+	do
+		gather_entropy_block 32
+		left=`expr $left - 32 || :`
+	done
+	case $left in
+		0) ;;
+		*) gather_entropy_block "$left"
+	esac
+}
+
+
+xbyte() {
+	HAVGE 1 2> /dev/null | od -A n -t x1
+}
+
+i=16 b0=
+while :
+do
+	b1=`xbyte`
+	case $b0 in
+		'') b0=$b1;;
+		"$b1") ;;
+		*) break
+	esac
+	i=`expr $i - 1` || break
+done
+case $i in
+	0)
+		echo "'haveged' does not seem to work!" >& 2
+		HAVGE > /dev/null
+		false || exit
+esac
+gather_entropy_bytes "$count"

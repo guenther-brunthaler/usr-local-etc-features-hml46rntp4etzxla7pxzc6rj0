@@ -28,7 +28,7 @@
 # directories with actual files in $list_dir, and *this* hook ensures the
 # files will get copied to initramfs properly.
 #
-# Version 2022.3
+# Version 2022.8
 #
 # Copyright (c) 2018-2022 Guenther Brunthaler. All rights reserved.
 #
@@ -44,6 +44,7 @@ case $1 in
 esac
 
 . /usr/share/initramfs-tools/hook-functions
+. /etc/initramfs-tools/hooks/helpers.d/scopes-hqxbfzp9026esereelim9tbyk.sh
 
 if test -f ~/.profile
 then
@@ -55,21 +56,37 @@ test "$DESTDIR"
 test "$list_dir"
 
 # Put file $1 into directory with absolute path $2 (which will be interpreted
-# relative to $DESTDIR, though).
+# relative to $DESTDIR, though). If $1 happens to be an executeble, any
+# pre-existing executables (such as Busybox replacements) of the same name
+# will be removed first.
 destputfile() {
-	mkdir -p -- "${DESTDIR%%/}$2"
-	case `file --mime-type -- "$1"` in
-		*text/*) ;;
-		*-executable | *-sharedlib)
-			copy_exec "$1" "$2"
-			return
-	esac
-	cp -p -- "$1" "${DESTDIR%%/}$2"
+	scope
+		var ddir
+		ddir=${DESTDIR%%/}
+		mkdir -p -- "$ddir$2"
+		case `file --mime-type -- "$1"` in
+			*text/*) ;;
+			*-executable | *-sharedlib)
+				var bn bpth
+				bn=${1##*/}
+				for bpth in /bin /sbin /usr/bin /usr/sbin
+				do
+					bpth=$ddir$bpth/$bn
+					test ! -e "$bpth" && continue
+					rm -- "$bpth"
+				done
+				copy_exec "$1" "$2"
+				unwind; return
+		esac
+		cp -p -- "$1" "$ddir$2"
+	unwind
 }
 
 # Recursively copy existing directory tree $1 to absolute path $2 (which will
 # be interpreted relative to $DESTDIR, though). $3 must also already exist.
 copy_directory() {
+	scope
+	var fso rp o
 	for fso in $1/* $1/.*
 	do
 		rp=${fso#"$1/"}
@@ -98,6 +115,7 @@ copy_directory() {
 			destputfile "$fso" "$2"
 		fi
 	done
+	unwind
 }
 
 need() {
@@ -113,6 +131,8 @@ mam() {
 }
 
 process_utility_item() {
+	scope
+	var optional exact module f
 	optional= exact= module=
 	while :
 	do
@@ -123,33 +143,35 @@ process_utility_item() {
 			"M "*) utility=${utility#"M "}; module=Y;;
 			/*)
 				test -e "$utility" && break
-				test "$optional" && return
+				test "$optional" && { unwind; return; }
 				need "$utility"
 				;;
 			*)
 				case $module in
 					'') ;;
-					*) mam "$utility"; return
+					*) mam "$utility"; { unwind; return; }
 				esac
 				f=$utility
 				utility=`command -v -- "$f" 2> /dev/null` \
 					&& break
-				test "$optional" && return
+				test "$optional" && { unwind; return; }
 				need "$f"
 		esac
 	done
-	f=${utility%%/}; f=/${f##/}
+	f=${utility%%/} f=/${f##/}
 	test -f "$f" || {
 		echo "E: Cannot find required utility '$utility'!" >& 2
 		false || exit
 	}
+	var d
 	d=$f
 	if test "$exact"
 	then
 		d=${d%/*}
 	else
+		var k o
 		case $d in
-			/usr/local/*/*) k=5;;
+			/usr/local/*/*) d=/usr/${d#/usr/local/}; k=4;;
 			/usr/*/*) k=4;;
 			/bin/* | /sbin/*) k=3;;
 			*) d=/usr/; k=3
@@ -166,6 +188,7 @@ process_utility_item() {
 		d=$o
 	fi
 	destputfile "$f" "$d"
+	unwind
 }
 
 list_dir=${list_dir%%/}; list_dir=/${list_dir##/}
@@ -175,20 +198,23 @@ find "$list_dir" \
 		-o -type d ! -path "$list_dir" -name "*.d" \
 	\) -print \
 | {
-	while IFS= read -r util_entry
-	do
-		if test -f "$util_entry"
-		then
-			while read -r utility
-			do
-				process_utility_item
-			done < "$util_entry"
-		else
-			o=${util_entry##*/}
-			case ${o%.d} in
-				*.*) continue
-			esac
-			copy_directory "$util_entry" /
-		fi
-	done
+	scope
+		var util_entry utility o
+		while IFS= read -r util_entry
+		do
+			if test -f "$util_entry"
+			then
+				while read -r utility
+				do
+					process_utility_item
+				done < "$util_entry"
+			else
+				o=${util_entry##*/}
+				case ${o%.d} in
+					*.*) continue
+				esac
+				copy_directory "$util_entry" /
+			fi
+		done
+	unwind
 }
