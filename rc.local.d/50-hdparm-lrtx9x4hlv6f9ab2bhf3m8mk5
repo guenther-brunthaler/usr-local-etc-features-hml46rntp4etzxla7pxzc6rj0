@@ -1,0 +1,23 @@
+#! /bin/sh
+# Version 2022.9
+
+NAME=hdparm-lrtx9x4hlv6f9ab2bhf3m8mk5
+DESC="Load and apply 'hdparm' runtime-configuration parameters"
+
+DISK_DEV=/dev/disk/by-id/ata-XXXXX # You definitely want to override this!
+SPINDOWN_TIMEOUT=253 # 8 to 12 hrs (vendor-dependent).
+ADV_PWR_MGMNT=128 # Maximum power savings which do not need spinning down.
+
+set -e
+. /etc/default/$NAME
+test -b "$DISK_DEV"
+command -v hdparm > /dev/null
+
+case $ADV_PWR_MGMNT in
+	'') ;;
+	*) hdparm -B $ADV_PWR_MGMNT "$DISK_DEV"
+esac
+case $SPINDOWN_TIMEOUT in
+	'') ;;
+	*) hdparm -S $SPINDOWN_TIMEOUT "$DISK_DEV"
+esac

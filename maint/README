@@ -1,5 +1,5 @@
-README v2021.302
-================
+README v2022.9
+==============
 
 File format: ASCII, lines up to 79 columns, SPACE+newline marks a line wrap.
 
@@ -10,13 +10,15 @@ It is *not* supposed to be copied over to a real /etc!
 It just contains scripts and other documents for helping with synchronizing 
 the available changes between the /etc/ and /etc/$TPL_SYMLINK/ directories.
 
-$TPL_SYMLINK is a symlink with an arbitrary name to where the repository 
+$TPL_SYMLINK is a symlink with an arbitrary name (for instance, "tpl" or 
+"etc.tpl" might be good candidates for suitable names) to where the repository 
 containing THIS file you are reading has been checked out. Alternatively, you 
 can also check the repository out there directly as a subdirectory rather than 
 using a symlink.
 
 This might not be the best idea, however, because the etc-templates repository 
-might be much larger than /etc itself.
+might be much larger than /etc itself and "/" might have only little space to 
+spare.
 
 Scripts contained in /etc/$TPL_SYMLINK/maint are not meant to be part of the 
 files copied to /etc, but rather contains scripts for helping the 
@@ -38,10 +40,10 @@ which might be useful for system customization. Completely
 optional. Should not be needed at all. (Otherwise it should be 
 considered a bug.)
 
-* ./newlocals.sh: Display new files in the template directory which might thus 
-be candidates for copying over to the real /etc. New files which are not 
-wanted there should be added to the local ignore lists, so they won't show up 
-again in future runs of this script.
+* ./newlocals.sh: Display new files in the local /etc directory which be 
+candidates for copying over into the template directory for /etc. New files 
+which are not wanted there should be added to the local ignore lists, so they 
+won't show up again in future runs of this script.
 
 * ./suggest-appliable-patches.sh: Compares all files which are not locally 
 ignored and exist both in the template directory and the real /etc. Then emit 

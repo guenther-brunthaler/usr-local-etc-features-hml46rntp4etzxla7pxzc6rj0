@@ -4,15 +4,16 @@
 # Merge the lines below into to your "~/.ssh/config". Then fill in the ???
 # placeholders and further customize the lines if needed.
 #
-# v2021.303
+# v2022.9
 
-Host rpo-ro rpo-rw rpo-root
+Host rpo-ro rpo-rw rpo-root rpo
 	IdentitiesOnly yes
 	#ControlPath ~/.ssh/shared_connections/%C
+	#Compression no
 	Port ???
 	HostName ???
 
-Host rpo-ro
+Host rpo-ro rpo
 	User rporead
 	IdentityFile "~/.ssh/keys/???/rporead@???-ssh.prv"
 
