@@ -1,5 +1,5 @@
-README v2022.9
-==============
+README v2022.9.1
+================
 
 File format: ASCII, lines up to 79 columns, SPACE+newline marks a line wrap.
 
@@ -55,7 +55,11 @@ to the template versions.
 properly. WIP.
 
 * ./upstreams.sh: Find any new unmodified upstream copies in the template 
-directory for files which do exist in the real /etc. They can then be copied 
-over to the real /etc and both versions be put under version control. This 
-allows to see which changes originated from upstream and which changes 
-orinated locally.
+directory for files which do exist in the real /etc with different contents. 
+They can then be copied over to the real /etc and both versions be put under 
+version control. This allows to see which changes originated from upstream and 
+which changes orinated locally. The script also shows differing local and 
+template copies of *.upstream files (meaning at least one of them must be 
+outdated.) Finally, the script reports orphaned *.upstream files for which not 
+corresponding local file without the ".upstream"-suffix exists. Such files 
+should probably be removed.
