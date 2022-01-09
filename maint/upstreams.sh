@@ -16,14 +16,34 @@
 # the newest current upstream version should be determined, replacing both
 # copies.
 #
-# Version 2022.9
+# The -a option suggests actions - piping them into a shell will execute them.
+# (Diagnostic messages will always be writen to the standard error stream only
+# and will therefore not interfere with the suggested commands written to
+# standard output.
+#
+# Version 2022.9.1
+
+# Requires: qin-32r1h6hwy9bst69b8zpw5uqf0
+# Requires: show_failures-ci9hjhmyjuy0cx1wmguv7n6h0
 
 set -e
-trap 'test $? = 0 || echo "\"$0\" failed!" >& 2' 0
+base=`readlink -f -- "$0"`
+base=`dirname -- "$base"`
+base=`dirname -- "$base"`
 
-while getopts '' opt
+lib=$base/libexec/lib/sh
+# Generated b83iv5hz8sbpbv4i80t9v5rwv: {
+. "$lib"/println-871v57a0dzb6d3rxykj87vsnf.sh
+. "$lib"/qin-32r1h6hwy9bst69b8zpw5uqf0.sh
+. "$lib"/scopes-hqxbfzp9026esereelim9tbyk.sh
+. "$lib"/show_failures-ci9hjhmyjuy0cx1wmguv7n6h0.sh
+# }
+
+suggest_action=false
+while getopts a opt
 do
 	case $opt in
+		a) suggest_action=true;;
 		*) false || exit
 	esac
 done
@@ -31,10 +51,20 @@ shift `expr $OPTIND - 1 || :`
 
 test $# = 0
 
-base=`readlink -f -- "$0"`
-base=`dirname -- "$base"`
-base=`dirname -- "$base"`
-cd -- "$base" # chdir to base of the template files for /etc.
+# Report that file $2 has problem $1. $3 and on are suggested action, if any.
+problem() {
+	echo "$1: $2" >& 2
+	if $suggest_action && test "${3+set}"
+	then
+		shift 2
+		qin "$@"
+	fi
+}
+
+# chdir to base of the template files for /etc.
+cd -- "$base"
+
+# Process all existing template *.upstream files.
 find . -name "*.upstream" \
 | while IFS= read -r tu
 do
@@ -44,24 +74,24 @@ do
 	if test -e "$lu"
 	then
 		# Both local and template *.upstream files exist.
-		if cmp -s "$lu" "$tu"
+		if cmp -s -- "$lu" "$tu"
 		then
 			# But they are different! At least one of them must be
 			# outdated.
-			problem=OUTDATED
+			problem OUTDATED "$tu"
 		elif test ! -e "$le"
 		then
 			# We have a local *.upstream file without a
 			# corresponding local file without the ".upstream"
 			# suffix.
-			problem=ORPHANED
-		elif cmp -s "$le" "$lu"
+			problem ORPHANED "$lu" rm -- "$lu"
+		elif cmp -s -- "$le" "$lu"
 		then
 			# We have both a local *.upstream file and a
 			# corresponding local file, but both are identical. It
 			# does not seem we need the upstream file any longer,
 			# because there are no local modifications.
-			problem=USELESS
+			problem USELESS "$lu" rm -- "$lu"
 		else
 			# We have both local .upstream and local files and
 			# both are different. That is what is to be expected.
@@ -73,16 +103,34 @@ do
 		if test -e "$le"
 		then
 			# But a local working file does exists.
-			cmp -s "$le" "$tu" && continue # Obviously unmodified.
+			cmp -s -- "$le" "$tu" && continue # Unmodified.
 			# The working file is different from the template
 			# upstream version. We should keep a local upstream
 			# copy around for documenting the differences!
-			problem=MISSING
+			problem MISSING "$lu" cp -- "$base$tu" "$lu"
 		else
-			# There is neither a local working file nor a local upstream copy.
-			# Obviously we do not need such a working copy at all. Fine.
+			# There is neither a local working file nor a local
+			# upstream copy. Obviously we do not need such a
+			# working copy at all. Fine.
 			continue
 		fi
 	fi
-	echo "$problem: $tu"
+done
+# Process all local /etc *.upstream files.
+find -H /etc -name .git -prune -o ! -type d -name '*.upstream' -print \
+| while IFS= read -r lu
+do
+	le=${lu%.upstream}
+	if test -e "$le"
+	then
+		# Both a local upstream and local working file exist.
+		if cmp -s -- "$lu" "$le"
+		then
+			# But they are identical!
+			problem USELESS "$lu" rm -- "$lu"
+		fi
+	else
+		# They are different. As was to be expected. Good.
+		continue
+	fi
 done

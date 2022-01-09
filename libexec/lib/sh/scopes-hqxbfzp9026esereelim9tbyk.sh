@@ -40,6 +40,8 @@
 # This shell script snippet is free software.
 # Distribution is permitted under the terms of the GPLv3.
 
+# Requires: trap_errors-3vnzcvh9hfs134g6ln6cy567k
+
 # Push value from variable with name $1 onto the stack.
 pushvar() {
 	eval stack_$stack_pointer=\$$1
@@ -61,10 +63,14 @@ push() {
 }
 
 # Schedule an expression for evaluation when unwind() is called.
-alias finally=push
+finally() {
+	push ${1+"$@"}
+}
 
 # Define a new scope where unwind() will stop.
-alias scope=push
+scope() {
+	push ${1+"$@"}
+}
 
 # Schedule another list of variables to be restored when unwind() is called.
 var() {
