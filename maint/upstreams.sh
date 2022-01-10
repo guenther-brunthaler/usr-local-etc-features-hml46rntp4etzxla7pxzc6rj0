@@ -64,12 +64,21 @@ problem() {
 # chdir to base of the template files for /etc.
 cd -- "$base"
 
+# Return UNIX timestamp of file $2 in Git checkout $1.
+git_uxts() {
+	(
+		cd -- "$1"
+		git log -n 1 --pretty=%at -- "$2"
+	)
+}
+
 # Process all existing template *.upstream files.
 find . -name "*.upstream" \
 | while IFS= read -r tu
 do
-	tu=${tu#./} # Relative path of template *.upstream file.
-	lu=/etc/$tu # Absolute path of local *.upstream file.
+	ru=${tu#./} # Relative path of template *.upstream file.
+	lu=/etc/$ru # Absolute path of local *.upstream file.
+	tu=$base/$ru # Absoluate path of template *.upstream file.
 	le=${lu%.upstream} # Path of local copy (without the .upstream).
 	if test -e "$lu"
 	then
@@ -78,7 +87,14 @@ do
 		then
 			# But they are different! At least one of them must be
 			# outdated.
-			problem OUTDATED "$tu"
+			if
+				test "`git_uxts "$base" "$ru"`" \
+					-gt "`git_uxts /etc "$ru"`"
+			then
+				problem OUTDATED "$tu" cp -- "$lu" "$tu"
+			else
+				problem OUTDATED "$bau" cp -- "$tu" "$lu"
+			fi
 		elif test ! -e "$le"
 		then
 			# We have a local *.upstream file without a
@@ -107,7 +123,7 @@ do
 			# The working file is different from the template
 			# upstream version. We should keep a local upstream
 			# copy around for documenting the differences!
-			problem MISSING "$lu" cp -- "$base$tu" "$lu"
+			problem MISSING "$lu" cp -- "$tu" "$lu"
 		else
 			# There is neither a local working file nor a local
 			# upstream copy. Obviously we do not need such a
