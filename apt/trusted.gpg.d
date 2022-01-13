@@ -1,0 +1,1 @@
+trusted-all.gpg.d
