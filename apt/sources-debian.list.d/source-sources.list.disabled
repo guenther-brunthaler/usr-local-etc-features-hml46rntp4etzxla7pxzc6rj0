@@ -1,0 +1,3 @@
+deb-src http://debian.intergenia.de/debian bullseye main contrib non-free
+deb-src http://debian.intergenia.de/debian bullseye-updates main contrib non-free
+deb-src http://debian.intergenia.de/debian-security bullseye-security main contrib non-free
