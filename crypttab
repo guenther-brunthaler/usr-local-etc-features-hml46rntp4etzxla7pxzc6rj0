@@ -1,3 +1,10 @@
-# <target name>	<source device>					<key file>	<options>
-pv-myhost-dec	UUID=55555555-5555-5555-5555-555555555555	none		luks,tries=5
-swap-myhost-dec	PARTUUID=55555555-55				unused_dummy	plain,swap,noearly,cipher=serpent-pcbc-essiv:sha256,size=256,hash=sha256,keyscript=/etc/libexec/gen_hq_rand_psw
+# <target name>		<source device>					<key file>	<options>
+pv-myhost-dec		UUID=55555555-5555-5555-5555-555555555555	none		luks,tries=5
+
+swap1-myhost-dec	PARTUUID=55555555-02				unused_dummy	plain,swap,noearly,cipher=serpent-pcbc-essiv:sha256,size=256,hash=sha256,keyscript=/etc/libexec/gen_hq_rand_psw
+
+swap2-myhost-pre4-dec	PARTUUID=66666666-02				unused_dummy	plain,noearly,cipher=aes-cbc-plain64,size=128,hash=sha256,keyscript=/etc/libexec/gen_hq_rand_psw
+swap2-myhost-pre3-dec	/dev/mapper/swap2-myhost-pre4-dec		unused_dummy	plain,noearly,cipher=blowfish-pcbc-essiv:sha256,size=128,hash=sha256,keyscript=/etc/libexec/gen_hq_rand_psw
+swap2-myhost-pre2-dec	/dev/mapper/swap2-myhost-pre3-dec		unused_dummy	plain,noearly,cipher=aes-ctr-plain64,size=128,hash=sha256,keyscript=/etc/libexec/gen_hq_rand_psw
+swap2-myhost-pre-dec	/dev/mapper/swap2-myhost-pre2-dec		unused_dummy	plain,noearly,cipher=aes-xts-benbi,size=256,hash=sha256,keyscript=/etc/libexec/gen_hq_rand_psw
+swap2-myhost-dec	/dev/mapper/swap2-myhost-pre-dec		unused_dummy	plain,swap,noearly,cipher=serpent-pcbc-essiv:sha256,size=256,hash=sha256,keyscript=/etc/libexec/gen_hq_rand_psw

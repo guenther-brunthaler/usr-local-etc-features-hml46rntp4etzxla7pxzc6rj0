@@ -1,0 +1,35 @@
+#! /bin/sh
+# v2022.17
+
+# Sets the I/O scheduler for the disk containing $PARTITION. The partition may
+# also be specified as a /dev/disk/by-... symlink.
+
+# Default presets:
+PARTITION=/dev/sda1
+IOSCHED=bfq
+SYSFS_PREFIX=/sys/block
+SYSFS_SUFFIX=queue/scheduler
+SETTINGS_FILE=/etc/default/iosched-s13ywrnyb7mqpvpn20z09d0n0
+
+set -e
+if test -e "$SETTINGS_FILE"
+then
+	. "$SETTINGS_FILE"
+fi
+
+test -b "$PARTITION"
+disk=`readlink -f -- "$PARTITION"`
+while :
+do
+	parent=${disk%[0-9]}
+	case $parent in
+		"$disk") break
+	esac
+	disk=$parent
+done
+disk=`basename -- "$disk"`
+sch=$SYSFS_PREFIX/$disk/$SYSFS_SUFFIX
+test -f "$sch"
+
+modprobe "$IOSCHED"
+echo "$IOSCHED" > "$sch"
