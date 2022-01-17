@@ -2,11 +2,13 @@
 
 rename mac/55:55:55:55:55:55=wifi
 
-# $ ifup wifi=wifi-static
+# $ ifup wifi=open-hotspot
 
-iface wifi-static inet static
+iface open-hotspot inet static
 	address 10.246.55.555
 	netmask 255.255.0.0
+	wireless-essid example-unencrypted-hotspot
+	wireless-mode accesspoint
 	#gateway 10.246.555.555
 	# dns-* options are implemented by the resolvconf package, if installed
 	dns-nameservers 9.9.9.9

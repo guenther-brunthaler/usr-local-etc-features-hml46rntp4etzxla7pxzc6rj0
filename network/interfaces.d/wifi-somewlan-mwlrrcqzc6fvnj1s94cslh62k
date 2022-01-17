@@ -5,5 +5,5 @@
 iface wifi-somewlan inet dhcp
 	pre-up rfkill unblock wlan
 	wpa-ssid somewlan
-	wpa-psk aa55aa55aa55aa55aa55aa55aa55aa55aa55aa55aa55aa55aa55aa55aa55aa55 
+	wpa-psk-file /etc/site-6n580p79r0flmgyv0feaxchll/secrets/wpa/wifi-somewlan-mwlrrcqzc6fvnj1s94cslh62k
 	post-down rfkill block wlan
