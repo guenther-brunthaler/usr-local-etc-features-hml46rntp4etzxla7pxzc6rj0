@@ -1,11 +1,10 @@
 # Version 2022.19
 #
-# Use this for DHCP connections which need no further setup (such as rfkill).
-# Just specify the device to be used before the "=" in the example below.
-#
-# Use the next line for connecting to the Internet through a USB-cable via
-# some cell phone with USB-tethering enabled at the other end.
-#
 # $ ifup usb0=dhcp
+#
+# The above command is an example how use this configuration in order to
+# configure existing (but yet down) interface "usb0" via DHCP. For instance,
+# this might be used for connecting to a cell phone through a USB-cable with
+# USB-tethering enabled at the other end.
 
 iface dhcp inet dhcp

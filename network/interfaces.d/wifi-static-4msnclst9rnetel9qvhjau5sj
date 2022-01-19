@@ -5,10 +5,10 @@
 rename mac/gg:gg:gg:gg:gg:gg=wifi
 
 iface wifi-static inet static
-	address 10.246.55.999
+	address 10.246.999.999
 	netmask 255.255.0.0
 	wireless-essid hotspot-to-be-used
-	wireless-mode managed
+	wireless-mode Ad-Hoc
 	#gateway 10.246.999.999
 	# dns-* options are implemented by the resolvconf package, if installed
 	dns-nameservers 9.9.9.9

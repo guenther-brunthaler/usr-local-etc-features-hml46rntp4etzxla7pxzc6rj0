@@ -1,4 +1,4 @@
-# Version 2022.19.1
+# Version 2022.19.2
 #
 # $ ifup wifi=open-hotspot
 
@@ -8,7 +8,7 @@ iface open-hotspot inet static
 	address 10.246.55.999
 	netmask 255.255.0.0
 	wireless-essid example-unencrypted-hotspot
-	wireless-mode accesspoint
+	wireless-ap
 	#gateway 10.246.999.999
 	# dns-* options are implemented by the resolvconf package, if installed
 	dns-nameservers 9.9.9.9
