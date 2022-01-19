@@ -12,12 +12,12 @@
 # This script allows empty keys to be placed in /etc/dropbear-initramfs/, and
 # will silently delete the copies of those files from the generated initramfs.
 #
-# Version 2018.218
-# Copyright (c) 2018 Guenther Brunthaler. All rights reserved.
+# Version 2022.19
+# Copyright (c) 2018-2022 Guenther Brunthaler. All rights reserved.
 #
 # This script is free software.
 # Distribution is permitted under the terms of the GPLv3.
-exec >> /tmp/d 2>& 1 && date && set -xv
+
 PREREQS=dropbear
 outdir=$DESTDIR/etc/dropbear
 key_mask='dropbear_*_host_key'

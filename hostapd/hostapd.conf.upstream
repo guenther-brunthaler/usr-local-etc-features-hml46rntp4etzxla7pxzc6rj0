@@ -5,7 +5,7 @@
 # management frames with the Host AP driver); wlan0 with many nl80211 drivers
 # Note: This attribute can be overridden by the values supplied with the '-i'
 # command line parameter.
-interface=wifi
+interface=wlan0
 
 # In case of atheros and nl80211 driver interfaces, an additional
 # configuration parameter, bridge, may be used to notify hostapd if the
@@ -85,20 +85,7 @@ ctrl_interface_group=0
 ##### IEEE 802.11 related configuration #######################################
 
 # SSID to be used in IEEE 802.11 management frames
-#
-# http://forum.snom.com/index.php?showtopic=6785
-#
-# I discovered that all of the following characters may appear in an SSID
-# (assuming utf8_ssid=0) and/or a WPA2-PSK password:
-#
-# abcdefghijklmnopqrstuvwxyz
-# ABCDEFGHIJKLMNOPQRSTUVWXYZ
-# 1234567890
-# $@^`,|%;.~()/\{}:?[]=-+_#!
-#
-#    0        1         2         3
-#    12345678901234567890123456789012
-ssid=rpi4-test-ap
+ssid=test
 # Alternative formats for configuring SSID
 # (double quoted string, hexdump, printf-escaped string)
 #ssid2="test"
@@ -113,7 +100,7 @@ ssid=rpi4-test-ap
 # This can limit available channels and transmit power.
 # These two octets are used as the first two octets of the Country String
 # (dot11CountryString)
-country_code=AT
+#country_code=US
 
 # The third octet of the Country String (dot11CountryString)
 # This parameter is used to set the third octet of the country string.
@@ -135,7 +122,7 @@ country_code=AT
 # country_code setting must be configured with the correct country for
 # IEEE 802.11d functions.
 # (default: 0 = disabled)
-ieee80211d=1
+#ieee80211d=1
 
 # Enable IEEE 802.11h. This enables radar detection and DFS support if
 # available. DFS support is required on outdoor 5 GHz channels in most countries
@@ -175,7 +162,7 @@ hw_mode=g
 # If CONFIG_ACS build option is enabled, the channel can be selected
 # automatically at run time by setting channel=acs_survey or channel=0, both of
 # which will enable the ACS survey based algorithm.
-channel=7
+channel=1
 
 # ACS tuning - Automatic Channel Selection
 # See: http://wireless.kernel.org/en/users/Documentation/acs
@@ -203,10 +190,6 @@ channel=7
 # Defaults:
 #acs_num_scans=5
 #acs_chan_bias=1:0.8 6:0.8 11:0.8
-# The Rasperry Pi 4 has a hardware bug where HDMI interferes with channel 1.
-# This also affects the neigboring channels 2 and 3. Avoid selecting them.
-# Unfortunately, the RPi4 does not seem to support ACS at all!
-acs_chan_bias=1:5 2:4 3:3
 
 # Channel list restriction. This option allows hostapd to select one of the
 # provided channels when a channel should be automatically selected.
@@ -311,7 +294,7 @@ macaddr_acl=0
 # Bit fields of allowed authentication algorithms:
 # bit 0 = Open System Authentication
 # bit 1 = Shared Key Authentication (requires WEP)
-auth_algs=1
+auth_algs=3
 
 # Send empty SSID in beacons and ignore probe request frames that do not
 # specify full SSID, i.e., require stations to know SSID.
@@ -1482,7 +1465,6 @@ own_ip_addr=127.0.0.1
 # In other words, for WPA3, wpa=2 is used the configuration (and
 # wpa_key_mgmt=SAE for WPA3-Personal instead of wpa_key_mgmt=WPA-PSK).
 #wpa=2
-wpa=2
 
 # WPA pre-shared keys for WPA-PSK. This can be either entered as a 256-bit
 # secret in hex format (64 hex digits), wpa_psk, or as an ASCII passphrase
@@ -1498,7 +1480,6 @@ wpa=2
 # Use absolute path name to make sure that the files can be read on SIGHUP
 # configuration reloads.
 #wpa_psk_file=/etc/hostapd.wpa_psk
-wpa_psk_file=/etc/hostapd/hostapd.wpa2_psk
 
 # Optionally, WPA passphrase can be received from RADIUS authentication server
 # This requires macaddr_acl to be set to 2 (RADIUS)
@@ -1531,7 +1512,6 @@ wpa_psk_file=/etc/hostapd/hostapd.wpa2_psk
 # OSEN = Hotspot 2.0 online signup with encryption
 # (dot11RSNAConfigAuthenticationSuitesTable)
 #wpa_key_mgmt=WPA-PSK WPA-EAP
-wpa_key_mgmt=WPA-PSK
 
 # Set of accepted cipher suites (encryption algorithms) for pairwise keys
 # (unicast packets). This is a space separated list of algorithms:
@@ -1551,7 +1531,6 @@ wpa_key_mgmt=WPA-PSK
 #wpa_pairwise=TKIP CCMP
 # Pairwise cipher for RSN/WPA2 (default: use wpa_pairwise value)
 #rsn_pairwise=CCMP
-rsn_pairwise=CCMP
 
 # Optional override for automatic group cipher selection
 # This can be used to select a specific group cipher regardless of which
@@ -2333,7 +2312,6 @@ rsn_pairwise=CCMP
 # 1 = Address type available
 # 2 = Availability of the address type not known
 #ipaddr_type_availability=14
-ipaddr_type_availability=12
 
 # Domain Name
 # format: <variable-octet str>[,<variable-octet str>]

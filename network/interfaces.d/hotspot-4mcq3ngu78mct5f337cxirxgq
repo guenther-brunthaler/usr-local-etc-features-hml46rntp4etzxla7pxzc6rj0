@@ -1,6 +1,8 @@
-# Version 2020.132
+# Version 2022.18
 
 allow-x-wifi-hotspot hotspot
+
+rename mac/gg:gg:gg:gg:gg:gg=wifi
 
 # $ ifup wifi=hotspot
 # $ gateway_setup -e wifi
@@ -10,9 +12,9 @@ allow-x-wifi-hotspot hotspot
 
 iface hotspot inet static
 	pre-up rfkill unblock wlan
-	post-up invoke-rc.d --quiet --force dnsmasq start > /dev/null
-	address 10.246.555.555
+	address 10.246.999.999
 	netmask 255.255.0.0
 	hostapd /etc/hostapd/hostapd.conf
-	pre-down invoke-rc.d --quiet --force dnsmasq stop > /dev/null
+	post-up invoke-rc.d --quiet dnsmasq status > /dev/null && invoke-rc.d --quiet --force dnsmasq force-reload > /dev/null
 	post-down rfkill block wlan
+	post-down invoke-rc.d --quiet dnsmasq status > /dev/null && invoke-rc.d --quiet --force dnsmasq force-reload > /dev/null

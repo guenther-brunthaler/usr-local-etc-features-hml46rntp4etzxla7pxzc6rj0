@@ -1,6 +1,6 @@
 Comments for file "./hostapd.wpa2_psk".
 
-Version 2019.321
+Version 2022.18
 
 These comments are kept in a separate file, because they should be put under
 version control, while the file actually containing the PSKs ("pre-shared
@@ -41,3 +41,40 @@ $ wpa_passphrase "$SSID" "$PASS_PHRASE"
 After changing the PSK file, don't forget to run
 
 $ /etc/init.d/hostapd reload
+
+The "pwgen-with-entropy-harvesting-as-base62"-script can be used to create an
+ultra high quality pass phrase:
+
+$ wpa_passphrase test-ap `pwgen-with-entropy-harvesting-as-base62` >> hostapd.wpa2_psk
+
+The will add something like this to the end of the
+/etc/hostapd/hostapd.wpa2_psk file (or create it if it does not yet exist):
+
+----
+network={
+	ssid="test-ap"
+	#psk="Xte7a8am83XTHlHjXNw69GL09q3ENvJnAUDJNeXY8Hb"
+	psk=09bfdc48cc1b60462b8e01eefbaaf472e1ecd4b9db0a3e93b2b82321875ce0af
+}
+----
+
+Now use a text editor to rearrange the constituent parts of this file into the
+following format:
+
+----
+# v2022.18
+#
+# QR-Code: "WIFI:T:WPA;S:test-ap;P:06PSFixmmkmA3LNQjONURKEsBixYOiOhHgSp7hLUNDQ;;"
+00:00:00:00:00:00 6308c06480f7919ad0be1e9483cb89e6f31ceda7322500d4c7c4ba71c1ac3681
+----
+
+The line with "QR-Code" contains the Wi-Fi password and SSID to be used by
+clients. On Android and iOS devices, sending the contents of the string
+(between the quotes) via "qrencode" to those devices will allow them to
+automatically connect to your access point:
+
+----
+$ sed 's/.*QR-Code[^"]*"\([^"]*\)"$/\1/; t; d' hostapd.wpa2_psk | qrencode -t ANSI | less -R
+----
+
+This should display the QR-Code on your terminal.
