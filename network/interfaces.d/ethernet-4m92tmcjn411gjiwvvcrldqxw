@@ -1,6 +1,7 @@
-# Version: 2022.19
+# Version: 2022.19.1
 #
-# The primary network interface
+# The primary network interface. Does not set a route for reaching the
+# Internet. Only for local LAN communication.
 
 rename mac/gg:gg:gg:gg:gg:gg=ethernet
 
@@ -11,13 +12,10 @@ auto ethernet
 iface ethernet inet static
 	address 10.157.55.999
 	netmask 255.255.0.0
-	#gateway 10.157.999.999
 	#pre-up sh -c 'ifquery --state ethernic > /dev/null || ifup ethernic'
 	#bridge_ports ethernic
 	# dns-* options are implemented by the resolvconf package, if installed
 	#
-	# OpenDNS.com nameservers fail with HSTS connections as of 2018-01
-	#dns-nameservers 208.67.222.222 208.67.220.220
 	# https://www.heise.de/newsticker/meldung/Quad9-Datenschutzfreundliche-Alternative-zum-Google-DNS-3890741.html
 	dns-nameservers 9.9.9.9
 	dns-search eth.emgenxx69lwyn5ctlr4nl64ul.local
