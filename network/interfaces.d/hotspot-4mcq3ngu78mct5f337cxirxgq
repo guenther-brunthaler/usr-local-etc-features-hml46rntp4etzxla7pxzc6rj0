@@ -1,14 +1,14 @@
-# Version 2022.18
-
-allow-x-wifi-hotspot hotspot
-
-rename mac/gg:gg:gg:gg:gg:gg=wifi
-
+# Version 2022.19
+#
 # $ ifup wifi=hotspot
 # $ gateway_setup -e wifi
 # ...
 # $ gateway_setup -d wifi
 # $ ifdown wifi=hotspot
+
+allow-x-wifi-hotspot hotspot
+
+rename mac/gg:gg:gg:gg:gg:gg=wifi
 
 iface hotspot inet static
 	pre-up rfkill unblock wlan

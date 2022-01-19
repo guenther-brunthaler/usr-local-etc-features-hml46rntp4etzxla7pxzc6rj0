@@ -1,5 +1,5 @@
 # Version 2020.63
-
+#
 # $ ifup wifi=wifi-somewlan
 
 iface wifi-somewlan inet dhcp
