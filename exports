@@ -9,5 +9,5 @@
 # /srv/nfs4/homes  gss/krb5i(rw,sync,no_subtree_check)
 #
 
-/srv/tftp 10.0.0.0/16 (all_squash,ro,sync,no_subtree_check)
+/srv/tftp 10.0.0.0/8(all_squash,ro,no_subtree_check)
 # GRML 2014 uses: (ro,async,wdelay,nohide,nocrossmnt,secure,no_root_squash,no_all_squash,no_subtree_check,secure_locks,acl,fsid=42,anonuid=65534,anongid=65534,sec=sys)

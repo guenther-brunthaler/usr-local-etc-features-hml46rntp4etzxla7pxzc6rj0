@@ -1,7 +1,7 @@
 #! /bin/false
 # Manually set the system clock.
 #
-# Version 2018.92
+# Version 2021.364
 #
 # Copyright (c) 2018 Guenther Brunthaler. All rights reserved.
 # 
@@ -44,7 +44,7 @@ then
 	while :
 	do
 		$b echo
-		$b echo "You need to set a date (using the local time zone)!"
+		$b echo "You need to set a date (using your usual local time zone)!"
 		ask4sth d YYYYMMDD '^2[0-9]\{3\}[0-1][0-9][0-3][0-9]$'
 		ask4sth t HHMM '^[0-2][0-9][0-5][0-9]$'
 		$b echo

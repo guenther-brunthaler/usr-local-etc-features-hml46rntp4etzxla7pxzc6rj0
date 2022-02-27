@@ -10,7 +10,7 @@
 #                    devices between restarts.
 ### END INIT INFO
 
-# v2021.301
+# v2021.363
 
 NAME=lifetime_writes
 DESC="record amount of data ever written to configured mass storage"
@@ -29,16 +29,16 @@ test -r "$lifetime_logger" || exit
 . /lib/lsb/init-functions
 
 case $1 in
-  stop)
+  start | stop | restart)
 	test "$VERBOSE" = no \
 		|| log_action_begin_msg "Saving disk-written counters"
 	"$lifetime_logger"; es=$?
 	test "$VERBOSE" = no || log_action_end_msg $es
 	;;
-  status | start | "")
+  status | "")
 	exit
 	;;
-  restart | reload | force-reload)
+  reload | force-reload)
 	echo "Error: argument '$1' not supported" >&2
 	exit 3
 	;;
