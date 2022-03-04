@@ -1,0 +1,16 @@
+#! /bin/false
+
+# Stop debug tracing, but only if it has been enabled.
+#
+# Version 2022.59
+
+case $- in
+	*[vx]*)
+		set +xv
+		if test -f "$ERRFILE"
+		then
+			# Stop logging to "~/.xsession-errors".
+			ERRFILE=/dev/null
+			exec > "$ERRFILE" 2>& 1 < "$ERRFILE"
+		fi
+esac
