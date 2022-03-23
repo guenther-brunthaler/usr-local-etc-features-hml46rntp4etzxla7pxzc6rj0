@@ -1,0 +1,41 @@
+#! /bin/sh
+# v2022.79
+
+# Ensure our custom-built version of BusyBox has been installed.
+#
+# The actual installation shall be performed by the
+# utilities-k5487f9fqve065q5y0wfhfue3 hook script.
+#
+# THIS script just verifies that the hook script has indeed been instructed to
+# install the custom busybox.
+
+PREREQS='utilities-k5487f9fqve065q5y0wfhfue3'
+tag_exe='busybox-pbyqxzl1ktqlk3fjm3arlrclg'
+
+set -e
+case $1 in
+	prereqs) echo "$PREREQS"; exit
+esac
+
+. /usr/share/initramfs-tools/hook-functions
+
+found=false
+for d1 in "" /usr/local
+do
+	for d2 in /bin /sbin
+	do
+		x=$DESTDIR$d1$d2/$tag_exe
+		if test -f "$x" && test -x "$x"
+		then
+			found=true
+			break
+		fi
+	done
+done
+case $found in
+	true) ;;
+	*)
+		echo "Required utility '$tag_exe' has not been copied to" \
+			"initramfs by $PREREQS as it should have been!" >& 2
+		false || exit
+esac

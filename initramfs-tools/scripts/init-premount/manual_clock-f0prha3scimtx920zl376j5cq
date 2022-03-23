@@ -9,11 +9,14 @@
 # date/time, and abort interactive entry in this case.
 #
 # The system time is assumed to be valid if it is later than the THIS script's
-# time of last modification.
+# timestamp. The most recent of the three timestamps (mtime, ctime or atime)
+# of the file is used for this comparison, because strange things can occur in
+# an initramfs without a functioning hardware clock, such as mtime being more
+# recent than both atime and ctime.
 #
-# Version 2020.64
+# Version 2022.79.1
 #
-# Copyright (c) 2018-2020 Guenther Brunthaler. All rights reserved.
+# Copyright (c) 2018-2022 Guenther Brunthaler. All rights reserved.
 #
 # This script is free software.
 # Distribution is permitted under the terms of the GPLv3.
@@ -49,7 +52,13 @@ date_wrapper() {
 }
 
 # Output certain formatted metadata of all files passed as remaining arguments
-# using a format string passed as the first argument.
+# using a format string passed as the second argument.
+#
+# The first argument can be empty or must contain additional options to be
+# passed to POSIX "ls" for returning metadata about each argument filesname.
+# In particular, the options "-c" and "-u" can be passed in order to modify
+# which kind of timestamp will be reported instead of the default (time of
+# last modification of file' contents).
 #
 # This function should work without any changes on all POSIX-compliant
 # operating systems.
@@ -68,19 +77,21 @@ date_wrapper() {
 # $uid: numeric user ID
 # $gid: numeric group ID
 # $bytes: file size in bytes
-# $minute: minute 00-59 of $pathname's last modification time or 00 if unknown
+# $minute: minute 00-59 of $pathname's datestamp or 00 if unknown
 # $hour: hour 00-23 for $minute or 12 if unknown
-# $day: day 01-31 of $pathname's last modification date
+# $day: day 01-31 of $pathname's datestamp
 # $month: month 01-12 for $day
 # $year: year 1901-9999 (since start of C. E.) for $month
 #
 # Besides files, directories can also be passed as arguments. In this case,
 # $bytes shall not be used in the format string.
 #
-# Version 2020.64
+# Version 2022.79
 format_file_metadata() {
+	options_6n281lim0c0nge6nmpv4h7vlk=$1; shift # POSIX sh has no "local".
 	format_6n281lim0c0nge6nmpv4h7vlk=$1; shift # POSIX sh has no "local".
-	LC_ALL= LC_NUMERIC=POSIX LC_TIME=POSIX ls -lnLd -- ${1+"$@"} \
+	LC_ALL= LC_NUMERIC=POSIX LC_TIME=POSIX \
+	ls -lnLd $options_6n281lim0c0nge6nmpv4h7vlk -- ${1+"$@"} \
 	| {
 		format=$format_6n281lim0c0nge6nmpv4h7vlk
 		cy=
@@ -133,11 +144,22 @@ format_file_metadata() {
 			eval "printf '%s\\n' \"$format\""
 		done
 	}
-	unset format_6n281lim0c0nge6nmpv4h7vlk
+	unset format_6n281lim0c0nge6nmpv4h7vlk \
+		options_6n281lim0c0nge6nmpv4h7vlk
 }
 
 test -f "$0"
-new_enough=`format_file_metadata '$year$month$day$hour$minute' "$0"`
+new_enough=0
+for topt in '' -c -u
+do
+	tstamp=`format_file_metadata "$topt" \
+		'$year$month$day$hour$minute' "$0"
+	`
+	if expr x"$tstamp" '>=' x"$new_enough" > /dev/null
+	then
+		new_enough=$tstamp
+	fi
+done
 
 is_clock_set() {
 	expr x`date_wrapper +%Y%m%d%H%M` '>=' x$new_enough > /dev/null \

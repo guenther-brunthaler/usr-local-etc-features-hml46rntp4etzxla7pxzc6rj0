@@ -3,4 +3,4 @@
 # the chrony daemon without editing the init script or service file.
 
 # Options to pass to chrony.
-DAEMON_OPTS="-F -1"
+DAEMON_OPTS="-F 1"

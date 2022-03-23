@@ -1,0 +1,60 @@
+#! /bin/sh
+
+# Load the console font installed by the hook script of the same name.
+#
+# Version 2022.79
+#
+# Copyright (c) 2022 Guenther Brunthaler. All rights reserved.
+#
+# This script is free software.
+# Distribution is permitted under the terms of the GPLv3.
+
+PREREQS='udev'
+cache_dir=/etc/console-setup
+cache_pfxs='cached_'
+cache_xts='.psf'
+bb=busybox-pbyqxzl1ktqlk3fjm3arlrclg
+
+set -e
+case $1 in
+	prereqs) echo "$PREREQS"; exit
+esac
+
+. /scripts/functions
+
+cleanup() {
+	case $? in
+		0) log_end_msg;;
+		*) log_failure_msg "$emsg"
+	esac
+}
+msg='Setting console font'
+emsg=$msg' failed'
+trap cleanup 0
+log_begin_msg "$msg"
+
+fontfile=
+test -d "$cache_dir"
+for pf in $cache_pfxs
+do
+	for xt in $cache_xts
+	do
+		for tf in "$cache_dir"/"$pf"*"$xt"
+		do
+			if test -e "$tf"
+			then
+				case $fontfile in
+					'') fontfile=$tf;;
+					*)
+						emsg='Ambiguous font to be set'
+						false || exit
+				esac
+			fi
+		done
+	done
+done
+case $fontfile in
+	'') emsg='No font file found'; false || exit
+esac
+
+$bb loadfont < "$fontfile"

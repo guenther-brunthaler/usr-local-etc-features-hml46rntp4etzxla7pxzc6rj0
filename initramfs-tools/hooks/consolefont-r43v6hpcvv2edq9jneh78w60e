@@ -1,0 +1,49 @@
+#! /bin/sh
+
+# Copy cached consolefont to initramfs. The cache must have been created with
+# "setupcon --saved" first. (Usually, some of the normal system startup files
+# will already have been taken care of this.)
+#
+# Version 2022.79
+#
+# Copyright (c) 2022 Guenther Brunthaler. All rights reserved.
+#
+# This script is free software.
+# Distribution is permitted under the terms of the GPLv3.
+
+PREREQS='custom_busybox-17cg2g8m8s02w4jx7td0izdvt'
+cache_dir=/etc/console-setup
+cache_pfxs='cached_'
+cache_ftypes='.psf.gz|gunzip'
+
+set -e
+case $1 in
+	prereqs) echo; exit
+esac
+
+. /usr/share/initramfs-tools/hook-functions
+
+test ! -e "$cache_dir" && exit
+
+mkdir -p "$DESTDIR$cache_dir"
+for pf in $cache_pfxs
+do
+	for ft in $cache_ftypes
+	do
+		xt=${ft%%"|"*}
+		case $xt in
+			"$ft") unpack=;;
+			*) unpack=${ft#*"|"*}
+		esac
+		for sf in "$cache_dir"/"$pf"*"$xt"
+		do
+			tf=$DESTDIR${sf%"$xt"}
+			test -e "$tf" && continue
+			cp -p -- "$sf" "$tf$xt"
+			case $unpack in
+				"") ;;
+				*) $unpack "$tf$xt"
+			esac
+		done
+	done
+done

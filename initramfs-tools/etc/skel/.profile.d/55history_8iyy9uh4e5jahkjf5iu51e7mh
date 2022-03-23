@@ -1,0 +1,7 @@
+#! /bin/false
+# v2022.79
+
+HISTFILE=~/.history
+HISTFILESIZE=3000
+
+export HISTFILE HISTFILESIZE

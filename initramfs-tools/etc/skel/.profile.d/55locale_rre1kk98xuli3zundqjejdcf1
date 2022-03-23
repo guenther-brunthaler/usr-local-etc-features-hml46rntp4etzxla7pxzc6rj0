@@ -1,2 +1,6 @@
 #! /bin/false
-export LANG=C.UTF-8
+# v2022.79
+
+LANG=C.UTF-8
+
+export LANG
