@@ -26,20 +26,24 @@
 # pushvar() is more efficient than push(). Use push() only if the value to be
 # pushed onto the stack is not already stored within some variable.
 #
-# At the end of your script, $stack_pointer should be 1. If it is not, then
-# the script forgot to call unwind() somewhere. Never "return" without calling
-# unwind() first from within a scope inside a function!
+# At the end of your script, call shutdown_scopes(). This is not strictly
+# necessary but recommended. It verifies that no one forgot to call unwind().
+# Never "return" without calling unwind() first from within a scope inside a
+# function! shutdown_scopes() also unsets all global variables set by THIS
+# script snippet, which means the scope framework functions cannot be called
+# any longer.
 #
 # Not all functions need to use scope/unwind. Only such functions which need
 # local variables or destructor functionality should do so.
 #
-# Version 2022.8
+# Version 2022.84
 #
 # Copyright (c) 2022 Guenther Brunthaler. All rights reserved.
 #
 # This shell script snippet is free software.
 # Distribution is permitted under the terms of the GPLv3.
 
+# Provides: scopes-hqxbfzp9026esereelim9tbyk
 # Requires: trap_errors-3vnzcvh9hfs134g6ln6cy567k
 
 # Push value from variable with name $1 onto the stack.
@@ -64,12 +68,12 @@ push() {
 
 # Schedule an expression for evaluation when unwind() is called.
 finally() {
-	push ${1+"$@"}
+	push "$@"
 }
 
 # Define a new scope where unwind() will stop.
 scope() {
-	push ${1+"$@"}
+	push
 }
 
 # Schedule another list of variables to be restored when unwind() is called.
@@ -98,4 +102,16 @@ unwind() {
 		esac
 		eval "$v_bwpyjg117sqz7tintf1ridnua"
 	done
+}
+
+# Verify that all resources on the stack have been cleaned up and all
+# scheduled destructors have been run. Then unset all global variables set by
+# the scope helpers framework. This effectively shuts down the framework.
+shutdown_scopes() {
+	case $stack_pointer in
+		1) ;;
+		*) echo "Resource leak!" >& 2; false || exit
+	esac
+	unset stack_pointer v_bwpyjg117sqz7tintf1ridnua \
+		v_kxelefrxs6up7y7kmkdy194n0 v_l9mcnt736v1nhnvy8z2zif4gq
 }

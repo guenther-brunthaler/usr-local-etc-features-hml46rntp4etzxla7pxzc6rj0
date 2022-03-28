@@ -1,5 +1,6 @@
 # v2022.9
 
+# Provides: qin-32r1h6hwy9bst69b8zpw5uqf0
 # Requires: println-871v57a0dzb6d3rxykj87vsnf
 # Requires: scopes-hqxbfzp9026esereelim9tbyk
 

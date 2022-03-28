@@ -1,0 +1,7 @@
+# Make "apt-get" assume "--mark-auto" to have been specified. If you actually
+# want to permanently install a new top-level (non-) dependency, use "apt-mark
+# manual" after installing the package.
+#
+# Version 2022.87
+
+APT::Get::Mark-Auto "1";

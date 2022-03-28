@@ -28,12 +28,14 @@
 # directories with actual files in $list_dir, and *this* hook ensures the
 # files will get copied to initramfs properly.
 #
-# Version 2022.9
+# Version 2022.84
 #
 # Copyright (c) 2018-2022 Guenther Brunthaler. All rights reserved.
 #
 # This script is free software.
 # Distribution is permitted under the terms of the GPLv3.
+
+# Requires: scopes-hqxbfzp9026esereelim9tbyk
 
 list_dir=$CONFDIR/hooks/utilities-k5487f9fqve065q5y0wfhfue3.d
 more_search_paths=/usr/local/sbin:/usr/sbin:/sbin
@@ -44,7 +46,13 @@ case $1 in
 esac
 
 . /usr/share/initramfs-tools/hook-functions
-. /etc/libexec/lib/sh/scopes-hqxbfzp9026esereelim9tbyk.sh
+
+# Start (= gllez8xrsremp6jlwifp03krc): {
+# Prologue a8p3e400c1z9uqs3b27s6x94l:
+lib=/etc/libexec/lib/sh
+# Generated (= b83iv5hz8sbpbv4i80t9v5rwv):
+. "$lib"/scopes-hqxbfzp9026esereelim9tbyk.sh
+# } End (= bw80hxwxxzma2qu0x8b75t2y4)
 
 if test -f ~/.profile
 then
@@ -218,3 +226,4 @@ find "$list_dir" \
 		done
 	unwind
 }
+shutdown_scopes

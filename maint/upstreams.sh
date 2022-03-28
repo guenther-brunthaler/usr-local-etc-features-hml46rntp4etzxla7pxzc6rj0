@@ -26,18 +26,20 @@
 # Requires: qin-32r1h6hwy9bst69b8zpw5uqf0
 # Requires: show_failures-ci9hjhmyjuy0cx1wmguv7n6h0
 
+# Start (= gllez8xrsremp6jlwifp03krc): {
+# Prologue bj2lapzmr8ydaa4jmq66c9kr0:
 set -e
 base=`readlink -f -- "$0"`
 base=`dirname -- "$base"`
 base=`dirname -- "$base"`
 
 lib=$base/libexec/lib/sh
-# Generated b83iv5hz8sbpbv4i80t9v5rwv: {
+# Auto-Generated b83iv5hz8sbpbv4i80t9v5rwv:
 . "$lib"/println-871v57a0dzb6d3rxykj87vsnf.sh
 . "$lib"/qin-32r1h6hwy9bst69b8zpw5uqf0.sh
 . "$lib"/scopes-hqxbfzp9026esereelim9tbyk.sh
 . "$lib"/show_failures-ci9hjhmyjuy0cx1wmguv7n6h0.sh
-# }
+# } End (= bw80hxwxxzma2qu0x8b75t2y4)
 
 suggest_action=false
 while getopts a opt
