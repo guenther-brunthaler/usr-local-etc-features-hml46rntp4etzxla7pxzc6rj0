@@ -1,12 +1,1 @@
-#! /bin/false
-
-# Diagnostic helper: Enable debug tracing.
-#
-# Enable only temporarily!
-#
-# And if you do, ensure that the debug tracing stopper is also enabled
-# at the end of the snippets sourced from THIS directory.
-#
-# Version 2022.59
-
-set -xv
+00trace-10cqq4ludl00q7sbduevnziam.disabled

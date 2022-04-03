@@ -1,12 +1,16 @@
 #! /bin/sh
-# Copyright (c) 2018 Guenther Brunthaler. All rights reserved.
+#
+# Version 2022.93
+# Copyright (c) 2018-2022 Guenther Brunthaler. All rights reserved.
 #
 # This script is free software.
 # Distribution is permitted under the terms of the GPLv3.
 
+SETTINGS_FILE=/etc/default/loggers-ujj0tvpell3kunrn6ke6ldw35 # Custom settings.
 RINGBUFFER_KIB=5120 # 5 MiB should really be enough!
 CONSOLE_LOG_LEVEL=1 # Least possible logging; only EMERG events.
-BB=busybox
+BB=busybox # Fallback BusyBox implementation.
+BB_PREFERRED=busybox-pbyqxzl1ktqlk3fjm3arlrclg # If installed, overrides $BB.
 SYSLOGD_PIDFILE=/run/syslogd.pid
 KLOGD_PIDFILE=/run/klogd.pid
 
@@ -28,11 +32,16 @@ case $1 in
 	prereqs) prereqs; exit
 esac
 
+if test -e "$SETTINGS_FILE"
+then
+	. "$SETTINGS_FILE"
+fi
 . /scripts/functions
 
 log_begin_msg "Starting syslogd (use 'logread' to acess) and klogd"
 PATH=$PATH:/sbin:/usr/sbin
 
+command -v "$BB_PREFERRED" > /dev/null 2>& 1 && BB=$BB_PREFERRED
 "$BB" syslogd -C$RINGBUFFER_KIB
 while test ! -e "$SYSLOGD_PIDFILE"
 do

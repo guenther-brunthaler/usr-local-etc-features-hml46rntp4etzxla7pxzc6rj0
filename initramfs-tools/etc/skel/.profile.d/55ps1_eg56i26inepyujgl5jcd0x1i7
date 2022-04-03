@@ -1,5 +1,5 @@
 #! /bin/false
-# Version 2020.132
+# Version 2022.93
 
 case $- in
 	*i*) ;;
@@ -12,10 +12,12 @@ case $TERM in
 esac
 
 export PS1=
+tty_eg56i26inepyujgl5jcd0x1i7=`tty`
+tty_eg56i26inepyujgl5jcd0x1i7="[${tty_eg56i26inepyujgl5jcd0x1i7##*/}]"
 for p_eg56i26inepyujgl5jcd0x1i7 in \
-	'\[\033[0m\]' '\n' '\[\033[1;35m\]' '[initramfs]' '\[\033[32m\]' \
-	'@\h ' '\[\033[0;33m\]' '\w' '\[\033[0m\]' '\n' '\[\033[41;37m\]' \
-	'${?#0}' '\[\033[0;1;34m\]' '$' '\[\033[0m\]' ' '
+	'\[\033[0m\]' '\n' '\[\033[1;35m\]' "$tty_eg56i26inepyujgl5jcd0x1i7" \
+	'\[\033[32m\]' '@\h ' '\[\033[0;33m\]' '\w' '\[\033[0m\]' '\n' \
+	'\[\033[41;37m\]' '${?#0}' '\[\033[0;1;34m\]' '$' '\[\033[0m\]' ' '
 do
 	case $p_eg56i26inepyujgl5jcd0x1i7 in
 		'\['*) $color_eg56i26inepyujgl5jcd0x1i7 || continue
@@ -23,4 +25,5 @@ do
 	PS1=$PS1$p_eg56i26inepyujgl5jcd0x1i7
 done
 
-unset p_eg56i26inepyujgl5jcd0x1i7 color_eg56i26inepyujgl5jcd0x1i7
+unset p_eg56i26inepyujgl5jcd0x1i7 color_eg56i26inepyujgl5jcd0x1i7 \
+	tty_eg56i26inepyujgl5jcd0x1i7
