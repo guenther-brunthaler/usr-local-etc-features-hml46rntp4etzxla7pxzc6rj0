@@ -106,4 +106,4 @@ defnonblock 5
 # screen -t mail 8 mutt
 # screen -t daemon 9 tail -f /var/log/daemon.log
 
-shell -/bin/bash
+shell -$SHELL
