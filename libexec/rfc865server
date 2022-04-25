@@ -1,0 +1,123 @@
+#! /bin/sh
+# "Quote of the Day" server ("qotd"). Implements RFC 865.
+#
+# Returns a text message less than 512 characters. Listens on port 17 TCP+UDP.
+#
+# The message consists of 3 x 3 passwords. They represent the current and
+# two preceding passwords from three groups of passwords, generated at
+# different intervals: daily, hourly and every 5 minutes.
+#
+# The idea is that a client which needs to reboot can use one of those keys
+# to temporarily encrypt local data from a secure RAM disk and decrypt it
+# using the same key after the reboot. The key should be combined with a
+# key stored on the unencrypted disk.
+#
+# This server never saves the keys to persistent storage.
+#
+# Version 2022.114
+#
+# Copyright (c) 2022 Guenther Brunthaler. All rights reserved.
+#
+# This script is free software.
+# Distribution is permitted under the terms of the GPLv3.
+
+app_id=kg8g7r86u02lzg2gl4ijpi4pp
+helper=/etc/libexec/cached/keygen-octets-by-harvesting-entropy
+ossl=openssl
+
+set -e
+trap 'test $? = 0 || echo "\"$0\" failed!" >& 2' 0
+
+exec 2>& 1 # Let the client see any errors. Should not happen anyway.
+case $1 in
+	--debug) set -xv
+esac
+
+test -x "$helper"
+command -v "$ossl" > /dev/null
+if test -z "$HOME"
+then
+	HOME=`grep "^\`id -un\`:" /etc/passwd`
+	o=$IFS; IFS=:; set -- $HOME; IFS=$o
+	HOME=$6
+fi
+test -d "$HOME"
+mkdir -p "${XDG_DATA_HOME:="$HOME/.local/share"}"
+
+cfg=$XDG_DATA_HOME/misc
+test ! -d "$cfg" && mkdir -- "$cfg"
+
+app=${0##*/}
+cfg=$cfg/$app-$app_id
+
+owners() {
+	ls -dn -- "$1" | cut -d ' ' -f 3-4
+}
+
+process() {
+	if test ! -w "$cfg"
+	then
+		test $write = true || return
+		> "$cfg"
+	fi
+	us=`owners "$cfg"`
+	if
+		IFS= read -r seedpath < "$cfg" \
+		&& test -r "$seedpath" \
+		&& test -w "$seedpath" \
+		&& test -s "$seedpath" \
+		&& them=`owners "$seedpath"` \
+		&& test "$us" = "$them"
+	then
+		:
+	else
+		test $write = true || return
+		if test -z "XDG_RUNTIME_DIR"
+		then
+			XDG_RUNTIME_DIR=${TMPDIR:-/tmp}
+		fi
+		seedpath=`mktemp -- "${XDG_RUNTIME_DIR}/$app".XXXXXXXXXX`
+		"$helper" 32 > "$seedpath"
+		printf '%s\n' "$seedpath" > "$cfg"
+	fi
+	# $seedpath seems to be a valid (and volatile) master key file.
+	now=`date +%s`
+	expr x"$now" : x'[1-9][0-9]*$' >& 8 # Ensure "date" has %s extension.
+	emit 5m 300
+	echo
+	emit 1h 3600
+	echo
+	emit 1d 86400
+}
+
+emit() {
+	ctr=`expr $now / $2`
+	for p in current last penultimate
+	do
+		printf "$p $1: "
+		{ echo $ctr && cat < "$seedpath"; } \
+			| "$ossl" sha256 -binary \
+			| "$ossl" base64 \
+			| tr -d = | tr + %
+		ctr=`expr $ctr - 1`
+	done
+}
+
+while :
+do
+	if	test -e "$cfg" && test -r "$cfg"
+	then
+		exec 9< "$cfg" 2>& 8
+		flock -s 9
+		write=false process && break
+		exec 9<& -
+	fi
+	if test ! -e "$cfg" || test -w "$cfg"
+	then
+		exec 9>> "$cfg" 2>& 8
+		flock 9
+		write=true process && break
+		exec 9>& -
+	fi
+	sleep 1
+done 8> /dev/null
