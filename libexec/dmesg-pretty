@@ -9,7 +9,7 @@
 #
 # >>>2019-11-27 00:33:52 +0100 xrpi2 syslog.info MSG<<<
 #
-# Version 2020.13.2
+# Version 2020.110
 # Copyright (c) 2020 Guenther Brunthaler. All rights reserved.
 #
 # This script is free software.
@@ -30,12 +30,12 @@ my $rx= qr/
    ^ (?: ( \S+ ) \s* : ( \S+ ) \s* : \s* )?
    # 3:date                       4:time
    ( \d\d\d\d - \d\d - \d\d ) T ( \d\d : \d\d : \d\d )
-   #      5:tz1          6:tz2       7:msg
-   ,\d+ ( [-+]\d\d ) : ( \d\d ) \s+( \S.*+ )
+   #      5:tz1          6:tz2        7:msg
+   ,\d+ ( [-+]\d\d ) : ( \d\d ) \s+ ( \S.*+ )
 /x;
 
 my $h= `hostname`; chomp $h;
-my($msg, $facpri);
+my($msg, $facpri, $problem, $i, $v);
 my $bad= 0;
 open my $fh, "$dump_command |" or die $!;
 OUTER: while (defined($_= <$fh>)) {
@@ -44,6 +44,18 @@ OUTER: while (defined($_= <$fh>)) {
    }
    $facpri= ($1 || "none") . "." . ($2 || "none");
    $msg= $7; $msg =~ s/\s+$//;
+   {
+      $i= 1;
+      foreach $v ($1, $2, $3, $4, $5, $6, $7) {
+         unless (defined $v) {
+            print STDERR "NULL for field $i!\n"; $problem= 1;
+         }
+         ++$i;
+      }
+      if ($problem) {
+         chomp; print STDERR "in line: >>>$_<<<\n"; $problem= 0;
+      }
+   }
    print "$3 $4 $5$6 $h $facpri $msg\n" or die $!;
 }
 close $fh or die $!;
