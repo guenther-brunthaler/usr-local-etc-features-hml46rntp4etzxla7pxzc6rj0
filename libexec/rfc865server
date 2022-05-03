@@ -14,7 +14,7 @@
 #
 # This server never saves the keys to persistent storage.
 #
-# Version 2022.114
+# Version 2022.123
 #
 # Copyright (c) 2022 Guenther Brunthaler. All rights reserved.
 #
@@ -29,9 +29,17 @@ set -e
 trap 'test $? = 0 || echo "\"$0\" failed!" >& 2' 0
 
 exec 2>& 1 # Let the client see any errors. Should not happen anyway.
-case $1 in
-	--debug) set -xv
-esac
+
+now=
+while getopts d:D opt
+do
+	case $opt in
+		d) now=$OPTARG;;
+		D) set -xv;;
+		*) false || exit
+	esac
+done
+shift `expr $OPTIND - 1 || :`
 
 test -x "$helper"
 command -v "$ossl" > /dev/null
@@ -81,7 +89,10 @@ process() {
 		printf '%s\n' "$seedpath" > "$cfg"
 	fi
 	# $seedpath seems to be a valid (and volatile) master key file.
-	now=`date +%s`
+	if test -z "$now"
+	then
+		now=`date +%s`
+	fi
 	expr x"$now" : x'[1-9][0-9]*$' >& 8 # Ensure "date" has %s extension.
 	emit 5m 300
 	echo
