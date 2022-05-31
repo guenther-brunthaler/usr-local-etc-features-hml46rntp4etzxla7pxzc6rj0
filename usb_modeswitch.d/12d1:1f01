@@ -1,0 +1,23 @@
+# HUAWEI E3372h-320
+#
+# v2022.151
+#
+# Switch from 12d1:1f01 to 12d1:155e (modem mode) rather than to
+# 12d1:14db (web router mode).
+#
+# The reason: Web Router mode sends unsolicited traffic up to several MB per
+# day for unknown reasons.
+#
+# In order to use this alternative modeswitch override, however one has to
+# complete the setup wizard of the web router first and then disable the
+# internet connection.
+
+TargetVendor=0x12d1
+TargetProductList="155e,1001,14db,1001,14dc"
+MessageContent="55534243123456780000000000000011063000000100010000000000000000"
+
+# This also works and switches to 12d1:1001. Try this as a fallback if the
+# above message does not work. This is a product ID of older HUAWEI modems and
+# might have some functional disadvantages against the newer product ID above.
+# But then, maybe not at all and it is all the same.
+#MessageContent="55534243123456780000000000000011063000000100000000000000000000"

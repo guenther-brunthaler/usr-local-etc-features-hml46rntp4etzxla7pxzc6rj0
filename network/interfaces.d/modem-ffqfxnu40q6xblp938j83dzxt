@@ -1,0 +1,8 @@
+# Version 2022.151
+#
+# $ ifup modem
+
+iface modem inet ppp
+	provider HoT-IoT
+	options demand ktune holdoff 1 idle 2700 \
+		active-filter 'not port ntp'

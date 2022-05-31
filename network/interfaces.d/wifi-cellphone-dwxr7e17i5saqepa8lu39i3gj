@@ -1,0 +1,9 @@
+# Version 2022.151
+#
+# $ ifup wifi=wifi-cellphone
+
+iface wifi-cellphone inet dhcp
+	pre-up rfkill unblock wlan
+	wpa-ssid cellphone@mydomain
+	wpa-psk-file /etc/site-6n580p79r0flmgyv0feaxchll/secrets/wpa/wifi-cellphone-dwxr7e17i5saqepa8lu39i3gj
+	post-down rfkill block wlan
