@@ -1,5 +1,5 @@
-# Version 2022.151
-#
+# Version 2022.152
+
 # $ ifup webrouter=webrouter-huawei-e3372
 
 rename mac/00:1e:10:1f:00:00=webrouter
@@ -7,6 +7,7 @@ rename mac/00:1e:10:1f:00:00=webrouter
 iface webrouter-huawei-e3372 inet static
 	address 192.168.253.32
 	netmask 255.255.255.0
+	gateway 192.168.253.1
 	# No gateway because the web router created unsolicited traffic volume
 	#
         # The router admin console (needs password) will be available under
