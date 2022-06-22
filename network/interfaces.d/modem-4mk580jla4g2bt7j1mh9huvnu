@@ -1,8 +1,0 @@
-# Version 2020.54
-#
-# $ ifup modem
-
-iface modem inet ppp
-	provider 100%
-	options demand ktune holdoff 1 idle 2700 \
-		active-filter 'not port ntp'

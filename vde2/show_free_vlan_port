@@ -1,0 +1,42 @@
+#! /bin/sh
+NGMT_SOCK=/var/run/vde2/ethvm.mgmt
+SWITCH_CFG=config-switch.cmd
+SWITCH_VLAN_SED='s|^vlan/create \([1-9][0-9]*\) # \(.*\)$|\2 \1|; t; d'
+
+set -e
+trap 'test $? = 0 || echo "\"$0\" failed!" >& 2' 0
+
+while getopts "" opt
+do
+	case $opt in
+		*) false || exit
+	esac
+done
+shift `expr $OPTIND - 1 || :`
+
+test -f "$0"
+SWITCH_CFG=${0%/*}/$SWITCH_CFG
+test -f "$SWITCH_CFG"
+
+list_vlans() {
+	sed "$SWITCH_VLAN_SED" "$SWITCH_CFG" | sort -k 1,1
+}
+
+case $# in
+	0) list_vlans | cut -d ' ' -f 1; exit;;
+	1) ;;
+	*) false || exit
+esac
+
+vlan=`
+	echo "$1" | { exec 5<& 0 && list_vlans | join /dev/fd/5 -; } \
+	| cut -d " " -f 2
+`
+
+die() {
+	printf '%s\n' "$*" >& 2
+	false || exit
+}
+
+expr x"$vlan" : x'[1-9][0-9]*$' > /dev/null \
+	|| die "Unable to look up VLAN with associated name '$1'!"

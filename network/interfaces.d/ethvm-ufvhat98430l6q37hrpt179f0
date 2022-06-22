@@ -1,0 +1,8 @@
+iface ethvm inet static
+	pre-up test -d /dev/net/tun || modprobe tun
+	vde2-switch -f /etc/vde2/config-switch.cmd
+	up ip link set dev ethvm down
+	up ip link set dev ethvm address x6:xx:xx:xx:xx:xx
+	up ip link set dev ethvm up
+	address 10.54.xxx.xxx
+	netmask 255.255.0.0

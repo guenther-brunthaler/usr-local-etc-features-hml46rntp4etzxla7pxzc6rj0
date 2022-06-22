@@ -1,0 +1,10 @@
+iface ethsmb inet static
+	# Start the switch first unless it is already running.
+	pre-up sh -c 'ifquery --state ethvm > /dev/null || ifup ethvm'
+	vde2-plug vde_plug2tap -p 2 -s /var/run/vde2/ethvm.ctl ethsmb
+	up ip link set dev ethsmb down
+	up ip link set dev ethsmb address xa:xx:xx:xx:xx:xx
+	up ip link set dev ethsmb up
+	# xxxxx.ethsmb.emgenxx69lwyn5ctlr4nl64ul.local
+	address 10.35.xxx.xxx
+	netmask 255.255.0.0

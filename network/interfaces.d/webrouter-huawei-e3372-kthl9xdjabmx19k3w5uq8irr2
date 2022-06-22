@@ -1,4 +1,4 @@
-# Version 2022.152
+# Version 2022.173
 
 # $ ifup webrouter=webrouter-huawei-e3372
 
@@ -8,10 +8,10 @@ iface webrouter-huawei-e3372 inet static
 	address 192.168.253.32
 	netmask 255.255.255.0
 	gateway 192.168.253.1
-	# No gateway because the web router created unsolicited traffic volume
+	# Be warned that the web router creates unsolicited Internet traffic
 	#
         # The router admin console (needs password) will be available under
 	# https://192.168.253.1
 	#
 	# This IP address has been hand-assigned to it after deactivating
-	# its DHCP server.
+	# its built-in DHCP server.

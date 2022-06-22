@@ -1,0 +1,13 @@
+iface ethbvm inet static
+	# Start the switch first unless it is already running.
+	pre-up sh -c 'ifquery --state ethvm > /dev/null || ifup ethvm'
+	pre-up sh -c 'ifquery --state ethernet > /dev/null || ifup ethernet'
+	vde2-plug vde_plug2tap -p 3 -s /var/run/vde2/ethvm.ctl ethbvm
+	up ip link set dev ethbvm down
+	up ip link set dev ethbvm address xe:xx:xx:xx:xx:xx
+	up ip link set dev ethbvm up
+	post-up brctl addif ethernet ethbvm
+	pre-down brctl delif ethernet ethbvm
+	# xxxxx.ethbvm.emgenxx69lwyn5ctlr4nl64ul.local
+	address 10.218.xxx.xxx
+	netmask 255.255.0.0
