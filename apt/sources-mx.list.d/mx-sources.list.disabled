@@ -1,0 +1,6 @@
+# MX Community Main and Test Repos
+deb-src http://ftp.lip6.fr/pub/linux/distributions/mxlinux/packages/mx/repo/ bullseye main non-free
+#deb-src http://ftp.lip6.fr/pub/linux/distributions/mxlinux/packages/mx/testrepo/ bullseye test
+
+#ahs hardware stack repo
+#deb-src http://ftp.lip6.fr/pub/linux/distributions/mxlinux/packages/mx/repo/ bullseye ahs

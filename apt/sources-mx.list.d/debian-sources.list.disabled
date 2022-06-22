@@ -1,0 +1,6 @@
+# Debian Stable.
+deb-src http://deb.debian.org/debian bullseye main contrib non-free
+deb-src http://security.debian.org/debian-security bullseye-security main contrib non-free
+
+#bullseye backports
+#deb-src http://deb.debian.org/debian bullseye-backports main contrib non-free

@@ -1,0 +1,8 @@
+# Use with Debian Bullseye repositories. 
+deb-src http://ftp.lip6.fr/pub/linux/distributions/mxlinux/packages/antix/bullseye bullseye main nosystemd nonfree 
+
+# Use with Debian Testing/'rolling' repositories.
+#deb-src http://ftp.lip6.fr/pub/linux/distributions/mxlinux/packages/antix/testing testing main nosystemd nonfree 
+
+# Use with Debian Sid repositories. 
+#deb-src http://ftp.lip6.fr/pub/linux/distributions/mxlinux/packages/antix/sid sid main nosystemd nonfree 

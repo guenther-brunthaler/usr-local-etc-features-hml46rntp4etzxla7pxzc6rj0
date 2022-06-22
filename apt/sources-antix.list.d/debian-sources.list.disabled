@@ -1,0 +1,18 @@
+# Debian Bullseye/Stable
+deb-src http://ftp.fr.debian.org/debian/ bullseye main contrib non-free
+deb-src http://security.debian.org/ bullseye-security main contrib non-free
+#deb-src http://www.deb-multimedia.org bullseye main non-free
+
+# Debian Testing. 
+# Testing enabled for 'rolling' release.
+#deb-src http://ftp.fr.debian.org/debian/ testing main contrib non-free
+#deb-src http://security.debian.org testing-security main contrib non-free 
+
+# Multimedia Stable and Testing
+# Use to install libdvdcss2 and codecs.
+#deb-src http://www.deb-multimedia.org testing main non-free
+
+###### Debian Unstable/Sid##########
+###### Use at your own risk! ########
+#deb-src http://ftp.fr.debian.org/debian/ unstable main contrib non-free
+#deb-src http://www.deb-multimedia.org sid main non-free
