@@ -1,5 +1,5 @@
 #! /bin/sh
-# Version 2022.3
+# Version 2022.237
 #
 # Refresh the single archive on /boot where all the modules for all the
 # installed kernels are present. This allows the same module archive file to
@@ -80,7 +80,7 @@ echo "Stripping copies of kernel modules"
 (
 	cd -- "$TD"
 	cp -pr /lib/modules/* .
-	find -name '*.ko' | $pp | {
+	find -name '*.ko' -o -name '*.ko.*' | $pp | {
 		set -- $strip
 		test $# -ge 1
 		for s
@@ -89,6 +89,14 @@ echo "Stripping copies of kernel modules"
 		done
 		while read m
 		do
+			arc=${m#*.ko.}
+			if test "$arc" != "$m"
+			then
+				expr x"$arc" : x'[a-z]\{2,8\}$' > /dev/null
+				un$arc $m
+				m=${m%.$arc}
+				test -f "$m"
+			fi
 			tries=$#
 			while :
 			do
