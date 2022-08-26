@@ -1,0 +1,155 @@
+#! /bin/sh
+# v2022.238
+### BEGIN INIT INFO
+# Provides:          cryptdisks-swap
+# Required-Start:    cryptdisks
+# Required-Stop:
+# Default-Start:     S
+# Default-Stop:      0 6
+# Short-Description: Deactivate encrypted swaps
+# Description:       Find swaps in /etc/crypttab and activate or deactivate
+#                    them. Automatically create or remove any underlying
+#                    mappings in the correct order (in case of nesting).
+### END INIT INFO
+
+set -e
+# Start (= gllez8xrsremp6jlwifp03krc): {
+# Prologue a8p3e400c1z9uqs3b27s6x94l:
+lib=/etc/libexec/lib/sh
+# Generated (= b83iv5hz8sbpbv4i80t9v5rwv):
+. "$lib"/println-871v57a0dzb6d3rxykj87vsnf.sh
+. "$lib"/trap_errors-3vnzcvh9hfs134g6ln6cy567k.sh
+. "$lib"/show_failures-ci9hjhmyjuy0cx1wmguv7n6h0.sh
+. "$lib"/scopes-hqxbfzp9026esereelim9tbyk.sh
+. "$lib"/cleanup-l98e2762zc08fyiqt8787lpk5.sh
+# } End (= bw80hxwxxzma2qu0x8b75t2y4)
+
+# $result: name of new tmpfile registered for eventual removal.
+register_tmpfile() {
+	result=`mktemp -- "${TMPDIR:-/tmp}/${0##*/}".XXXXXXXXXX`
+	finally "rm -- '$result'"
+}
+
+shared_init() {
+		var map_base crypttab active_swaps swaps result
+		map_base=/dev/mapper
+		test -d "$map_base"
+		crypttab=/etc/crypttab
+		test -f "$crypttab"
+		register_tmpfile; active_swaps=$result
+		swapon --show=NAME --noheadings \
+		| while IFS= read -r dev
+		do
+			readlink -f -- "$dev"
+		done \
+		| LC_COLLATE=C sort -u > "$active_swaps"
+		register_tmpfile; swaps=$result
+		tac < "$crypttab" | awk '{print $1; print $2; print $4}' \
+		| {
+			next=
+			while IFS= read -r map
+			do
+				IFS= read -r src
+				IFS= read -r opts
+				case ,$opts, in
+					*,swap,*) println SWAP:$map; next=$src
+				esac
+				if test "$map_base/$map" = "$next"
+				then
+					println "MAP:$map"
+					next=$src
+				fi
+			done
+		} > "$swaps"
+}
+
+setup_rdev() {
+	if test -e "$dev"
+	then
+		rdev=`readlink -f "$dev"`
+	else
+		rdev=
+	fi
+}
+
+common_proc() {
+	case $map in
+		MAP:*) is_swap=false;;
+		SWAP:*) is_swap=true;;
+	esac
+	map=${map#*:}
+	dev=$map_base/$map
+	setup_rdev
+}
+
+opt_swap_on() {
+	grep -Fxq -- "$1" < "$active_swaps" && return
+	echo "Activating swap $dev" >& 2
+	swapon "$1"
+}
+
+do_start() {
+	scope
+		shared_init
+		tac < "$swaps" \
+		| while IFS= read -r map
+		do
+			common_proc
+			if test -z "$rdev"
+			then
+				cryptdisks_start "$map"
+				setup_rdev
+				test "$rdev"
+			fi
+			if test $is_swap = true
+			then
+				opt_swap_on "$rdev"
+			fi
+		done
+	unwind
+}
+
+refcnt() {
+	dmsetup info "$1" | sed 's/^[Oo]pen.*count.*:[^0-9]*//; t; d'
+}
+
+opt_swap_off() {
+	grep -Fxq -- "$1" < "$active_swaps" || { true; return; }
+	echo "Deactivating swap $dev" >& 2
+	swapoff "$1"
+	while test "`refcnt "$map"`" != 0
+	do
+		sleep 1
+	done
+}
+
+do_stop() {
+	scope
+		shared_init
+		cat < "$swaps" \
+		| while IFS= read -r map
+		do
+			common_proc
+			if test $is_swap = true && test "$rdev"
+			then
+				opt_swap_off "$rdev"
+			fi
+			if test "$rdev" && test -b "$rdev"
+			then
+				echo "Unmapping $dev" >& 2
+				dmsetup remove --retry "$map"
+			fi
+		done
+	unwind
+}
+
+case $1 in
+	start) do_start;;
+	stop) do_stop;;
+	restart | reload | force-reload) do_stop; do_start;;
+	force-start) FORCE_START=yes; do_start;;
+	*)
+		echo "Usage: $0 {start|stop|restart|reload"`:
+			`"|force-reload|force-start}"
+		false | exit
+esac
