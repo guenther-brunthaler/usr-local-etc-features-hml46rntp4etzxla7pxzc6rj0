@@ -1,6 +1,6 @@
 # Additional configuration for dropbear: IP setup.
 #
-# Version 2019.040
+# Version 2022.287
 
 # Files which need also be present:
 # ../root/.ssh/authorized_keys
@@ -15,7 +15,7 @@
 #
 # $ zless /usr/share/doc/libklibc/README.ipconfig.gz
 #IP=<client-ip>:[<server-ip>]:[<gw-ip>]:<netmask>:<hostname>:<device>:<autoconf>
-IP='<$IPADDR>:::<$NETMASK>:<$HOSTNAME>:<$NICNAME>:static'
+IP='<$IPADDR>::<$GATEWAY>:<$NETMASK>:<$HOSTNAME>:<$NICNAME>:static'
 
 # Ensures the network interface name will be consistent with later system
 # operation.
