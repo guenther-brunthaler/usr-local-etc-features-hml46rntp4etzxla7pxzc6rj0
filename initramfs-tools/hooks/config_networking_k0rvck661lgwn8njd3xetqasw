@@ -16,7 +16,7 @@
 # interface of the bridge as the interface name, assuming the bridge itself
 # will not exist yet during initramfs execution.
 #
-# Version 2022.287
+# Version 2022.301
 # Copyright (c) 2018-2022 Guenther Brunthaler. All rights reserved.
 #
 # This script is free software.
@@ -49,7 +49,7 @@ HOSTNAME=`hostname`
 test -n "$HOSTNAME"
 IPADDR=
 NETMASK=
-GATEWAY=
+GATEWAY='&'
 while read -r opt args
 do
 	set -f; set -- "$args"; set +f
@@ -71,6 +71,7 @@ for vn in IPADDR NETMASK GATEWAY HOSTNAME NICNAME
 do
 	eval val=\$$vn
 	case $val in
+		"&") val=;; 
 		"" | *"|"*) false || exit;;
 	esac
 	rx=$rx${rx:+"; "}"s|<[\$]$vn>|$val|"
