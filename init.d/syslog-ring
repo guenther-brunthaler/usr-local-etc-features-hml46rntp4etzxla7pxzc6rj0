@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# v2021.45
+# v2022.341
 #
 # vim:ts=4:et:sts=4
 ### BEGIN INIT INFO
@@ -35,8 +35,13 @@ SYSLOGD_BUFFER_KB=1536
 # instance, to immediately send a copy of syslog entries to an external syslog
 # server using the -R or -L options.
 SYSLOGD_ADDITIONAL_OPTIONS="-D -t"
-SYSLOGD_PIDFILE=/var/run/syslogd.pid
+
+# Options to pass to BusyBox' klogd.
 KLOGD_OPTIONS=""
+
+# Set $SYSLOGD_PIDFILE and/or $KLOGD_PIDFILE to an empty string in order to
+# prevent starting the associated daemon.
+SYSLOGD_PIDFILE=/var/run/syslogd.pid
 KLOGD_PIDFILE=/var/run/klogd.pid
 
 # Read configuration variable file if it is present
@@ -60,20 +65,33 @@ status=0
 case "$1" in
     start)
         log_daemon_msg "Starting $DESC" "$NAME"
-	ssd -S -p "$SYSLOGD_PIDFILE" \
-		-- syslogd -C"$SYSLOGD_BUFFER_KB" \
-		$SYSLOGD_ADDITIONAL_OPTIONS \
-		|| status=$?
-	ssd -S -p "$KLOGD_PIDFILE" -- klogd $KLOGD_OPTIONS && dmesg -D \
-		|| status=$?
+        if test "$SYSLOGD_PIDFILE"
+        then
+		ssd -S -p "$SYSLOGD_PIDFILE" \
+			-- syslogd -C"$SYSLOGD_BUFFER_KB" \
+			$SYSLOGD_ADDITIONAL_OPTIONS \
+			|| status=$?
+	fi
+        if test "$KLOGD_PIDFILE"
+        then
+		ssd -S -p "$KLOGD_PIDFILE" -- klogd $KLOGD_OPTIONS \
+			&& dmesg -D \
+			|| status=$?
+	fi
         log_end_msg $status
         ;;
 
     stop)
         log_daemon_msg "Stopping $DESC" "$NAME"
 	"$LOG_SAVER" || status=$?
-	ssd -K -qp "$KLOGD_PIDFILE" && dmesg -E || status=$?
-	ssd -K -qp "$SYSLOGD_PIDFILE" || status=$?
+        if test "$KLOGD_PIDFILE"
+        then
+		ssd -K -qp "$KLOGD_PIDFILE" && dmesg -E || status=$?
+	fi
+        if test "$SYSLOGD_PIDFILE"
+        then
+		ssd -K -qp "$SYSLOGD_PIDFILE" || status=$?
+	fi
         log_end_msg $status
         ;;
 
