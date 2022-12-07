@@ -28,7 +28,8 @@ LOG_SAVER=/etc/cron.daily/save_logs-4vzntsgfwksyilhv27klxte5l
 # This syslog will not write to disk in order to save your flash media's life.
 # Instead it will write to a circular buffer in RAM with the size specified by
 # the following variable. Consider adding a cron job for appending new entries
-# found in the circular RAM buffer to a log file on disk.
+# found in the circular RAM buffer to a log file on disk. Set to an empty
+# string in order to disable the userspace circular buffer.
 SYSLOGD_BUFFER_KB=1536
 
 # Add arbitrary additional options to BusyBox's syslogd. This can be used, for
@@ -68,7 +69,8 @@ case "$1" in
         if test "$SYSLOGD_PIDFILE"
         then
 		ssd -S -p "$SYSLOGD_PIDFILE" \
-			-- syslogd -C"$SYSLOGD_BUFFER_KB" \
+			-- syslogd \
+			${SYSLOGD_BUFFER_KB:+"-C$SYSLOGD_BUFFER_KB"} \
 			$SYSLOGD_ADDITIONAL_OPTIONS \
 			|| status=$?
 	fi
