@@ -1,8 +1,10 @@
 #! /bin/sh
+# v2020.351
 ARCHIVE=/tmp/ppp-cap.gz
 LOG_GROUP=adm
 LOG_MODE=640
 LIVE=/tmp/ppp-live-cap
+OPT_HELPER=/etc/libexec/ringbuffer_file
 
 test ! -e "$LIVE" && exit
 
@@ -29,6 +31,17 @@ sperm "$ARCHIVE"
 
 if uok "$LIVE"
 then
-	gzip -c9 < "$LIVE" >> "$ARCHIVE"
+	gzip -c9 < "$LIVE" | {
+		if test -x "$OPT_HELPER"
+		then
+			{
+				# Separation prefix.
+				printf %s '<0bstssl1dejjaluwmv1y2jpsh>'
+				cat
+			} | "$OPT_HELPER" "$ARCHIVE"
+		else
+			cat >> "$ARCHIVE"
+		fi
+	}
 fi
 > "$LIVE"

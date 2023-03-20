@@ -164,8 +164,8 @@ PASS_WARN_AGE	7
 #
 # Min/max values for automatic uid selection in useradd
 #
-UID_MIN			 1000
-UID_MAX			 8399
+UID_MIN			 9000
+UID_MAX			 9999
 # System accounts
 #SYS_UID_MIN		  100
 #SYS_UID_MAX		  999
@@ -173,8 +173,8 @@ UID_MAX			 8399
 #
 # Min/max values for automatic gid selection in groupadd
 #
-GID_MIN			 1000
-GID_MAX			 8399
+GID_MIN			 9000
+GID_MAX			 9999
 # System accounts
 #SYS_GID_MIN		  100
 #SYS_GID_MAX		  999

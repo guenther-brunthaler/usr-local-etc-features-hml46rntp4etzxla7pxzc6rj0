@@ -1,9 +1,9 @@
 #! /bin/sh
-# Version 2019.318
+# Version 2023.79
 
 FSTAB_IN=/etc/fstab
 # Copy '!'-prefixed entries as "noauto", otherwise as non-"noauto".
-COPY_ENTRIES='!/boot !/dev !/proc /run /run/lock /run/shm !/sys !/tmp /usr'
+COPY_ENTRIES='!/ !/boot !/dev !/proc /run /run/lock /run/shm !/sys !/tmp /usr'
 OPT_SEP=','
 
 set -e
