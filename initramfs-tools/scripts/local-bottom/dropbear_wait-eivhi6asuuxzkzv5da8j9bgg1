@@ -1,0 +1,27 @@
+#! /bin/sh
+# Version 2023.79
+# Copyright (c) 2023 Guenther Brunthaler. All rights reserved.
+# 
+# This script is free software.
+# Distribution is permitted under the terms of the GPLv3.
+
+# Wait for some line of data written to $ACK_FIFO before continuing.
+
+ACK_FIFO=/run/continue_ack
+
+set -e
+
+PREREQS='<dropbear_linger-arjb7mwe662s8055pgkcbyrgb'
+
+case $1 in
+	prereqs) echo "$PREREQS"; exit
+esac
+
+. /scripts/functions
+
+log_warning_msg \
+	Write any line of text into $ACK_FIFO in order to continue booting.
+mkfifo -- "$ACK_FIFO"
+read anything < "$ACK_FIFO"
+rm -- "$ACK_FIFO"
+log_success_msg Continuation acknowledge received - continuing boot sequence.

@@ -1,0 +1,41 @@
+#! /bin/sh
+# Version 2023.79
+# Copyright (c) 2023 Guenther Brunthaler. All rights reserved.
+# 
+# This script is free software.
+# Distribution is permitted under the terms of the GPLv3.
+
+# Check whether the current system time is not older than the modification
+# timestamp of THIS script. Immediately exit in this case.
+#
+# Otherwise, if the system time is too old, wait for some line of data written
+# to $ACK_FIFO and then re-check the system time again. This continues until
+# someone will set a more recent system time.
+
+ACK_FIFO=/run/clock_ack
+
+set -e
+
+PREREQS='dropbear'
+
+case $1 in
+	prereqs) echo "$PREREQS"; exit
+esac
+
+. /scripts/functions
+
+is_newer() {
+        test "`find -H "$1" -prune -newer "$2"`" || return
+}
+
+mkfifo -- "$ACK_FIFO"
+while is_newer "$0" "$ACK_FIFO"
+do
+	log_warning_msg \
+		Please set the system clock, then write \
+		any line of text into $ACK_FIFO in order to continue.
+	read anything < "$ACK_FIFO"
+	log_success_msg \
+		Continuation acknowledge received - re-checking clock time.
+done
+rm -- "$ACK_FIFO"
