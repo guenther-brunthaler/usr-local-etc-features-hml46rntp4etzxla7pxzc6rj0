@@ -1,0 +1,65 @@
+#! /bin/sh
+# v2023.99
+# Copyright (c) 2018-2023 Guenther Brunthaler. All rights reserved.
+# 
+# This script is free software.
+# Distribution is permitted under the terms of the GPLv3.
+
+# If $OPT_WAITFOR_FIFO exists and is a FIFO, then this script will wait until
+# it can read an arbitrary line of text from it before doing anything else. In
+# this case, it will delete the FIFO until it has read the line from it.
+#
+# The script can also create the $OPT_WAITFOR_FIFO FIFO itself when run with
+# any non-empty first argument except "prereqs". For instance, passing "c" as
+# the first argument will create the FIFO. Alternatively, when being invoked
+# this way and the FIFO already exits, the script writes some line of text
+# into the FIFO, thus finishing the waiting of another instance of the script.
+#
+# Then (or initially if no $OPT_WAITFOR_FIFO existed) the script will wait for
+# $TIMEOUT_SECONDS before continuing.
+#
+# This script could be run before dropbear is stopped, in order to avoid this
+# happening immediately after mounting the real root filesystem (not that of
+# the initramfs).
+
+OPT_WAITFOR_FIFO=/run/linger_ack
+TIMEOUT_SECONDS=10
+
+set -e
+
+PREREQS='<ifdown'
+
+case $1 in
+	prereqs) echo "$PREREQS"; exit
+esac
+
+. /scripts/functions
+
+case $1 in
+	"") ;;
+	*)
+		quiet=n
+		if test -e "$OPT_WAITFOR_FIFO"
+		then
+			log_success_msg Writing a line to $OPT_WAITFOR_FIFO
+			echo continue > "$OPT_WAITFOR_FIFO"
+		else
+			log_success_msg Creating $OPT_WAITFOR_FIFO FIFO
+			mkfifo "$OPT_WAITFOR_FIFO"
+		fi
+		exit
+esac
+
+if test -p "$OPT_WAITFOR_FIFO"
+then
+	log_success_msg Waiting for any line of text \
+		written to $OPT_WAITFOR_FIFO
+	IFS= read -r dummy < "$OPT_WAITFOR_FIFO"
+	log_success_msg A line of text has been received. \
+		Removing $OPT_WAITFOR_FIFO
+	rm -- "$OPT_WAITFOR_FIFO"
+fi
+
+log_success_msg Waiting for timeout in order to continue booting
+sleep $TIMEOUT_SECONDS
+log_success_msg Continuing boot sequence - prepare to leave initramfs
