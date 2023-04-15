@@ -1,6 +1,9 @@
 #! /bin/sh
 # Hook $ADDITIONAL_LIBEXECDIR into the list of directories searched for
-# resolvconf subscribers.
+# resolvconf subscribers. Ignore any subscribers with names ending with
+# ".disabled".
+#
+# v2023.105
 
 ADDITIONAL_LIBEXECDIR=/etc/resolvconf-subscribers.d
 
@@ -12,6 +15,9 @@ unset ORIGINAL_LIBEXECDIR
 retval=0
 for script in "$LIBEXECDIR"/* "$ADDITIONAL_LIBEXECDIR"/*
 do
+	case $script in
+		*.disabled) continue
+	esac
 	if test -f "$script"
 	then
 		if test -x "$script"
