@@ -13,11 +13,15 @@
 # using the same key after the reboot. The key should be combined with a
 # key stored on the unencrypted disk.
 #
-# This server never saves the keys to persistent storage.
+# This server never saves the keys to persistent storage. (Assuming
+# $XDG_RUNTIME_DIR, $TMPDIR and "/tmp" are not located on persistent storage
+# either. The script tries those directories in this order to save its
+# randomly generated pseudo-random seed. $XDG_RUNTIME_DIR will only be used if
+# it is defined and writable. $TMPDIR will only be used if it is defined.)
 #
-# Version 2022.237
+# Version 2023.105
 #
-# Copyright (c) 2022 Guenther Brunthaler. All rights reserved.
+# Copyright (c) 2022-2023 Guenther Brunthaler. All rights reserved.
 #
 # This script is free software.
 # Distribution is permitted under the terms of the GPLv3.
@@ -48,7 +52,7 @@ if test -z "$HOME"
 then
 	HOME=`grep "^\`id -un\`:" /etc/passwd`
 	o=$IFS; IFS=:; set -- $HOME; IFS=$o
-	HOME=$6
+	HOME=$6; export HOME
 fi
 test -d "$HOME"
 mkdir -p "${XDG_DATA_HOME:="$HOME/.local/share"}"
@@ -81,11 +85,13 @@ process() {
 		:
 	else
 		test $write = true || return
-		if test -z "XDG_RUNTIME_DIR"
+		if test -z "$XDG_RUNTIME_DIR" || test ! -w "$XDG_RUNTIME_DIR"
 		then
 			XDG_RUNTIME_DIR=${TMPDIR:-/tmp}
+			export XDG_RUNTIME_DIR
 		fi
 		seedpath=`mktemp -- "${XDG_RUNTIME_DIR}/$app".XXXXXXXXXX`
+		test "$seedpath" || exit # BUG: Why is this "exit" necessary?
 		"$helper" 32 > "$seedpath"
 		printf '%s\n' "$seedpath" > "$cfg"
 	fi
