@@ -12,6 +12,9 @@ UUID=55555555-5555-5555-5555-555555555555	/boot					ext4		defaults,ro,noatime,er
 /dev/vg_myhost/var				/var					ext4		auto,relatime,errors=remount-ro 0 2
 /dev/mapper/swap-myhost-dec			none					swap		auto 0 3
 
+# Order group 3.
+ephemeral					/home/mnt/until_shutdown		tmpfs		auto,mode=1777,size=50%,nosuid,nodev 0 3
+
 # Mounted manually by superuser on demand.
 /dev/mapper/HOSTNAME-level1-dec			/home/mnt/level1			ext4		noauto,defaults,noatime 0 0
 /dev/mapper/HOSTNAME-level2-dec			/home/mnt/level2			ext4		noauto,defaults,noatime 0 0
