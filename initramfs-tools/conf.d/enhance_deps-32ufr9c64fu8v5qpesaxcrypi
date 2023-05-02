@@ -1,5 +1,6 @@
 #! /bin/false
-# Copyright (c) 2018 Guenther Brunthaler. All rights reserved.
+# v2023.122
+# Copyright (c) 2018-2023 Guenther Brunthaler. All rights reserved.
 # 
 # This shell snippet is free software.
 # Distribution is permitted under the terms of the GPLv3.
@@ -13,6 +14,21 @@
 #
 # somename - run the script AFTER any script "somename" (the old behaviour)
 # <somename - run the script BEFORE any script "somename"
+# @somename - make the script an part of the group "somename"
+#
+# For every script, a group of the same name will be created automatically,
+# initially containing this script as its only member. By declaring
+# "@"-dependencies, other scripts can join this group as well.
+#
+# Declared BEFORE and AFTER dependencies do not actually depend on a script,
+# but rather on a group with that name.
+#
+# Declaring "@" allows a script to act as a replacement or alternative which
+# can fullfil the same BEFORE/AFTER dependencies as the original script with
+# that name. That is, it can either act as a stand-in for the original script.
+# Or it can indirectly enhance it with additional functionality (because being
+# part in the same depencendy group, it will be run shortly after or before
+# the original script).
 #
 # Note: Be sure to properly quote "<" in the script, or it will be
 # mis-interpreted by the shell as a redirection operator.
@@ -22,23 +38,28 @@ unset -f get_prereq_pairs
 # Important: Keep this in sync with any changes in the function of the same
 # name in /usr/share/initramfs-tools/hook-functions!
 #
-# The function below should be the same code as there, except that the
-# innermost "echo" has been enclosed within a new "if" and been moved into its
-# "else" branch.
+# The function below should be the same code as there, except for the contents
+# of the "for"-loop where the innermost "echo" has been wrapped within a new
+# "if"/"elif" and has then been moved into its "else" branch.
 
 get_prereq_pairs()
 {
 	set_initlist
 	for gp_x in ${initlist:-}; do
-		echo ${gp_x} ${gp_x}
+		echo "^${gp_x} ${gp_x}"
+		echo "${gp_x} ${gp_x}\$"
 		gp_src="$(get_source $gp_x)"
 		prereqs=$("${gp_src}" prereqs)
 		for prereq in ${prereqs}; do
-			if test "${prereq#<}" != "${prereq}"
+			if test "${prereq#@}" != "${prereq}"
 			then
-				echo ${gp_x} ${prereq#<}
+				echo "^${prereq#@} ${gp_x}"
+				echo "${gp_x} ${prereq#@}\$"
+			elif test "${prereq#<}" != "${prereq}"
+			then
+				echo "${gp_x} ^${prereq#<}"
 			else
-				echo ${prereq} ${gp_x}
+				echo "${prereq}\$ ${gp_x}"
 			fi
 		done
 	done
