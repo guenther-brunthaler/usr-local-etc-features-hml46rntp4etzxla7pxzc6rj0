@@ -1,5 +1,5 @@
 #! /bin/false
-# v2023.122.1
+# v2023.122.2
 # Copyright (c) 2018-2023 Guenther Brunthaler. All rights reserved.
 # 
 # This shell snippet is free software.
@@ -15,35 +15,55 @@
 # somename - run the script AFTER any dependency group "somename"
 # <somename - run the script BEFORE any dependency group "somename"
 # @somename - make the script an part of the dependency group "somename"
-# !somename - run the script AFTER any script "somename" (the old behaviour)
-# <!somename - run the script BEFORE any script "somename"
+# !somename - run the script AFTER any script "somename" within depgroup
+# <!somename - run the script BEFORE any script "somename" within depgroup
 #
 # For every script, a dependency group of the same name will be created
-# automatically, initially containing this script as its only member. By
-# declaring "@"-dependencies, other scripts can join this group as well.
+# automatically, initially containing this script as its only member. This
+# means that dependencies will work exactly the same as in the original
+# dependency resolution algorithm as long as none of the new punctuation
+# character prefixes shown above are used.
 #
-# Declared BEFORE and AFTER dependencies normally do not actually depend on a
-# script, but rather on a group with that name. This can be changed by
-# prefixing the script name with a "!", in which case the dependency actually
-# refers to the script rather than to the script's dependency group.
+# By declaring "@"-dependencies, other scripts can join any existing
+# dependency group as well. This means that dependencies on the group will
+# automatically extend to all of its members. This mechanism can be used to
+# create drop-in replacements for pre-existing scripts. For instance, if a new
+# script "openssh" shall replace a previous script "dropbear" on which other
+# scripts might already depend, the new script just needs to declare a
+# dependency "@dropbear". This will make "openssh" a member of the "dropbear"
+# dependency group, even if the script "dropbear" no longer exists. But
+# because dependencies target groups rather than individual scripts, "openssh"
+# will now be the target of all dependencies on "dropbear".
 #
-# Declaring "@" allows a script to act as a replacement or alternative which
-# can fullfil the same BEFORE/AFTER dependencies as the original script with
-# that name. That is, it can either act as a stand-in for the original script.
-# Or it can indirectly enhance it with additional functionality (because being
-# part in the same depencendy group, it will be run shortly after or before
-# the original script).
+# "@"-dependencies can also be used to extend or split the functionality of a
+# script, because those scripts will be run shortly after of before the script
+# after which the group is named. This happens because all members of the same
+# dependency group represent a single unit of dependency ordering in relation
+# to dependency declarations by scripts from outside that group.
 #
-# The idea is to normally only declare "<name" and "name" dependencies which
-# refer to groups. This allows "@name"-declarations to substitute pre-existing
-# scripts or augment their functionality with their own.
+# While "@"-groups are created automatically for every existing script, they
+# will also be generated automatically by "@"-statements even without an
+# existing script of the same name. This allows to create synthetic dependency
+# groups which are not automatically related to any script. This mechanism
+# could be used to create "well known" groups like "networking", "logger" etc.
+# in a similar way as the "$"-prefixed names in the classic sysv dependency
+# declarations.
 #
-# But scripts within the same depencency group must use "<!name" or "!name"
-# instead in order to declare any dependencies between the other members of
-# the same group.
+# Dependency groups can also be nested. For instance, scripts within the same
+# dependency groups can declare dependencies on other members of the group,
+# which are then nested dependency groups.
+#
+# One exception from the latter mechanism are dependencies within a dependency
+# group which refer to the script after which the group is named. In this case
+# it is necessary to use the "!"- or "<!"-prefixes in order to refer to the
+# script with the group's name rather than to the enclosing group itself.
+# Declaring either prefix also implies a "@" declaration. Therefore a
+# declaration "<!somename" has the same effect as "@somename <!somename>".
 #
 # Note: Be sure to properly quote "<" in the script, or it will be
-# mis-interpreted by the shell as a redirection operator.
+# mis-interpreted by the shell as a redirection operator. Some shells may use
+# "!" as a history-expansion character, so it might be prudent to quote it as
+# well.
 
 unset -f get_prereq_pairs
 
@@ -69,9 +89,13 @@ get_prereq_pairs()
 				echo "${gp_x} ${prereq#@}\$"
 			elif test "${prereq#<!}" != "${prereq}"
 			then
+				echo "^${prereq#<!} ${gp_x}"
+				echo "${gp_x} ${prereq#<!}\$"
 				echo "${gp_x} ${prereq#<!}"
 			elif test "${prereq#!}" != "${prereq}"
 			then
+				echo "^${prereq#!} ${gp_x}"
+				echo "${gp_x} ${prereq#!}\$"
 				echo "${prereq#!} ${gp_x}"
 			elif test "${prereq#<}" != "${prereq}"
 			then
