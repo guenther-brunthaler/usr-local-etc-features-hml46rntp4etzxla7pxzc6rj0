@@ -1,5 +1,5 @@
 #! /bin/false
-# v2023.122
+# v2023.122.1
 # Copyright (c) 2018-2023 Guenther Brunthaler. All rights reserved.
 # 
 # This shell snippet is free software.
@@ -12,16 +12,20 @@
 # Extend the syntax of supported "prereqs" tokens printed by some script as
 # follows:
 #
-# somename - run the script AFTER any script "somename" (the old behaviour)
-# <somename - run the script BEFORE any script "somename"
-# @somename - make the script an part of the group "somename"
+# somename - run the script AFTER any dependency group "somename"
+# <somename - run the script BEFORE any dependency group "somename"
+# @somename - make the script an part of the dependency group "somename"
+# !somename - run the script AFTER any script "somename" (the old behaviour)
+# <!somename - run the script BEFORE any script "somename"
 #
-# For every script, a group of the same name will be created automatically,
-# initially containing this script as its only member. By declaring
-# "@"-dependencies, other scripts can join this group as well.
+# For every script, a dependency group of the same name will be created
+# automatically, initially containing this script as its only member. By
+# declaring "@"-dependencies, other scripts can join this group as well.
 #
-# Declared BEFORE and AFTER dependencies do not actually depend on a script,
-# but rather on a group with that name.
+# Declared BEFORE and AFTER dependencies normally do not actually depend on a
+# script, but rather on a group with that name. This can be changed by
+# prefixing the script name with a "!", in which case the dependency actually
+# refers to the script rather than to the script's dependency group.
 #
 # Declaring "@" allows a script to act as a replacement or alternative which
 # can fullfil the same BEFORE/AFTER dependencies as the original script with
@@ -29,6 +33,14 @@
 # Or it can indirectly enhance it with additional functionality (because being
 # part in the same depencendy group, it will be run shortly after or before
 # the original script).
+#
+# The idea is to normally only declare "<name" and "name" dependencies which
+# refer to groups. This allows "@name"-declarations to substitute pre-existing
+# scripts or augment their functionality with their own.
+#
+# But scripts within the same depencency group must use "<!name" or "!name"
+# instead in order to declare any dependencies between the other members of
+# the same group.
 #
 # Note: Be sure to properly quote "<" in the script, or it will be
 # mis-interpreted by the shell as a redirection operator.
@@ -55,6 +67,12 @@ get_prereq_pairs()
 			then
 				echo "^${prereq#@} ${gp_x}"
 				echo "${gp_x} ${prereq#@}\$"
+			elif test "${prereq#<!}" != "${prereq}"
+			then
+				echo "${gp_x} ${prereq#<!}"
+			elif test "${prereq#!}" != "${prereq}"
+			then
+				echo "${prereq#!} ${gp_x}"
 			elif test "${prereq#<}" != "${prereq}"
 			then
 				echo "${gp_x} ^${prereq#<}"
