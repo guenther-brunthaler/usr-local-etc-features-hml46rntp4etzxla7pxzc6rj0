@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# v2022.341
+# v2023.122
 #
 # vim:ts=4:et:sts=4
 ### BEGIN INIT INFO
@@ -20,6 +20,7 @@ DEFAULTSFILE="/etc/default/$NAME"
 
 # The Busybox executable to use.
 BUSYBOX=/usr/local/bin/busybox-pbyqxzl1ktqlk3fjm3arlrclg
+BUSYBOX_FALLBACK=busybox
 
 # A helper which flushes the current contents of the ring buffer to a
 # persistent disk file.
@@ -48,6 +49,10 @@ KLOGD_PIDFILE=/var/run/klogd.pid
 # Read configuration variable file if it is present
 test -r "$DEFAULTSFILE" && . "$DEFAULTSFILE"
 
+if test ! -x "$BUSYBOX"
+then
+	BUSYBOX=`command -v -- "$BUSYBOX_FALLBACK"`
+fi
 # Exit if the package is not installed
 test -x "$BUSYBOX" || exit 0
 
@@ -64,42 +69,53 @@ ssd() {
 status=0
 
 case "$1" in
-    start)
-        log_daemon_msg "Starting $DESC" "$NAME"
-        if test "$SYSLOGD_PIDFILE"
-        then
-		ssd -S -p "$SYSLOGD_PIDFILE" \
-			-- syslogd \
-			${SYSLOGD_BUFFER_KB:+"-C$SYSLOGD_BUFFER_KB"} \
-			$SYSLOGD_ADDITIONAL_OPTIONS \
-			|| status=$?
-	fi
-        if test "$KLOGD_PIDFILE"
-        then
-		ssd -S -p "$KLOGD_PIDFILE" -- klogd $KLOGD_OPTIONS \
-			&& dmesg -D \
-			|| status=$?
-	fi
-        log_end_msg $status
-        ;;
+	start)
+		log_daemon_msg "Starting $DESC" "$NAME"
+		if test "$SYSLOGD_PIDFILE"
+		then
+			ssd -S -p "$SYSLOGD_PIDFILE" \
+				-- syslogd \
+				${SYSLOGD_BUFFER_KB:+"-C$SYSLOGD_BUFFER_KB"} \
+				$SYSLOGD_ADDITIONAL_OPTIONS \
+				|| status=$?
+		fi
+		if test "$KLOGD_PIDFILE"
+		then
+			ssd -S -p "$KLOGD_PIDFILE" -- klogd $KLOGD_OPTIONS \
+				&& dmesg -D \
+				|| status=$?
+		fi
+		log_end_msg $status
+		;;
 
-    stop)
-        log_daemon_msg "Stopping $DESC" "$NAME"
-	"$LOG_SAVER" || status=$?
-        if test "$KLOGD_PIDFILE"
-        then
-		ssd -K -qp "$KLOGD_PIDFILE" && dmesg -E || status=$?
-	fi
-        if test "$SYSLOGD_PIDFILE"
-        then
-		ssd -K -qp "$SYSLOGD_PIDFILE" || status=$?
-	fi
-        log_end_msg $status
-        ;;
+	stop)
+		log_daemon_msg "Stopping $DESC" "$NAME"
+		"$LOG_SAVER" || status=$?
+		if test "$KLOGD_PIDFILE"
+		then
+			ssd -K -qp "$KLOGD_PIDFILE" && dmesg -E || status=$?
+		fi
+		if test "$SYSLOGD_PIDFILE"
+		then
+			ssd -K -qp "$SYSLOGD_PIDFILE" || status=$?
+		fi
+		log_end_msg $status
+		;;
 
-    *)
-        log_failure_msg "Usage: /etc/init.d/$NAME {start|stop}" 2>& 1
-        false || exit
+	restart)
+		"$0" stop
+		"$0" start
+		;;
+
+	status)
+		status_of_proc -p "$SYSLOGD_PIDFILE" "$BUSYBOX" "$NAME" \
+		&& exit || exit $?
+		;;
+
+	*)
+		log_failure_msg "Usage: /etc/init.d/$NAME"`:
+			`" {start|stop|status|restart}" 2>& 1
+		false || exit
 esac
 
 exit $status
