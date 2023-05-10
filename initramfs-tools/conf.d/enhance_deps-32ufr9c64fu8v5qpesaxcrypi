@@ -1,5 +1,5 @@
 #! /bin/false
-# v2023.122.2
+# v2023.130
 # Copyright (c) 2018-2023 Guenther Brunthaler. All rights reserved.
 # 
 # This shell snippet is free software.
@@ -15,8 +15,8 @@
 # somename - run the script AFTER any dependency group "somename"
 # <somename - run the script BEFORE any dependency group "somename"
 # @somename - make the script an part of the dependency group "somename"
-# !somename - run the script AFTER any script "somename" within depgroup
-# <!somename - run the script BEFORE any script "somename" within depgroup
+# !somename - run within depgroup "somename" AFTER any script "somename"
+# <!somename - run within depgroup "somename" BEFORE any script "somename"
 #
 # For every script, a dependency group of the same name will be created
 # automatically, initially containing this script as its only member. This
@@ -58,13 +58,14 @@
 # it is necessary to use the "!"- or "<!"-prefixes in order to refer to the
 # script with the group's name rather than to the enclosing group itself.
 # Declaring either prefix also implies a "@" declaration. Therefore a
-# declaration "<!somename" has the same effect as "@somename <!somename>".
+# declaration "!somename" has the same effect as "@somename !somename".
 #
 # Note: Be sure to properly quote "<" in the script, or it will be
 # mis-interpreted by the shell as a redirection operator. Some shells may use
 # "!" as a history-expansion character, so it might be prudent to quote it as
 # well.
 
+# POSIX does not state whether already-defined functions may be redefined.
 unset -f get_prereq_pairs
 
 # Important: Keep this in sync with any changes in the function of the same
