@@ -1,4 +1,4 @@
-# Version 2020.55
+# Version 2023.137
 #
 # Report differences between which exist in the local /etc as well as in the
 # shared template for /etc.
@@ -10,6 +10,10 @@
 # Before comparison with a template file, any existing patch from $patches
 # will be applied to (a copy of) the local file.
 
+# The following paths are relative to the directory from which THIS script has
+# been invoked as "./$tpl/maint/$scriptname" where $tpl is the arbitrary name
+# of some subdirectory or symlink and "$scriptname is the basename of THIS
+# script.
 fignore=site-6n580p79r0flmgyv0feaxchll/local_only.list
 patches=site-6n580p79r0flmgyv0feaxchll/template_patches
 dignore=site-6n580p79r0flmgyv0feaxchll/ignore_dirs.list

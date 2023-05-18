@@ -1,17 +1,28 @@
-README v2022.9.1
+README v2023.137
 ================
 
-File format: ASCII, lines up to 79 columns, SPACE+newline marks a line wrap.
+File format: ASCII, lines up to 79 columns.
 
-This is a maintenance directory for migrating changes.
+SPACE+newline separates physical lines created by word wrapping which actually 
+belong to the same logical paragraph of text. This allows specialized 
+utilities to reformat the document to arbitrary display widths without loss of 
+information or need for heuristics in order to do so.
+ 
+The document has been written as acceptable input for the 'asciidoc' 
+documentation processor, but asciidoc-specific markup is kept minimal in order 
+to appear to a human reader mostly as a normal plaintext document.
 
-It is *not* supposed to be copied over to a real /etc!
+The directory containing THIS file is a maintenance directory for migrating 
+changes to /etc among different system installations.
 
-It just contains scripts and other documents for helping with synchronizing 
-the available changes between the /etc/ and /etc/$TPL_SYMLINK/ directories.
+It is *not* supposed to be copied over entirely to a real /etc!
 
-$TPL_SYMLINK is a symlink with an arbitrary name (for instance, "tpl" or 
-"etc.tpl" might be good candidates for suitable names) to where the repository 
+It just contains scripts and example configuration files for helping with 
+synchronizing the available changes between the /etc/ and /etc/$TPL/ 
+directories.
+
+$TPL is a symlink with an arbitrary name (for instance, "tpl" or "etc.tpl" 
+might be good candidates for suitable names) to where the repository 
 containing THIS file you are reading has been checked out. Alternatively, you 
 can also check the repository out there directly as a subdirectory rather than 
 using a symlink.
@@ -20,9 +31,200 @@ This might not be the best idea, however, because the etc-templates repository
 might be much larger than /etc itself and "/" might have only little space to 
 spare.
 
-Scripts contained in /etc/$TPL_SYMLINK/maint are not meant to be part of the 
-files copied to /etc, but rather contains scripts for helping the 
-administrator perform the synchronization.
+Scripts contained in /etc/$TPL/maint are not meant to be part of the files 
+copied to /etc, but rather contains scripts for helping the administrator 
+perform the synchronization.
+
+
+File locations
+--------------
+
+Many of the scripts in the $TPL/maint-directory require configuration files. 
+The paths of those are normally assigned to variables at the beginning of the 
+script and can therefore be determined easily. However, most paths defined 
+there are relative and not absolute.
+
+Normally, those paths will be relative to the /etc directory.
+
+However, this is not always the case. If "/etc" or "/" has been mounted onto a 
+different directory, then the configuration files will instead be relative to 
+the directory wherever /etc has been mounted/symlinked/renamed/relocated to.
+
+This is important when those scripts are used on a rescue system where the 
+filesystem root of the system to be repaired has been mounted elsewhere, such 
+as to /mnt/realsys as an example. In this case, the configuration files used 
+by the scripts will be relative to /mnt/realsys/etc (of the system to be 
+repaired) rather than to /etc (the rescue system itself which shall not be 
+touched by the scripts).
+
+In order to determine the base directory for their own configuration files, 
+the scripts examine the absolute or relative path by which they have been 
+invoked by the user. This path is expected to have the form
+
+$tpl/maint/$scriptname
+
+where $scriptname is the basename of the script being invoked.
+
+The script will infer the variable part $tpl from this path and use it as the 
+actual base directory for its configuration files.
+
+Note that $tpl may be an absolute or relative path depending on how the script 
+was invoked. But this should not matter because the configuration files will 
+be found either way.
+
+
+Configuration files
+-------------------
+
+Many of the scripts in /etc/$TPL/maint/ require configuration files. Some of 
+them are specific to a particular script, but many of them are used by 
+multiple scripts.
+
+This section of the document shall explain the names and purpose of the 
+various configuration files.
+
+In order to make things easier for the reader of this document, absolute 
+pathnames relative to /etc are specified for the configuration files.
+
+However, those path names will only be actually used by the scripts if the 
+scripts have been invoked at /etc/$TPL/maint/$scriptname.
+
+If /etc has been moved to somewhere via mounting or symlinking such that the 
+script has been invoked as e.g. /mnt/recovery/etc/tpl/maint/$scriptname, then 
+/mnt/recovery/etc would be used instead of /etc as the base path to which the 
+paths of the configuration files are actually relative to.
+
+In other words, some configuration file specified as /etc/some.cfg in this 
+document would then be used with the pathname /mnt/recovery/etc/some.cfg by 
+the scripts instead. Keep the difference in mind!
+
+* /etc/site-6n580p79r0flmgyv0feaxchll/ignore_dirs.list
++
+--
+This file contains the pathnames of directories to be ignored by scripts which 
+try to integrated changes introduced into the prototype files in
+/etc/$TPL to (possibly modified) local copies of the same files in /etc.
+
+This has basically the same purpose as 
+"/etc/site-6n580p79r0flmgyv0feaxchll/local_only.list" (see there for a more 
+thorough explanation), except that whole directory trees can ignored that way 
+rather than adding every single file to the local_only.list file.
+--
+
+* /etc/site-6n580p79r0flmgyv0feaxchll/local_dpkg_diversions.txt
++
+--
+This file is maintained by the script 
+"/etc/tpl/cron.daily/check_diversions_sy5u6m0kxpjgs9017v4hzatck" which is 
+normally run as a cron job but can also be invoked directly.
+
+The file contains the current administrator-approved list of local file 
+diversions on Debian-based systems created using the "dpkg-divert" utility. 
+This file allows to verify whether package upgraded or reinstallations have 
+added or removed diversions expected by administrator of the local machine.
+ 
+If the cron job detects such differences, it sends a warning to the syslog. 
+When invoked directly, the script presents options to view the differences or 
+commit any changes if the administrator approves them. In the latter case, the 
+local_dpkg_diversions.txt file is updated accordingly.
+
+The syntax of the file is as follows: It contains the absolute pathnames of 
+files, one pathname per line. Every pathname is followed within its line by a 
+space and an indicator symbol. The following indicator symbols are defined:
+
+"-":: A file which must no longer exist as the consequence of a diversion. The 
+script will verify that no one else has created this file under its original 
+pathname since it has been diverted to some other pathname.
+
+"+":: A file which must exist as the consequence of a diversion. This is a 
+file which has been moved or renamed by a diversion. This script verifies that 
+the file still exists.
+
+"=":: A file that has been replaced by a diversion. More accurately, a 
+diversion has moved or renamed the original file, and a new file has been put 
+into its place. The script will verify that the original is still diverted 
+somewhere else, but that the file put into its place also still exists.
+--
+
+* /etc/site-6n580p79r0flmgyv0feaxchll/local_only.list
++
+--
+This is a list of files which exist both in /etc and /etc/$TPL, but where the 
+local file has been created from scratch (or has been copied from elsewhere) 
+and bears no relation to the contents of the prototype file if the same name 
+in /etc/$TPL.
+
+The scipts will leave such files alone and basically ignore them. They will 
+not try to identify changes made to newer versions of the prototype files and 
+apply those changes to the local files. (This will never be done 
+automatically, but the administrator can revier the changes and then apply 
+them.)
+
+Without the above configuration file, the scripts which identify changes in 
+prototype files would always suggest patching the local file. If the 
+administrator never wants to approve such suggestions, the respective files 
+should be added to the above configuration file. Then the administrator will 
+no longer be othered by upgrade suggestions for those files.
+--
+
+* /etc/site-6n580p79r0flmgyv0feaxchll/secrets/*
++
+--
+This directory is supposed to contain secret, private or security sensitive 
+information which must not be put under version control. The directory should 
+be protected by appropriate filesystem access restrictions.
+
+For instance, some of the example network configuration prototype files 
+contain paths into the "wpa"-subdirectory of this directory in order to access 
+secret key files containing Wi-Fi access passwords.
+
+It is quite possible that some of the files or subdirectories in this 
+directory are actually symlinks or mount points to some more secure locations, 
+such as encrypted local storage volumes or even externally-attached media 
+(such as an encrypted USB stick containing key files).
+
+Nevertheless, the scripts will access those files via the path shown above, no 
+matter where the files eventually exist (after resolving all symlinks and 
+traversing all mount points).
+--
+
+* /etc/site-6n580p79r0flmgyv0feaxchll/syslog-exclusions-bre
++
+This file contains regular expressions which will trigger syslog entries to be 
+excluded from the permanent syslog file /var/log/syslogprefix written by the
+/etc/cron.daily/save_logs-4vzntsgfwksyilhv27klxte5l script. Each line of the 
+file is used as a basic regular expression (BRE) to search for in syslog 
+entries. Any syslog entry matching any such BRE will not be written 
+/var/log/syslogprefix. EREs are not supported because 'sed' will be used to 
+actually filter the syslog entries, and sed only supports BREs.
+
+* /etc/site-6n580p79r0flmgyv0feaxchll/syslog-exclusions-plain
++
+This file contains strings which will trigger syslog entries to be excluded 
+from the permanent syslog file /var/log/syslogprefix written by the
+/etc/cron.daily/save_logs-4vzntsgfwksyilhv27klxte5l script. Each line of the 
+file is used literally as a substring to search for in syslog entries, i.e. 
+not as a regular expression. Any syslog entry containing any such string will 
+not be written /var/log/syslogprefix.
+
+* /etc/site-6n580p79r0flmgyv0feaxchll/template_patches/*.patch
++
+This directory contains patches which transform example prototype files from 
+etc/$TPL into the modified local copies of those files in the real /etc 
+directory. That is, it contains local modifications made to copies of $TPL 
+files expressed as differences.
+
+This allows upgrading to newer versions of /etc/$TPL-provided files without 
+losing local changes made to the copies of those files in /etc.
+
+The patch files in this directory have the same relative pathnames as the 
+actual files in /etc. For instance, the patch file corresponding to the local 
+file "/etc/dictd/dict.conf" would be stored as 
+"/etc/site-6n580p79r0flmgyv0feaxchll/template_patches/dictd/dict.conf". This 
+file should contain the result of the command "LC_ALL=C TZ=UTC0 diff -u
+/etc/$TPL/dictd/dict.conf /etc/dictd/dict.conf" where $TPL is the subdirectory 
+or symlink in etc which leads to the example prototype files.
+--
 
 
 Short explanations what the various scripts do
@@ -33,12 +235,16 @@ detailed usage instructions.
 
 * ./diffs.sh: Show changes between the real /etc and its template version. 
 Irrelevant changes should be identified and be added to local ignore lists, so 
-they won't show up again in future runs of this script.
+they won't show up again in future runs of this script. Look at the comments 
+at the beginning of this file to learn the location and names of the ignore 
+lists. The comments there regarding how to locate the base directory of 
+relative configuration file names used by the script applies to most other 
+sibling scripts from the same directory, too. So it might be a good idea to 
+study them, even when actually using a different script.
 
-* ./external/*: Information about other external repositories 
-which might be useful for system customization. Completely 
-optional. Should not be needed at all. (Otherwise it should be 
-considered a bug.)
+* ./external/*: Information about other external repositories which might be 
+useful for system customization. Completely optional. Should not be needed at 
+all. (Otherwise it should be considered a bug.)
 
 * ./newlocals.sh: Display new files in the local /etc directory which be 
 candidates for copying over into the template directory for /etc. New files 
