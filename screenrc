@@ -42,6 +42,9 @@ defscrollback 1024
 bind ^k
 #bind L
 bind ^\
+# Accidental screen lock with passwords disabled can be deadly.
+bind ^x
+bind x
 # Make them better
 bind \\ quit
 bind K kill
