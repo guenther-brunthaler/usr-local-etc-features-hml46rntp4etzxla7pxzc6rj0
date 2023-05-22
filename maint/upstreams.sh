@@ -38,6 +38,7 @@ lib=$base/libexec/lib/sh
 . "$lib"/println-871v57a0dzb6d3rxykj87vsnf.sh
 . "$lib"/qin-32r1h6hwy9bst69b8zpw5uqf0.sh
 . "$lib"/scopes-hqxbfzp9026esereelim9tbyk.sh
+. "$lib"/trap_errors-3vnzcvh9hfs134g6ln6cy567k
 . "$lib"/show_failures-ci9hjhmyjuy0cx1wmguv7n6h0.sh
 # } End (= bw80hxwxxzma2qu0x8b75t2y4)
 

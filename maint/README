@@ -1,5 +1,6 @@
-README v2023.137
-================
+README
+======
+v2023.137
 
 File format: ASCII, lines up to 79 columns.
 
@@ -209,6 +210,7 @@ not be written /var/log/syslogprefix.
 
 * /etc/site-6n580p79r0flmgyv0feaxchll/template_patches/*.patch
 +
+--
 This directory contains patches which transform example prototype files from 
 etc/$TPL into the modified local copies of those files in the real /etc 
 directory. That is, it contains local modifications made to copies of $TPL 
@@ -237,10 +239,7 @@ detailed usage instructions.
 Irrelevant changes should be identified and be added to local ignore lists, so 
 they won't show up again in future runs of this script. Look at the comments 
 at the beginning of this file to learn the location and names of the ignore 
-lists. The comments there regarding how to locate the base directory of 
-relative configuration file names used by the script applies to most other 
-sibling scripts from the same directory, too. So it might be a good idea to 
-study them, even when actually using a different script.
+lists.
 
 * ./external/*: Information about other external repositories which might be 
 useful for system customization. Completely optional. Should not be needed at 
@@ -261,11 +260,90 @@ to the template versions.
 properly. WIP.
 
 * ./upstreams.sh: Find any new unmodified upstream copies in the template 
-directory for files which do exist in the real /etc with different contents. 
-They can then be copied over to the real /etc and both versions be put under 
-version control. This allows to see which changes originated from upstream and 
-which changes orinated locally. The script also shows differing local and 
-template copies of *.upstream files (meaning at least one of them must be 
-outdated.) Finally, the script reports orphaned *.upstream files for which not 
+directory for files which do exist in the real /etc with different contents.
++
+-- 
+The script finds all *.upstream files present only in the template directory 
+and where a local working file (same name but without the ".upstream"-suffix) 
+exists with different contents.
+
+That is, it reports files which have local modifications against the original 
+upstream copies, so it might be a good idea to keep the upstream versions also 
+around for comparison.
+
+Typically, both the locally-modified working file and the corresponding 
+*.upstream file should be put under version control. Then a "diff" can be 
+shown at any time, identifiying the local modifications against the original 
+upstream version.
+
+The script also reports local and template *.upstream files which both exist 
+but differ. In such cases, at least one of both sides must be outdated, and 
+the newest current upstream version should be determined, replacing both 
+copies.
+
+The -a option suggests actions - piping them into a shell will execute them. 
+(Diagnostic messages will always be writen to the standard error stream only 
+and will therefore not interfere with the suggested commands written to 
+standard output.
+
+The script displays pathnames of local files in /etc prefixed with the 
+following indicators:
+
+MISSING:: This is a local file which misses its *.upstream companion file 
+containing the unmodified original distribution version of this file.
++
+--
+The *.upstream file is necessary to calculate the local modifications to the 
+file.
+ 
+A copy of the *.upsteam file can always be found in the /etc/$TPL directory at 
+the same relative location (i.e. in the same subdirectory, if any). But this 
+is not necessary the same version which the local administrator took to modify 
+it. It is just the original version of the files in /etc/$TPL.
+
+To be more precise, the *.upstream files in /etc allow to identify the changes 
+made locally, where the *.upstream files in /etc/$TPL allow to identify the 
+changes made by the example prototype files in /etc/$TPL.
+
+The means means that the "diff" utility can create patches represented by 
+either the local files or those in /etc/$TPL, and those patches can then be 
+applied or combined in various ways for different purposes by the scripts in 
+/etc/$TPL/maint.
+--
+
+OUTDATED:: There is a local *.upstream file present, but a different version of 
+the same file is present in /etc/$TPL. Therefore, one of the versions is 
+obviously outdated.
++
+--
+Determine the newer version (either the one in /etc or the one in /etc/$TPL) 
+and replace the other version with it. It is also possible that neither 
+version is up to date. In this case, acquire the actual newest version and 
+replace both the /etc and the /etc/$TPL version by it.
+
+But before actually doing that, create a patch of the differences of the old 
+versions of the *.upstream file against the newest one. Then apply this patch 
+to the modified versions (without the ".upstream"-suffix) in both /etc and
+/etc/$TPL.
+
+This will migrate the upstream changes into the modified versions.
+--
+
+USELESS:: There exists a local *.upstream file without an associated modified 
+file (having the same name minus the ".upstream" stripped from the end of the 
+name). Delete such local files in order to silence the indicator.
+
+After reviewing the files listed by the script and examining their indicators, 
+the files can then be copied over to the real /etc and both versions be put 
+under version control.
+
+This allows to see which changes originated from upstream and which changes 
+orinated locally.
+
+The script also shows differing local and template copies of *.upstream files 
+(meaning at least one of them must be outdated.)
+
+Finally, the script reports orphaned *.upstream files for which not 
 corresponding local file without the ".upstream"-suffix exists. Such files 
 should probably be removed.
+--
