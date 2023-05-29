@@ -1,8 +1,8 @@
-# v2022.173
+# v2023.131
 #
 # $ ifup ethernic
 rename mac/55:aa:55:aa:55:aa=ethernic
 
-interface ethernic inet manual
+iface ethernic inet manual
 	up ip link set dev ethernic up
 	down ip link set dev ethernic down
