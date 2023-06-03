@@ -1,0 +1,18 @@
+--- /usr/share/avfs/extfs/u7z.disabled	2020-08-24 09:14:46.000000000 +0000
++++ /usr/share/avfs/extfs/u7z	2023-06-03 21:11:08.415064599 +0000
+@@ -1,4 +1,6 @@
+ #! /bin/sh
++ofile=/usr/share/avfs/extfs/u7z.disabled
++. /etc/libexec/update-patch-helper-5cj2dtd975yp5yah4ku3ll4ia
+ #
+ # u7z - 7zip file archive Virtual File System for Midnight Commander ( ftp://ftp.ibiblio.org/pub/Linux/utils/file/managers/mc/ )
+ # 
+@@ -106,7 +108,7 @@
+ #	p7zip 0.91 don't understand filename in subdir without "./"
+ #	but in top dir it understand only without "./"
+     FLIST=`$SEVENZ l "$1" 2> /dev/null`
+-    echo "$FLIST" | grep -q "[.][/]" > /dev/null 2>&1 && EXFNAME=*./"$2" || EXFNAME="$2"
++    EXFNAME="$2"
+     EXFN=`basename "$2"`
+     $SEVENZ e -r- "$1" "$EXFNAME" -o"$TMPDIR" > /dev/null 2> /dev/null
+ 
