@@ -1,7 +1,12 @@
 #! /bin/false
-# *Source* this from within patched copies of dpkg-diverted files, don't
-# execute it as a script!
-# v2020.164
+# v2023.154
+#
+# *Source* THIS shell snippet using its absolute pathname without any
+# arguments from within patched copies of dpkg-diverted files. Don't execute
+# it as a script! Source it early, before the script did any real work. If the
+# unmodified original cannot be found in the upsteams-version directory tree
+# (see below), then set $ofile to the absolute path of the unmodified original
+# before sourcing THIS snippet.
 
 me=`readlink -f -- "$0"` \
 && {
@@ -11,5 +16,6 @@ test "$ofile" \
 && okey=`stat -c %i+%Z -- "$ofile"` \
 && ukeyloc=/var/lib/diversion-patches-5cj2dtd975yp5yah4ku3ll4ia/$me \
 && { read ukey < "$ukeyloc" && test x"$ukey" = x"$okey"; } 2> /dev/null \
-|| exec /etc/libexec/update-patch-5cj2dtd975yp5yah4ku3ll4ia "$0" "$ofile" "$@"
+|| exec /etc/libexec/update-patch-5cj2dtd975yp5yah4ku3ll4ia \
+-- "$0" "$ofile" "$@"
 unset me ofile okey ukeyloc ukey

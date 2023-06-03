@@ -1,7 +1,7 @@
 #! /bin/sh
 # This script will be called by patched scripts as
 #
-# $ exec /etc/libexec/update-patch-5cj2dtd975yp5yah4ku3ll4ia "$0" "$ofile" "$@"
+# $ exec /etc/libexec/update-patch-5cj2dtd975yp5yah4ku3ll4ia -- "$0" "$ofile" "$@"
 #
 # where
 #
@@ -11,12 +11,38 @@
 #
 # * Canonicalize path names of $0 and $ofile before further processing.
 # * Copy file $ofile to $0.
-# * Apply patch $PATCHES_BASE/$0.patch (see below).
+# * Apply patch $PATCHES_BASE/$0.patch if it exists (see below).
+# * Create patch $PATCHES_BASE/$0.patch instead it does not exist yet.
 # * Write result of "stat -c %i+%Z $ofile" to $UPDATE_KEYS/$0 (see below).
 # * Re-exec "$0" "$@".
 #
-# Version 2020.62
-# Copyright (c) 2020 Guenther Brunthaler. All rights reserved.
+# In order to use this script you need to:
+#
+# 1. Use dpkg-divert-toggle to rename or move the original script
+# 2. Make a copy of the renamed/moved file back to its original name
+# 3. Apply your modifications to the copied file with the original name
+# 4. Insert a line sourcing the update-helper snippet into the modified copy
+# 5. Run THIS script with arguments "-u -- "$origname" "$renamed_original"
+#
+# The "." statement for sourcing the helper should be as early as possible,
+# best directly after the shebang line. It is OK to insert it after leading
+# comment lines. But the script should not have done any real work before the
+# helper snippet is sourced.
+#
+# Depending on where dpkg-divert-toggle has actually moved the unmodified
+# original, you might need to add a line
+# "ofile=/absolute/path/to/unmodified/original/script" to the modified copy
+# before sourcing the snippet. See the comments at the beginning of the helper
+# snippet for details.
+#
+# Point 5 will create the patch and save it. Every time the renamed original
+# gets an update, the helper snippet will detect this as soon as the script is
+# run and will refresh the modified copy with the original name be replacing
+# it with the new contents of the renamed original and then apply the saved
+# patch.
+#
+# Version 2023.154
+# Copyright (c) 2020-2023 Guenther Brunthaler. All rights reserved.
 #
 # This script is free software.
 # Distribution is permitted under the terms of the GPLv3.
@@ -24,6 +50,7 @@
 # Keep the following values in sync with ./update-patch-helper-5cj2dtd975yp5yah4ku3ll4ia!
 HYPE_NAME=diversion-patches
 UUID=5cj2dtd975yp5yah4ku3ll4ia
+# The .. just means that base is relative to etc rather than to etc/libexec
 PATCHES_REL_BASE=../$HYPE_NAME-$UUID
 UPDATE_KEYS=/var/lib/$HYPE_NAME-$UUID
 
@@ -48,33 +75,52 @@ trap 'test $? = 0 || complain "$0 failed!"' 0
 
 PATCHES_BASE=`dirname -- "$0"`/$PATCHES_REL_BASE
 
+update_patch=false
+while getopts u opt
+do
+	case $opt in
+		u) update_patch=true;;
+		*) false || exit
+	esac
+done
+shift `expr $OPTIND - 1 || :`
+
 # Sets $path to absolute canonicalized path name for command $1.
 mk_absx() {
 	local paths p
 	path=$1
 	case $path in
 		/*) ;;
-		*/*) false || exit;;
+		*/*)
+			# Using a relative path is OK for -u only.
+			$update_patch
+			;;
 		*)
-			# Locate $path in a directory from $PATH.
-			paths=$PATH:
-			while :
-			do
-				p=${paths%%:*}
-				paths=${paths#*:}
-				case $p in
-					/*)
-						p=${p%%/}/$path
-						if
-							test -f "$p" \
-							&& test -x "$p"
-						then
-							path=$p
-							break
-						fi
-				esac
-				test -n "$paths" # Otherwise: Not found.
-			done
+			if test -e "$path"
+			then
+				# Omitting "./" is OK for -u only.
+				$update_patch
+			else
+				# Locate $path in a directory from $PATH.
+				paths=$PATH:
+				while :
+				do
+					p=${paths%%:*}
+					paths=${paths#*:}
+					case $p in
+						/*)
+							p=${p%%/}/$path
+							if
+								test -f "$p" \
+								&& test -x "$p"
+							then
+								path=$p
+								break
+							fi
+					esac
+					test "$paths" # Otherwise: Not found.
+				done
+			fi
 	esac
 	test -e "$path"
 	path=`readlink -f -- "$path"`
@@ -86,25 +132,45 @@ mk_absx "$2"; ofile=$path
 shift 2
 
 patch=$PATCHES_BASE/$ufile.patch
-test -f "$patch"
-tfile=$ufile.$APP.tmp
-> "$tfile"
-chmod 600 -- "$tfile"
-cat < "$ofile" > "$tfile"
-patch -i "$patch" -- "$tfile" > /dev/null 2>& 1 || {
+if $update_patch || test ! -f "$patch"
+then
+	if $update_patch
+	then
+		:
+	else
+		test ! -e "$patch"
+	fi
+	tfile=`dirname -- "$patch"`
+	if test ! -d "$tfile"
+	then
+		mkdir -p -- "$tfile"
+	fi
+	LC_ALL=C TZ=UTC0 diff -u -- "$ofile" "$ufile" > "$patch" || :
+	inform notice "Saving patch '$patch'" \
+		"for updating file '$ufile' from '$ofile'."
+else
+	tfile=$ufile.$APP.tmp
+	> "$tfile"
+	chmod 600 -- "$tfile"
+	cat < "$ofile" > "$tfile"
+	patch -i "$patch" -- "$tfile" > /dev/null 2>& 1 || {
+		rm -- "$tfile"
+		complain "Could not patch '$ufile' based on '$ofile'"
+		complain "by applying patch '$patch'!"
+		complain "Please apply the patch manually." \
+			"Then regenerate the patch."
+		false || exit
+	}
+	cat < "$tfile" > "$ufile"
 	rm -- "$tfile"
-	complain "Could not patch '$ufile' based on '$ofile'"
-	complain "by applying patch '$patch'!"
-	complain "Please apply the patch manually. Then regenerate the patch."
-	false || exit
-}
-cat < "$tfile" > "$ufile"
-rm -- "$tfile"
-inform notice "Patch for updated '$ufile' has been re-applied successfully"
+	inform notice "Patch for updated '$ufile' has been" \
+		"re-applied successfully"
+fi
 
 ukeyloc=$UPDATE_KEYS/$ufile
 ukeydir=`dirname -- "$ukeyloc"`
 test -d "$ukeydir" || mkdir -p -- "$ukeydir"
 stat -c %i+%Z -- "$ofile" > "$ukeyloc"
 
+$update_patch && exit
 exec "$orig_name" "$@"
