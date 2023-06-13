@@ -1,1 +1,1 @@
-deb http://deb.debian.org/debian bullseye-backports main contrib non-free
+deb http://deb.debian.org/debian bookwork-backports main contrib non-free non-free-firmware

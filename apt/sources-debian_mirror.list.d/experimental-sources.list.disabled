@@ -1,1 +1,1 @@
-deb-src http://debian.intergenia.de/debian experimental main contrib non-free
+deb-src http://debian.intergenia.de/debian experimental main contrib non-free non-free-firmware

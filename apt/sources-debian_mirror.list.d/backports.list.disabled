@@ -1,1 +1,1 @@
-deb http://debian.intergenia.de/debian bullseye-backports main contrib non-free
+deb http://debian.intergenia.de/debian bookworm-backports main contrib non-free non-free-firmware
