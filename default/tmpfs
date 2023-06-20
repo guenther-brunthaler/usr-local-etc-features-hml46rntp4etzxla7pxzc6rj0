@@ -4,7 +4,7 @@
 #
 # Configuration for tmpfs filesystems mounted in early boot, before
 # filesystems from /etc/fstab are mounted.  For information about
-# these variables see the tmpfs(5) manual page.
+# these variables see the tmpfs-config(5) manual page.
 
 # /run is always mounted as a tmpfs on systems which support tmpfs
 # mounts.
@@ -24,7 +24,7 @@
 # configured to be a separate mount in /etc/fstab.
 RAMTMP=yes
 
-# Size limits.  Please see tmpfs(5) for details on how to configure
+# Size limits.  Please see tmpfs-config(5) for details on how to configure
 # tmpfs size limits.
 #TMPFS_SIZE=20%VM
 #RUN_SIZE=10%

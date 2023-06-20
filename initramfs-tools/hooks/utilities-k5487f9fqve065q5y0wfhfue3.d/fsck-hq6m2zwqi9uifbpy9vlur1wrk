@@ -1,4 +1,5 @@
 fsck-check-and-repair
+fsck
 ? fsck.ext4
 ? fsck.fat
 ? fsck.reiserfs

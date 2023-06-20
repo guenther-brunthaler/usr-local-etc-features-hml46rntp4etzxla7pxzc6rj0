@@ -1,5 +1,5 @@
 #! /bin/sh
-# v2023.99
+# v2023.167
 # Copyright (c) 2018-2023 Guenther Brunthaler. All rights reserved.
 # 
 # This script is free software.
@@ -50,16 +50,20 @@ case $1 in
 		exit
 esac
 
-if test -p "$OPT_WAITFOR_FIFO"
-then
-	log_success_msg Waiting for any line of text \
-		written to $OPT_WAITFOR_FIFO
-	IFS= read -r dummy < "$OPT_WAITFOR_FIFO"
-	log_success_msg A line of text has been received. \
-		Removing $OPT_WAITFOR_FIFO
-	rm -- "$OPT_WAITFOR_FIFO"
-fi
+handle_fifo() {
+	if test -p "$OPT_WAITFOR_FIFO"
+	then
+		log_success_msg Waiting for any line of text \
+			written to $OPT_WAITFOR_FIFO
+		IFS= read -r dummy < "$OPT_WAITFOR_FIFO"
+		log_success_msg A line of text has been received. \
+			Removing $OPT_WAITFOR_FIFO
+		rm -- "$OPT_WAITFOR_FIFO"
+	fi
+}
 
+handle_fifo
 log_success_msg Waiting for timeout in order to continue booting
 sleep $TIMEOUT_SECONDS
+handle_fifo
 log_success_msg Continuing boot sequence - prepare to leave initramfs

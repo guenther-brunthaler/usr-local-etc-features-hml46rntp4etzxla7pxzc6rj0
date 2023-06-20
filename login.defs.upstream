@@ -150,6 +150,11 @@ ERASECHAR	0177
 KILLCHAR	025
 UMASK		022
 
+# HOME_MODE is used by useradd(8) and newusers(8) to set the mode for new
+# home directories.
+# If HOME_MODE is not set, the value of UMASK is used to create the mode.
+#HOME_MODE	0700
+
 #
 # Password aging controls:
 #
@@ -169,6 +174,10 @@ UID_MAX			60000
 # System accounts
 #SYS_UID_MIN		  100
 #SYS_UID_MAX		  999
+# Extra per user uids
+SUB_UID_MIN		   100000
+SUB_UID_MAX		600100000
+SUB_UID_COUNT		    65536
 
 #
 # Min/max values for automatic gid selection in groupadd
@@ -178,6 +187,10 @@ GID_MAX			60000
 # System accounts
 #SYS_GID_MIN		  100
 #SYS_GID_MAX		  999
+# Extra per user group ids
+SUB_GID_MIN		   100000
+SUB_GID_MAX		600100000
+SUB_GID_COUNT		    65536
 
 #
 # Max number of login retries if password is bad. This will most likely be
@@ -202,7 +215,7 @@ CHFN_RESTRICT		rwh
 
 #
 # Should login be allowed if we can't cd to the home directory?
-# Default in no.
+# Default is no.
 #
 DEFAULT_HOME	yes
 
@@ -266,10 +279,13 @@ USERGROUPS_ENAB yes
 #MD5_CRYPT_ENAB	no
 
 #
-# If set to MD5 , MD5-based algorithm will be used for encrypting password
+# If set to MD5, MD5-based algorithm will be used for encrypting password
 # If set to SHA256, SHA256-based algorithm will be used for encrypting password
 # If set to SHA512, SHA512-based algorithm will be used for encrypting password
+# If set to BCRYPT, BCRYPT-based algorithm will be used for encrypting password
+# If set to YESCRYPT, YESCRYPT-based algorithm will be used for encrypting password
 # If set to DES, DES-based algorithm will be used for encrypting password (default)
+# MD5 and DES should not be used for new hashes, see crypt(5) for recommendations.
 # Overrides the MD5_CRYPT_ENAB option
 #
 # Note: It is recommended to use a value consistent with
@@ -278,20 +294,66 @@ USERGROUPS_ENAB yes
 ENCRYPT_METHOD SHA512
 
 #
-# Only used if ENCRYPT_METHOD is set to SHA256 or SHA512.
+# Only works if ENCRYPT_METHOD is set to SHA256 or SHA512.
 #
 # Define the number of SHA rounds.
-# With a lot of rounds, it is more difficult to brute forcing the password.
-# But note also that it more CPU resources will be needed to authenticate
-# users.
+# With a lot of rounds, it is more difficult to brute-force the password.
+# However, more CPU resources will be needed to authenticate users if
+# this value is increased.
 #
-# If not specified, the libc will choose the default number of rounds (5000).
-# The values must be inside the 1000-999999999 range.
+# If not specified, the libc will choose the default number of rounds (5000),
+# which is orders of magnitude too low for modern hardware.
+# The values must be within the 1000-999999999 range.
 # If only one of the MIN or MAX values is set, then this value will be used.
 # If MIN > MAX, the highest value will be used.
 #
-# SHA_CRYPT_MIN_ROUNDS 5000
-# SHA_CRYPT_MAX_ROUNDS 5000
+#SHA_CRYPT_MIN_ROUNDS 5000
+#SHA_CRYPT_MAX_ROUNDS 5000
+
+#
+# Only works if ENCRYPT_METHOD is set to YESCRYPT.
+#
+# Define the YESCRYPT cost factor.
+# With a higher cost factor, it is more difficult to brute-force the password.
+# However, more CPU time and more memory will be needed to authenticate users
+# if this value is increased.
+#
+# If not specified, a cost factor of 5 will be used.
+# The value must be within the 1-11 range.
+#
+#YESCRYPT_COST_FACTOR 5
+
+#
+# The pwck(8) utility emits a warning for any system account with a home
+# directory that does not exist.  Some system accounts intentionally do
+# not have a home directory.  Such accounts may have this string as
+# their home directory in /etc/passwd to avoid a spurious warning.
+#
+NONEXISTENT	/nonexistent
+
+#
+# Allow newuidmap and newgidmap when running under an alternative
+# primary group.
+#
+#GRANT_AUX_GROUP_SUBIDS yes
+
+#
+# Prevents an empty password field to be interpreted as "no authentication
+# required".
+# Set to "yes" to prevent for all accounts
+# Set to "superuser" to prevent for UID 0 / root (default)
+# Set to "no" to not prevent for any account (dangerous, historical default)
+PREVENT_NO_AUTH superuser
+
+#
+# Select the HMAC cryptography algorithm.
+# Used in pam_timestamp module to calculate the keyed-hash message
+# authentication code.
+#
+# Note: It is recommended to check hmac(3) to see the possible algorithms
+# that are available in your system.
+#
+#HMAC_CRYPTO_ALGO SHA512
 
 ################# OBSOLETED BY PAM ##############
 #						#

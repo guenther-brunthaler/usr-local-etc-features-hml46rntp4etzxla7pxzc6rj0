@@ -1,17 +1,18 @@
 #! /bin/sh
-# Version 2020.43
-# Copyright (c) 2018-2020 Guenther Brunthaler. All rights reserved.
+# Version 2023.166
+# Copyright (c) 2018-2023 Guenther Brunthaler. All rights reserved.
 #
 # This script is free software.
 # Distribution is permitted under the terms of the GPLv3.
 
-locale=C.UTF-8
-locale_data=/usr/lib/locale/$locale
 ti_src=/lib/terminfo
 ti_dst=/etc/terminfo
 tinfos='linux screen xterm'
 
 set -e
+locale=`locale -a | grep -iE '^C[.]UTF[[:punct:]]*8$'`
+test "$locale"
+locale_data=/usr/lib/locale/$locale
 
 case $1 in
 	prereqs) echo; exit
