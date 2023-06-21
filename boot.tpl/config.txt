@@ -1,0 +1,232 @@
+# Raspberry Pi boot configuration file
+# v2023.143.1
+#
+# For more options and information see
+# http://rpf.io/configtxt
+# Some settings may impact device functionality. See link above for details
+
+# uncomment if you get no picture on HDMI for a default "safe" mode
+#hdmi_safe=1
+
+# uncomment this if your display has a black border of unused pixels visible
+# and your display can output without overscan
+disable_overscan=1
+
+# uncomment the following to adjust overscan. Use positive numbers if console
+# goes off screen, and negative if there is too much border
+#overscan_left=16
+#overscan_right=16
+#overscan_top=16
+#overscan_bottom=16
+
+# uncomment to force a console size. By default it will be display's size minus
+# overscan.
+#framebuffer_width=1280
+#framebuffer_height=720
+
+# uncomment if hdmi display is not detected and composite is being output
+#hdmi_force_hotplug=1
+
+# uncomment to force a specific HDMI mode (this will force VGA)
+#hdmi_group=1
+#hdmi_mode=1
+
+# uncomment to force a HDMI mode rather than DVI. This can make audio work in
+# DMT (computer monitor) modes
+#hdmi_drive=2
+
+# uncomment to increase signal to HDMI, if you have interference, blanking, or
+# no display
+#config_hdmi_boost=4
+
+# uncomment for composite PAL
+#sdtv_mode=2
+
+#uncomment to overclock the arm. 700 MHz is the default.
+#arm_freq=800
+
+# Uncomment some or all of these to enable the optional hardware interfaces
+dtparam=i2c_arm=off
+#dtparam=i2s=on
+dtparam=spi=off
+
+# Uncomment this to enable infrared communication.
+#dtoverlay=gpio-ir,gpio_pin=17
+#dtoverlay=gpio-ir-tx,gpio_pin=18
+
+# Additional overlays and parameters are documented /boot/overlays/README
+
+# Enable audio (loads snd_bcm2835)
+dtparam=audio=on
+
+[pi1]
+# Model A, Model B, Compute Module
+enable_uart=1
+
+#gpu_mem=16
+#max_framebuffers=0
+
+#gpu_mem=32
+
+gpu_mem=74
+
+# Important: This value will be updated by initramfs generation scripts.
+initramfs initrd.img-6.1.21+ followkernel
+
+[pi2]
+# Model 2B (BCM2836- or BCM2837-based)
+enable_uart=1
+
+#gpu_mem=16
+#max_framebuffers=0
+
+#gpu_mem=32
+
+gpu_mem=74
+
+# Important: This value will be updated by initramfs generation scripts.
+###initramfs initrd.img-6.1.21-v7+ followkernel
+
+[pi3]
+# Model 3B, Model 3B+, Model 3A+, Compute Module 3
+enable_uart=0
+
+gpu_mem=16
+max_framebuffers=0
+
+#gpu_mem=32
+
+#gpu_mem=74
+
+# Important: This value will be updated by initramfs generation scripts.
+initramfs initrd.img-6.1.21-v7+ followkernel
+
+[pi3+]
+# Model 3A+, Model 3B+
+enable_uart=0
+
+#gpu_mem=16
+#max_framebuffers=0
+
+#gpu_mem=32
+
+gpu_mem=74
+
+# Important: This value will be updated by initramfs generation scripts.
+initramfs initrd.img-6.1.21-v7l+ followkernel
+
+[pi4]
+# Model 4B
+enable_uart=0
+
+#max_framebuffers=0
+#gpu_mem=16
+
+#gpu_mem=32
+
+#gpu_mem=74
+
+gpu_mem=128
+max_framebuffers=2
+
+# Enable DRM VC4 V3D driver on top of the dispmanx display stack
+dtoverlay=vc4-fkms-v3d
+
+# Important: This value will be updated by initramfs generation scripts.
+initramfs initrd.img-6.1.21-v7l+ followkernel
+
+# fbturbo does not work with 32 bit userland and 64 bit kernel
+arm_64bit=0
+
+[pi0]
+# Zero, Zero W, Zero WH
+enable_uart=1
+
+#gpu_mem=16
+#max_framebuffers=0
+
+#gpu_mem=32
+
+gpu_mem=74
+
+# Important: This value will be updated by initramfs generation scripts.
+initramfs initrd.img-6.1.21+ followkernel
+
+[pi0w]
+# Zero W, Zero WH
+enable_uart=1
+
+#gpu_mem=16
+#max_framebuffers=0
+
+#gpu_mem=32
+
+gpu_mem=74
+
+# Important: This value will be updated by initramfs generation scripts.
+initramfs initrd.img-6.1.21+ followkernel
+
+[all]
+# Set this to 1 in order to enable the Mini-UART. This will allow the first
+# part of the boot process to be controlled via a serial cable.
+#
+# However, the serial connection will be lost at some point in the system
+# initialization, unless the kernel command line arguments
+# "console=serial0,115200" and "console=tty1" are ordered so that the one
+# with "serial" comes last. (The last "console=" is the one actually used.)
+#
+# Enabling the UART has a price though, because it cripples the GPU to run at
+# a fixed low clock speed. When this option is set to 0, no serial console but
+# the GPU will not be throttled down on RPi models which support dynamic GPU
+# clocking.
+#
+# Without the UART enabled, make sure that the "console=" argument with "tty"
+# comes last (or is the only one) in the kernel command line, because
+# otherwise no keyboard input will be possible in the early boot phase
+# (during initramfs).
+#enable_uart=0
+
+# The GPU requires at least 16 MiB in any case. If a video image is to be
+# generated, at least 32 MiB are currently required. The omxplayer
+# (hardware-accelerated H.264) requires at least 64 MiB GPU memory to run. For
+# a 1080p movie this was not enough; 72 MiB worked though. OpenGL and OpenVG
+# support might require even more RAM. Although there is a mode for dynamic
+# memory sharing between GPU and CPU now, it does not work well in practice
+# because the Pi heavily relies on memory overcommitment, which can lead to
+# the kernel running out of memory. This leads to kernel error messages under
+# heavy memory stress, such as unability to write back block device buffers in
+# time, which is inacceptable for reliable operation. Supported values are 16
+# to 256 MiB in 8 MiB steps, specified in units of MiB.
+
+# This leaves the most RAM to the CPU. This is only suitable for headless
+# configurations, because there will be no video image (just the colored
+# square from the initial GPU self-test will be visible all of the time).
+#gpu_mem=16
+#max_framebuffers=0
+
+# This leaves the most RAM to the CPU while still creating a video image.
+# But there will be not enough GPU RAM for playing movies or 3D stuff.
+#gpu_mem=32
+
+# This is the recommended configuration, at least up to the RPi3. It gives
+# video screen, H.264 hardware decoding, and at least basic OpenGL ES 3D stuff.
+#gpu_mem=74
+
+# Run emergency shell from /boot using local screen and USB keyboard.
+# Does not need an initrd which should be commented out.
+#cmdline=rescue.cln
+
+# Run emergency shell from /boot using Mini UART.
+# Does not need an initrd which should be commented out.
+# Be sure to have set enable_uart=1 at least temporarily.
+#cmdline=serial.cln
+
+# Boot normally using Mini UART as terminal console.
+# Uses the initrd normally, if any.
+# Be sure to have set enable_uart=1 at least temporarily.
+#cmdline=serdebug.cln
+
+# Important: This value will be updated by initramfs generation scripts.
+#
+# Special syntax: Do not use "=" for assignment here.
+#initramfs initrd.img-6.1.21-v8+ followkernel

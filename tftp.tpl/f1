@@ -1,0 +1,21 @@
+
+pxelinux primary HELP page (F1):
+
+Get more help pages by pressing other function keys.
+
+If function keys do not work, press [Ctrl]+[f],[2] for the same
+effect as pressing [F2]. If that does not work either, type the
+command
+
+cat f2
+
+into the pxelinux command line and press [Enter]. The "cat"
+command displays text files. Other text files you might want
+to show the same way:
+
+help
+dir
+cwd.txt
+f1
+f3
+

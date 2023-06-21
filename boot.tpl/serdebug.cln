@@ -1,0 +1,1 @@
+console=tty1 console=serial0,115200 root=UUID=2804f091-d20a-4f95-8865-73c4fa9e1192 ro rootfstype=ext4 elevator=deadline fsck.repair=yes rootwait panic=20

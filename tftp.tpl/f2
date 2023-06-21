@@ -1,0 +1,11 @@
+
+The root directory of the TFTP server is
+
+/srv/tftp
+
+The same directory is also exported via NFS.
+
+Re-launch the initial pxelinux menu via command
+
+config /srv/tftp/pxelinux.conf/0
+

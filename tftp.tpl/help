@@ -1,0 +1,14 @@
+HELP text for tftp:
+
+The script refresh-dir-listings.sh on the tftp-server has been run to create a
+file ./dir in every directory, containing the output of "ls -F" for the
+directory contents.
+
+File cwd.txt contains the absolute TFTP path to the TFTP server's home
+directory.
+
+Run "rosh" from the pxelinux prompt in order to get a simple shell which can
+display those "dir" files and "cd" into subdirectories.
+
+Important: In rosh, a "/" must always be appended to the name of a
+subdirectory when using the "cd" command.

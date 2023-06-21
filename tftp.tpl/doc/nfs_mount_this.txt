@@ -1,0 +1,19 @@
+How to NFS-mount this filesystem
+================================
+v2023.155
+
+$ mount -t nfs4 $SERVER:/srv/tftp /mnt
+
+where $SERVER is either the DNS name or the IP address of the 
+machine on which THIS file (you are reading right now) resides.
+
+
+How has it been NFS-exported?
+-----------------------------
+
+NOTE: This is additional information. It is not needed to mount 
+the network filesystem via NFS on the client machine.
+
+The /etc/exports (chmod 644) on the server contains the line
+
+/srv/tftp 10.0.0.0/8(all_squash,ro,subtree_check)

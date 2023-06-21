@@ -1,0 +1,5 @@
+This directory is NOT a template for /etc, but rather for /srv/tftp!
+
+It should possibly have better been put into a separate repository,
+but the number of files worth versioning in /srv/tftp is so small that it
+did not seem to be worth the effort.

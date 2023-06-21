@@ -1,0 +1,2 @@
+#! /bin/busybox-standalone-pbyqxzl1ktqlk3fjm3arlrclg ash
+exec /bin/busybox-standalone-pbyqxzl1ktqlk3fjm3arlrclg ash ${1+"$@"}
