@@ -1,11 +1,10 @@
 # Version 2023.171
 #
-# $ ifup modem
+# $ ifup modem=modem-delayed
 # ...
 # $ ifdown modem
 
-iface modem inet ppp
+iface modem-delayed inet ppp
 	provider HoT-IoT
 	options demand ktune holdoff 1 idle 2700 \
 		active-filter 'not port ntp'
-	post-up sh -c 'sleep 1; ping -c 2 -W9 8.8.8.8 || :' > /dev/null 2>& 1
