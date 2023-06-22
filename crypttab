@@ -8,3 +8,9 @@ swap2-myhost-pre3-dec	/dev/mapper/swap2-myhost-pre4-dec		unused_dummy	plain,noea
 swap2-myhost-pre2-dec	/dev/mapper/swap2-myhost-pre3-dec		unused_dummy	plain,noearly,cipher=aes-ctr-plain64,size=128,hash=sha256,keyscript=/etc/libexec/gen_hq_rand_psw
 swap2-myhost-pre-dec	/dev/mapper/swap2-myhost-pre2-dec		unused_dummy	plain,noearly,cipher=aes-xts-benbi,size=256,hash=sha256,keyscript=/etc/libexec/gen_hq_rand_psw
 swap2-myhost-dec	/dev/mapper/swap2-myhost-pre-dec		unused_dummy	plain,swap,noearly,cipher=serpent-pcbc-essiv:sha256,size=256,hash=sha256,keyscript=/etc/libexec/gen_hq_rand_psw
+
+swap-myrpi-pre4-dec	PARTUUID=77777777-02				unused_dummy	plain,noearly,cipher=aes-cbc-plain64,size=128,hash=sha256,keyscript=/etc/libexec/gen_hq_rand_psw
+swap-myrpi-pre3-dec	/dev/mapper/swap-myrpi-pre4-dec			unused_dummy	plain,noearly,cipher=cast5-cbc-plain64,size=128,hash=sha256,keyscript=/etc/libexec/gen_hq_rand_psw
+swap-myrpi-pre2-dec	/dev/mapper/swap-myrpi-pre3-dec			unused_dummy	plain,noearly,cipher=aes-xts-plain64,size=512,hash=sha256,keyscript=/etc/libexec/gen_hq_rand_psw
+swap-myrpi-pre-dec	/dev/mapper/swap-myrpi-pre2-dec			unused_dummy	plain,noearly,cipher=aes-ctr-essiv:sha256,size=256,hash=sha256,keyscript=/etc/libexec/gen_hq_rand_psw
+swap-myrpi-dec		/dev/mapper/swap-myrpi-pre-dec			unused_dummy	plain,swap,noearly,cipher=cast5-ctr-plain64,size=128,hash=sha256,keyscript=/etc/libexec/gen_hq_rand_psw
