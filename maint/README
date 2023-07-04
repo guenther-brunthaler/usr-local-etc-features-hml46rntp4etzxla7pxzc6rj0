@@ -1,6 +1,6 @@
 README
 ======
-v2023.137
+v2023.185
 
 File format: ASCII, lines up to 79 columns.
 
@@ -103,7 +103,7 @@ the scripts instead. Keep the difference in mind!
 +
 --
 This file contains the pathnames of directories to be ignored by scripts which 
-try to integrated changes introduced into the prototype files in
+try to integrate changes introduced into the prototype files in 
 /etc/$TPL to (possibly modified) local copies of the same files in /etc.
 
 This has basically the same purpose as 
@@ -235,7 +235,18 @@ Short explanations what the various scripts do
 Look into the comments at the start of every script in order to get more 
 detailed usage instructions.
 
+* ./suggest-simple-replacements.sh: Call this with a single argument which is 
+a script file to be created and redirect output to another file. The latter 
+file will be filled with unified diffs of all template files (including 
+upstream templates) and the files in /etc which are not identical. For every 
+such diff, a copy instruction will be added to the script file. The user shall 
+edit the script file and modify or remove the copy instructions or change them 
+into removal instructions, depending on the differences shown in the file with 
+the diffs. After this, the script can be executed in order to apply the 
+scheduled operations.
+
 * ./diffs.sh: Show changes between the real /etc and its template version. 
+Updates "/etc/site-6n580p79r0flmgyv0feaxchll/template_patches/*.patch". 
 Irrelevant changes should be identified and be added to local ignore lists, so 
 they won't show up again in future runs of this script. Look at the comments 
 at the beginning of this file to learn the location and names of the ignore 
