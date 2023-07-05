@@ -1,1 +1,1 @@
-console=tty1 console=serial0,115200 elevator=deadline root=PARTUUID=0d84dd70-01 rootwait rootfstype=vfat ro rootflags=fmask=022,dmask=022 brd.rd_nr=2 brd.rd_size=64 panic=20 init=/bin/sh
+console=tty1 console=serial0,115200 elevator=deadline root=PARTUUID=77777777-01 rootwait rootfstype=vfat ro rootflags=fmask=022,dmask=022 brd.rd_nr=2 brd.rd_size=64 panic=20 init=/bin/sh
