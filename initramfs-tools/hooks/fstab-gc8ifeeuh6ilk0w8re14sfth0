@@ -1,5 +1,5 @@
 #! /bin/sh
-# Version 2023.79
+# Version 2023.142
 
 FSTAB_IN=/etc/fstab
 # Copy '!'-prefixed entries as "noauto", otherwise as non-"noauto".
@@ -18,7 +18,8 @@ FSTAB_OUT=$DESTDIR/$FSTAB_IN
 test -e "$FSTAB_OUT"
 test ! -e "$FSTAB_IN" && exit
 
-# Remove "auto" and "noauto" in $opt from within $line then add $auto_opt.
+# Remove "auto" and other mount options not supported by initramfs in $opt
+# from within $line then add $auto_opt.
 re_auto() {
 	pfx=${line%"$opt"*}; sfx=${line##*"$opt"}
 	set -f; IFS="$OPT_SEP"; set -- $opt; IFS="$old_ifs"; set +f
@@ -26,7 +27,7 @@ re_auto() {
 	while test $# != 0
 	do
 		case $1 in
-			auto | noauto) ;;
+			auto | noauto | noacl | nouser_xattr) ;;
 			*) opt=$opt${opt:+"$OPT_SEP"}$1
 		esac
 		shift

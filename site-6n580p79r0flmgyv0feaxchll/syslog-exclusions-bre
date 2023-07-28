@@ -1,0 +1,18 @@
+authpriv\.info CRON\[.*: pam_unix(cron:session): session closed for user root
+authpriv\.info CRON\[.*: pam_unix(cron:session): session opened for user
+chat.*: alarm
+chat.*: ^M
+chat.*: OK
+chronyd.*: Loaded seccomp filter
+chronyd version .* starting
+cron\.info CRON\[.*: (.*) CMD (.*)$
+cron\.info CRON\[.*/invoke-rc.d anacron
+cron\.info CRON\[.* run-parts --report /etc/cron\.
+cron\.notice anacron\[.*: Anacron .* started on
+cron\.notice anacron\[.*: Normal exit (0 jobs run)
+daemon\.info chronyd\[.*: Selected source
+pppd.*: Connection terminated
+pppd.*: Exit
+pppd.*: Hangup (SIGHUP)
+pppd .* started by root, uid 0
+user\.info smsd: Writing stats file

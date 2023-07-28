@@ -1,0 +1,23 @@
+--- /etc/upstream-versions-dbkkywcqxlt7w1u854dz5hhbk.d/network/if-up.d/mountnfs	2021-01-04 05:35:54.000000000 +0000
++++ /etc/network/if-up.d/mountnfs	2023-07-26 19:51:23.359994671 +0000
+@@ -1,4 +1,5 @@
+ #! /bin/sh
++. /etc/libexec/update-patch-helper-5cj2dtd975yp5yah4ku3ll4ia
+ # Description:       Now that TCP/IP is configured, mount the NFS file
+ #                    systems in /etc/fstab if needed. If possible,
+ #                    start the portmapper before mounting (this is needed for
+@@ -83,6 +84,14 @@
+ 					# start nfs-common no matter
+ 					# what the options are.
+ 					start_nfs=yes
++					# The above statement is WRONG. Neither
++					# rpcbind nor nfs-common are required
++					# for read-only anonymous NFS shares.
++					case "$OPTS" in
++					  ro|*,ro|ro,*|*,ro,*)
++						start_nfs=no
++						;;
++						esac
+ 					;;
+ 				  smbfs|cifs|coda|ncp|ncpfs|ceph)
+ 					;;

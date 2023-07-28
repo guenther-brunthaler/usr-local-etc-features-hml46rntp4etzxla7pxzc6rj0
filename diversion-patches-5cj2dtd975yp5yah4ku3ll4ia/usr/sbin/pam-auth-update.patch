@@ -1,0 +1,52 @@
+--- /usr/sbin/pam-auth-update.disabled	2021-08-26 19:11:23.000000000 +0000
++++ /usr/sbin/pam-auth-update	2023-07-28 14:26:24.109916348 +0000
+@@ -1,3 +1,19 @@
++#! /bin/sh
++
++# Local patch: Support /etc/pam-configs/* as an alternative to
++# /usr/share/pam-configs/*.
++#
++# Patch version 2023.209
++# Copyright (c) 2023 Guenther Brunthaler. All rights reserved.
++#
++# The patch applied to this script is free software.
++# Distribution is permitted under the terms of the GPLv3.
++
++ofile=/usr/sbin/pam-auth-update.disabled
++. /etc/libexec/update-patch-helper-5cj2dtd975yp5yah4ku3ll4ia
++
++exec /usr/bin/perl -x -- "$0" ${1+"$@"}
++
+ #!/usr/bin/perl -w
+ 
+ # pam-auth-update: update /etc/pam.d/common-* from /usr/share/pam-configs
+@@ -32,6 +48,7 @@
+ my $capb=capb('backup escape');
+ 
+ my $inputdir = '/usr/share/pam-configs';
++my $inputdir_alt = '/etc/pam-configs';
+ my $template = 'libpam-runtime/profiles';
+ my $errtemplate = 'libpam-runtime/conflicts';
+ my $overridetemplate = 'libpam-runtime/override';
+@@ -63,6 +80,9 @@
+ );
+ my @invalid_modules = ('pam_tally');
+ 
++sub process_inputdir($) {
++	my($inputdir) = @_;
++
+ opendir(DIR, $inputdir) || die "could not open config directory: $!";
+ while (my $profile = readdir(DIR)) {
+ 	next if ($profile eq '.' || $profile eq '..' || $profile =~ m/~$/ || $profile =~ m/^#.+#$/);
+@@ -73,6 +93,11 @@
+ }
+ closedir DIR;
+ 
++}
++
++process_inputdir($inputdir);
++process_inputdir($inputdir_alt);
++
+ # use a '--force' arg to specify that /etc/pam.d should be overwritten; 
+ # used only on upgrades where the postinst has already determined that the
+ # checksums match.  Module packages other than libpam-runtime itself must

@@ -1,0 +1,63 @@
++CFUN:
+-- got it
+AT +CFUN
+Failed to connect stdout to the journal socket, ignoring
+OK^M
+Reached target systemd-cron daily target
+Reached target systemd-cron hourly target
+Reached target systemd-cron monthly target
+Renamed interface ppp0 to modem
+Started Cleanup of Temporary
+Started Daily apt download activities
+Started Daily apt upgrade and clean activities
+Started Daily man-db regeneration.
+Started chrony, an NTP client/server
+Started systemd-cron daily script service
+Started systemd-cron hourly script service
+Started systemd-cron monthly script service
+Starting Cleanup of Temporary Directories...
+Starting Daily apt download activities
+Starting Daily apt upgrade and clean activities
+Starting link
+Starting systemd-cron daily script service
+Starting systemd-cron hourly script service
+Stopped chrony, an NTP client/server
+Stopped target systemd-cron daily target
+Stopped target systemd-cron hourly target
+Stopped target systemd-cron monthly target
+Stopping chrony, an NTP client/server
+Using interface modem
+Using right/UTC timezone to obtain leap second data
+abort on (BUSY)
+abort on (COMMAND NOT SUPPORT)
+abort on (DELAYED)
+abort on (ERROR)
+abort on (NO ANSWER)
+abort on (NO CARRIER)
+abort on (NO DIAL TONE)
+abort on (NO DIALTONE)
+abort on (VOICE)
+apt-daily-upgrade.service: Succeeded
+apt-daily.service: Succeeded.
+chrony.service: Succeeded.
+chronyd exiting
+cron-daily.service: Succeeded
+cron-hourly.service: Succeeded.
+cron-monthly.service: Succeeded
+expect (
+expect (OK)
+local  IP address 10.64.64.64
+man-db.service: Succeeded
+modem: renamed from ppp0
+remote IP address 10.
+send ()
+send (AT
+systemd-tmpfiles-clean.service: Succeeded
+updating lifetime-writes
+Starting chrony, an NTP client/server
+Starting Daily man-db regeneration
+Starting Rotate log files
+logrotate.service: Succeeded
+Started Rotate log files
+Starting chrony, an NTP client/server
+Protocol-Reject for unsupported protocol 0xcc1

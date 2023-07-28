@@ -1,4 +1,4 @@
-# Version: 2022.20
+# Version: 2023.209
 #
 # $ ifup ethernet=ethernet-internet-through-somegw
 # ...
@@ -21,3 +21,4 @@ iface ethernet-internet-through-somegw inet static
 	metric 10
 	dns-nameservers 9.9.9.9
 	dns-search eth.emgenxx69lwyn5ctlr4nl64ul.local
+	dns-options ndots:2

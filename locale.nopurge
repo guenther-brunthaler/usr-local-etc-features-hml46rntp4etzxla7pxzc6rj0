@@ -48,7 +48,7 @@ SHOWFREEDSPACE
 # Commenting out this string enables faster but less
 # accurate calculation of freed disk space:
 
-QUICKNDIRTYCALC
+#QUICKNDIRTYCALC
 
 #####################################################
 # Commenting out this string disables verbose output:
@@ -59,9 +59,14 @@ QUICKNDIRTYCALC
 # Following locales won't be deleted from this system
 # after package installations done with apt-get(8):
 
+de
 de_AT
 de_AT@euro
 de_AT.UTF-8
+de_DE
+de_DE@euro
 de_DE.UTF-8
+en
+en_US
 en_US.ISO-8859-15
 en_US.UTF-8

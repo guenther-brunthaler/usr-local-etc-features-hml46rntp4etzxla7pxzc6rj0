@@ -1,0 +1,1 @@
+dump_commands='/etc/libexec/dmesg-pretty | /etc/libexec/syslog-filter'

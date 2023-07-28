@@ -51,26 +51,15 @@ po::powerokwait:/etc/init.d/powerfail stop
 # Note that on most Debian systems tty7 is used by the X Window System,
 # so if you want to add more getty's go ahead but skip tty7 if you run X.
 #
-1:245:respawn:/sbin/getty --noclear 38400 tty1
-2:245:respawn:/sbin/getty 38400 tty2
-3:24:respawn:/sbin/getty 38400 tty3
-4:24:respawn:/sbin/getty 38400 tty4
-#5::respawn:/sbin/getty 38400 tty5
-#6::respawn:/sbin/getty 38400 tty6
+1:245:respawn:/sbin/agetty -o "-p -- \u" 38400 tty1
+2:245:respawn:/sbin/agetty -o "-p -- \u" 38400 tty2
+3:2:respawn:/sbin/agetty -o "-p -- \u" 38400 tty3
+4:2:respawn:/sbin/agetty -o "-p -- \u" 38400 tty4
+#5::respawn:/sbin/agetty -o "-p -- \u" 38400 tty5
+#6::respawn:/sbin/agetty -o "-p -- \u" 38400 tty6
 
 # Example how to put a getty on a serial line (for a terminal)
 #
-#T0:23:respawn:/sbin/getty -L ttyS0 9600 vt100
-#T1:23:respawn:/sbin/getty -L ttyS1 9600 vt100
-#
-# or on a USB serial line
-#U0:23:respawn:/sbin/getty -L ttyUSB0 9600 vt100
-
-# Example how to put a getty on a modem line.
-#
-#T3:23:respawn:/sbin/mgetty -x0 -s 57600 ttyS3
-
-# Example for systemd-nspawn
-# Only /dev/console exists inside nspawn, so we need a getty on that.
-# Also make sure to comment out the gettys on tty* above.
-#C0:2345:respawn:/sbin/getty -8 --noclear --keep-baud console 115200,38400,9600
+##/sbin/agetty -o "-p -- \u" --keep-baud 115200,57600,38400,9600 ttyAMA0 vt220
+#T0:12345:respawn:/sbin/agetty -o "-p -- \u" -L ttyAMA0 115200 vt220 # RPi 2
+#T0:12345:respawn:/sbin/agetty -o "-p -- \u" -L ttyS0 115200 vt220 # RPi 3, 4

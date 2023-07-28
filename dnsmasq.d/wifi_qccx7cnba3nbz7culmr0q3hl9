@@ -1,0 +1,156 @@
+# v2022.30
+
+# basic:
+bogus-priv
+dhcp-authoritative
+domain-needed
+localise-queries
+no-poll
+# fixed_assignments:
+read-ethers
+# interfaces:
+bind-dynamic
+listen-address=10.238.999.999
+except-interface=a*
+except-interface=b*
+except-interface=c*
+except-interface=d*
+except-interface=e*
+except-interface=f*
+except-interface=g*
+except-interface=h*
+except-interface=i*
+except-interface=j*
+except-interface=k*
+except-interface=l*
+except-interface=m*
+except-interface=n*
+except-interface=o*
+except-interface=p*
+except-interface=q*
+except-interface=r*
+except-interface=s*
+except-interface=t*
+except-interface=u*
+except-interface=v*
+except-interface=wa*
+except-interface=wb*
+except-interface=wc*
+except-interface=wd*
+except-interface=we*
+except-interface=wf*
+except-interface=wg*
+except-interface=wh*
+except-interface=wia*
+except-interface=wib*
+except-interface=wic*
+except-interface=wid*
+except-interface=wie*
+except-interface=wif*
+except-interface=wifa*
+except-interface=wifb*
+except-interface=wifc*
+except-interface=wifd*
+except-interface=wife*
+except-interface=wiff*
+except-interface=wifg*
+except-interface=wifh*
+except-interface=wifj*
+except-interface=wifk*
+except-interface=wifl*
+except-interface=wifm*
+except-interface=wifn*
+except-interface=wifo*
+except-interface=wifp*
+except-interface=wifq*
+except-interface=wifr*
+except-interface=wifs*
+except-interface=wift*
+except-interface=wifu*
+except-interface=wifv*
+except-interface=wifw*
+except-interface=wifx*
+except-interface=wify*
+except-interface=wifz*
+except-interface=wig*
+except-interface=wih*
+except-interface=wii*
+except-interface=wij*
+except-interface=wik*
+except-interface=wil*
+except-interface=wim*
+except-interface=win*
+except-interface=wio*
+except-interface=wip*
+except-interface=wiq*
+except-interface=wir*
+except-interface=wis*
+except-interface=wit*
+except-interface=wiu*
+except-interface=wiv*
+except-interface=wiw*
+except-interface=wix*
+except-interface=wiy*
+except-interface=wiz*
+except-interface=wj*
+except-interface=wk*
+except-interface=wl*
+except-interface=wm*
+except-interface=wn*
+except-interface=wo*
+except-interface=wp*
+except-interface=wq*
+except-interface=wr*
+except-interface=ws*
+except-interface=wt*
+except-interface=wu*
+except-interface=wv*
+except-interface=ww*
+except-interface=wx*
+except-interface=wy*
+except-interface=wz*
+except-interface=x*
+except-interface=y*
+except-interface=z*
+dhcp-leasefile=/var/run/dnsmasq/leases
+
+# Nameservers
+no-resolv
+server=1.1.1.1
+server=9.9.9.9
+
+# logging:
+#log-dhcp
+#log-facility=/tmp/dnsmasq.log
+#log-queries
+log-facility=/dev/null
+
+# networks:
+# This snippet is grouped into blocks. The order between the blocks should not
+# be changed. The lines within each block is sorted lexicographically, except
+# for commments which always come first.
+
+# Associate networks with domain names.
+domain=wifi.emgenxx69lwyn5ctlr4nl64ul.local,10.238.0.0/16,local
+
+# Define DHCP ranges within networks and assign range aliases.
+dhcp-range=set:wifi,10.238.0.1,10.238.255.254,infinite
+
+# Associate range aliases with domain names.
+dhcp-option=tag:wifi,option:domain-name,wifi.emgenxx69lwyn5ctlr4nl64ul.local
+
+# other_options:
+# Local time zone.
+dhcp-option=101,Europe/Vienna
+# Catch/disable semi-dangerous Web Proxy Autodiscovery Protocol.
+dhcp-option=252,"\n"
+# NIS domain.
+dhcp-option=40,emgenxx69lwyn5ctlr4nl64ul.local
+
+#tftp-root=/srv/tftp
+#dhcp-boot=/srv/tftp/pxelinux.0
+#enable-tftp
+
+# Manual hostname entries.
+#host-record=rpo.eth.emgenxx69lwyn5ctlr4nl64ul.local,rpo.eth,rpo,gateway.eth.emgenxx69lwyn5ctlr4nl64ul.local,gateway.eth,gateway,10.157.888.888
+#host-record=rpo.wifi.emgenxx69lwyn5ctlr4nl64ul.local,rpo.wifi,gateway.wifi.emgenxx69lwyn5ctlr4nl64ul.local,gateway.wifi,10.238.999.999

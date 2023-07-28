@@ -1,0 +1,6 @@
+Name: Google Authenticator
+Default: yes
+Priority: 300
+Auth-Type: Primary
+Auth-Initial:
+	sufficient	/usr/local/lib/security/pam_google_authenticator.so nullok

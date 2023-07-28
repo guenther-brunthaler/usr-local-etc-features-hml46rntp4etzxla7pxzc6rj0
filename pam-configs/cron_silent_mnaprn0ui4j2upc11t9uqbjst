@@ -1,0 +1,6 @@
+Name: Suppress cron auth msgs
+Default: yes
+Priority: 300
+Session-Type: Additional
+Session:
+	[success=1 default=ignore]	pam_succeed_if.so quiet use_uid service = cron

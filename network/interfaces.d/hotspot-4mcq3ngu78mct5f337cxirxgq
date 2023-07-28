@@ -1,4 +1,4 @@
-# Version 2022.19.2
+# Version 2023.207
 #
 # $ ifup wifi=hotspot
 # $ gateway_setup -e wifi
@@ -17,4 +17,4 @@ iface hotspot inet static
 	hostapd /etc/hostapd/hostapd.conf
 	post-up invoke-rc.d --quiet dnsmasq status > /dev/null && invoke-rc.d --quiet --force dnsmasq force-reload > /dev/null || invoke-rc.d --quiet --force dnsmasq start > /dev/null
 	post-down rfkill block wlan
-	post-down invoke-rc.d --quiet dnsmasq status > /dev/null && invoke-rc.d --quiet --force dnsmasq force-reload > /dev/null || :
+	post-down invoke-rc.d --quiet dnsmasq status > /dev/null && invoke-rc.d --quiet --force dnsmasq stop > /dev/null || :
