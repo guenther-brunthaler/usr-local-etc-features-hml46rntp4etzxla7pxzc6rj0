@@ -1,2 +1,4 @@
 #! /bin/false
-alias ps='ps | grep -v \]\$'
+
+# v2023.231
+alias ps='command ps -o tty,ppid,pid,args | grep -v \]\$'
