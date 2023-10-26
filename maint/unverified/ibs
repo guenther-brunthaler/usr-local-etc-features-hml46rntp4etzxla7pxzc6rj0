@@ -1,0 +1,76 @@
+#! /bin/sh
+# v2023.217.1
+
+IFC=ibs0
+case $1 in
+	down | stop)
+		set -x
+		iw dev ibs0 ibss leave
+		ifconfig ibs0 down 0.0.0.0
+		iw dev ibs0 del
+		rfkill block wlan
+		exit
+		;;
+esac
+
+
+FREQ=2412
+SSID='xworld: IBSS+SSH+RSA_keys_only' # Maximum size: 32 characters.
+NET=10.9 # '*.ibss.wifi.emgenxx69lwyn5ctlr4nl64ul.local'
+TYPE=wlan
+HOSTNAME=`hostname`
+
+set -e
+cleanup() {
+	rc=$?
+	test "$TF" && rm -- "$TF"
+	test $rc = 0 || echo "\"$0\" failed" >& 2
+}
+TF=
+trap 'exit $?' INT QUIT TERM HUP
+TF=`mktemp -- "${TMPDIR:-/tmp}/${0##*/}".XXXXXXXXXX`
+
+ifquery -l --allow=primary_boot > "$TF"
+read k < "$TF"; LC_ALL=C ifquery "$k" > "$TF"
+IP= NETMASK=
+while read k v
+do
+	case $k in
+		address:) IP=$v;;
+		netmask:) NETMASK=$v
+	esac
+done < "$TF"
+test "$IP"; test "$NETMASK"
+
+for rf in /sys/class/rfkill/*
+do
+	test ! -d "$rf" && exit
+	test $TYPE != "`cat "$rf"/type`" && continue
+	test 0 != "`cat "$rf/hard"`" && exit
+done
+PHY=
+for rf in /sys/class/rfkill/*
+do
+	test $TYPE != "`cat "$rf"/type`" && continue
+	n=`cat "$rf/name"`; test -n "$n"
+	if test -z "$PHY" || test ${#n} -lt ${#PHY}
+	then
+		PHY=$n
+	fi
+	echo 0 > "$rf"/soft
+done
+test -z "$PHY" && exit
+
+oldIFS=$IFS
+IFS=.; set -- $NET; ncs=$#; set -- $IP; IFS=$oldIFS
+while expr $ncs + $# '>' 4 > /dev/null
+do
+	shift
+done
+IFS=.; IP=$NET.$*; IFS=$oldIFS
+
+echo "Starting Wi-Fi in ad-hoc mode on $IFC"
+PATH=/sbin:$PATH
+iw phy $PHY interface add $IFC type ibss
+ifconfig $IFC "$IP" netmask "$NETMASK" up
+iw dev $IFC ibss join "$SSID" $FREQ
