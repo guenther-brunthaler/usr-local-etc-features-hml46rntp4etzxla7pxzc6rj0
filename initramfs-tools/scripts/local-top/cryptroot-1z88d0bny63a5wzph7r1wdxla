@@ -30,9 +30,13 @@ set -e
 vg=vg_xduo
 mapping=pv_xduo-dec
 
-#mount -t tmpfs -o mode=1777,size=2g tmp /tmp
-cryptsetup-bm1fu35d94e5tbvvfib9bzgi0 $mapping
-#lvm vgchange -a y $vg
-#mount -t reiserfs -o ro,noatime /dev/$vg/debian-fsroot /root
-#umount /tmp
+# Avoid mapping multiple times if already executed successfully once.
+if test ! -e /dev/mapper/$mapping
+then
+	#mount -t tmpfs -o mode=1777,size=2g tmp /tmp
+	cryptsetup-bm1fu35d94e5tbvvfib9bzgi0 $mapping
+	#lvm vgchange -a y $vg
+	#mount -t reiserfs -o ro,noatime /dev/$vg/debian-fsroot /root
+	#umount /tmp
+fi
 trap - 0

@@ -13,7 +13,7 @@
 #
 # A different solution would be to use journald and instruct it to forward
 # log-messages to the kernel message ring buffer. In this case, the
-# "dmesg"-utility can be defined via /etc/default as the command for dumping
+# "dmesg"-utility can be defined via /etc/default/ as the command for dumping
 # the ring buffer.
 #
 # Note that the command for dumping the ring buffer will be passed to the
@@ -26,15 +26,14 @@
 # script do not get filtered out - they are needed for synchronization and
 # ring-buffer overflow detection.
 #
-# Version 2021.92.1
-#
-# Copyright (c) 2018-2021 Guenther Brunthaler. All rights reserved.
+# Version 2023.287
+# Copyright (c) 2018-2023 Guenther Brunthaler. All rights reserved.
 #
 # This script is free software.
 # Distribution is permitted under the terms of the GPLv3.
 
 defaults_file=/etc/default/${0##*/}
-# Settings which can be overriden by $defaults_file:
+# Settings which can be overridden by $defaults_file:
 #
 # Where to store the log saver's state.
 state_file=/var/lib/misc/log_saver-4vzntsgfwksyilhv27klxte5l
@@ -43,7 +42,7 @@ state_file=/var/lib/misc/log_saver-4vzntsgfwksyilhv27klxte5l
 # command lists, and shell built-in commands. Whatever new data these commands
 # return will be saved to persistent storage.
 dump_commands='logread'
-# The persistant storage file where the saves log entries shall be added to.
+# The persistant storage file where the saved log entries shall be added to.
 # This should normally be log-rotated by someone (such as "logrotate").
 #
 # Log-rotation frameworks should implement the rotation of $syslog by calling

@@ -1,0 +1,8 @@
+#! /bin/sh -e
+case $PPP_IFACE in
+	ppp*) break;;
+	*) exit
+esac
+/etc/ppp/notify_somehost.sh "$PPP_LOCAL"
+logger -p user.debug -t "${0##*/}" \
+	"Notified somehost about IP address $PPP_LOCAL."

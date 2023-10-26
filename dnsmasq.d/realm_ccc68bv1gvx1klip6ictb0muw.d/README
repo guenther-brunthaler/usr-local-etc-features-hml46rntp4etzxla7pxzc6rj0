@@ -1,0 +1,16 @@
+# The config snippets in this directory are intended to be read in an
+# arbitrary order.
+# 
+# There are no dependencies between snippets. Any dependent options (regarding
+# order) should be put into the same file, keeping the required order locally.
+# 
+# And this fact should be documented at the beginning of the snippet!
+# 
+# Unless there is a specific reason to group entries within a snippet, all
+# lines should be sorted in lexicographical order. (This excludes possible
+# comment blocks at the beginning of the files which always stay there.)
+# 
+# If subgroups are used within a snippet, the same applies to each subgroup.
+# 
+# Exceptions from this default should be documented at the beginning of the
+# snippet.

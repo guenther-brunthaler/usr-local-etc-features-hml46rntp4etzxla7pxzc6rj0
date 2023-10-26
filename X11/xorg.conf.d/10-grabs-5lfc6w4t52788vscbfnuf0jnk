@@ -1,0 +1,15 @@
+Section "ServerFlags"
+	# This option  enables the use of the Ctrl+Alt+Keypad-Divide key
+	# sequence to deactivate any active keyboard and mouse grabs. Default:
+	# off.
+	Option "AllowDeactivateGrabs" "on"
+	# This option enables the use of the Ctrl+Alt+Keypad-Multiply key
+	# sequence to kill clients with an active keyboard or mouse grab as
+	# well as killing any application that may have locked the server,
+	# normally using the XGrabServer(3) Xlib function. Default: off. Note
+	# that the options AllowDeactivateGrabs and AllowClosedownGrabs will
+	# allow users to remove the grab used by screen saver/locker programs.
+	# An API was written to such cases. If you enable this option, make
+	# sure your screen saver/locker is updated.
+	Option "AllowClosedownGrabs" "off"
+EndSection

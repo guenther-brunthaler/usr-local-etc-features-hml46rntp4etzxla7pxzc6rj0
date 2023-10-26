@@ -10,6 +10,7 @@
 #   should mdadm run periodic redundancy checks over your arrays? See
 #   /etc/cron.d/mdadm.
 AUTOCHECK=false
+AUTOSCAN=$AUTOCHECK
 
 # START_DAEMON:
 #   should mdadm start the MD monitoring daemon during boot?
