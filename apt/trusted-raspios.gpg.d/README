@@ -1,0 +1,7 @@
+dpkg-divert:
+
+<-- /etc/apt/trusted.gpg.d/raspberrypi-archive-stable.gpg
+--> /etc/apt/trusted-raspbian.gpg.d/Raspberry Pi Archive Signing Key.gpg
+
+<-- /etc/apt/trusted.gpg
+--> /etc/apt/trusted-raspbian.gpg.d/Raspberry Pi Debian armhf ARMv6+VFP.gpg
