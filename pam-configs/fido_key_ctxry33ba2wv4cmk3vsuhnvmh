@@ -1,0 +1,6 @@
+Name: FIDO Hardware Security Key
+Default: yes
+Priority: 310
+Auth-Type: Primary
+Auth-Initial:
+	sufficient	pam_u2f.so authfile=.config/misc/u2f_keys_s9lmdckmcd3ixp649syw9lid2
