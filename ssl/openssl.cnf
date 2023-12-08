@@ -51,13 +51,20 @@ tsa_policy3 = 1.2.3.4.5.7
 # .include fipsmodule.cnf
 
 [openssl_init]
-providers = provider_sect
+providers = provider_sect_p5uz7x0nbcy8giiy0k2mkxit2
+ssl_conf = ssl_sect_p5uz7x0nbcy8giiy0k2mkxit2
+
+[ssl_sect_p5uz7x0nbcy8giiy0k2mkxit2]
+system_default = system_default_sect_p5uz7x0nbcy8giiy0k2mkxit2
+
+[system_default_sect_p5uz7x0nbcy8giiy0k2mkxit2]
+Ciphersuites = TLS_CHACHA20_POLY1305_SHA256:TLS_AES_256_GCM_SHA384:TLS_AES_128_GCM_SHA256
 
 # List of providers to load
-[provider_sect]
+[provider_sect_p5uz7x0nbcy8giiy0k2mkxit2]
 # Customization necessary for supporting BLOWFISH cipher in EncFS.
-default = default_sect
-legacy = legacy_sect
+default = default_sect_p5uz7x0nbcy8giiy0k2mkxit2
+legacy = legacy_sect_p5uz7x0nbcy8giiy0k2mkxit2
 
 # The fips section name should match the section name inside the
 # included fipsmodule.cnf.
@@ -71,10 +78,10 @@ legacy = legacy_sect
 # becomes unavailable in openssl.  As a consequence applications depending on
 # OpenSSL may not work correctly which could lead to significant system
 # problems including inability to remotely access the system.
-[default_sect]
+[default_sect_p5uz7x0nbcy8giiy0k2mkxit2]
 activate = 1
 
-[legacy_sect]
+[legacy_sect_p5uz7x0nbcy8giiy0k2mkxit2]
 activate = 1
 
 
@@ -148,7 +155,7 @@ emailAddress		= optional
 
 ####################################################################
 [ req ]
-default_bits		= 2048
+default_bits		= 4096
 default_keyfile 	= privkey.pem
 distinguished_name	= req_distinguished_name
 attributes		= req_attributes
