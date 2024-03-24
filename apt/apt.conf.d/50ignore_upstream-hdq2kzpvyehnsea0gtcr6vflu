@@ -1,0 +1,11 @@
+# v2024.78
+
+# Ignore all files *.upstream in the APT configuration directories.
+#
+# Note that this adds an entry to an existing list. All values within some
+# scope which do not have a name are interpreted to be list members of the
+# parent scope which is in turn interpreted as a list containing those unnamed
+# values.
+Dir::Ignore-Files-Silently {
+	"\.upstream$";
+};
