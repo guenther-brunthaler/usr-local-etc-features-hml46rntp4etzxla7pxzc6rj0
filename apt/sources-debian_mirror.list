@@ -1,3 +1,0 @@
-deb http://debian.intergenia.de/debian bookworm main contrib non-free non-free-firmware
-deb http://debian.intergenia.de/debian bookworm-updates main contrib non-free non-free-firmware
-deb http://debian.intergenia.de/debian-security bookworm-security main contrib non-free non-free-firmware
