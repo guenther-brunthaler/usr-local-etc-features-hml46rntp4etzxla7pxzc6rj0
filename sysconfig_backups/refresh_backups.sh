@@ -6,8 +6,9 @@
 # intended to be kept under version control. This allows to detect changes to
 # those configuration details later on.
 #
-# Version 2021.312
-# (c) 2011-2021 by Guenther Brunthaler.
+# Version 2024.102
+# (c) 2011-2024 by Guenther Brunthaler.
+#
 # This script is free software.
 # Distribution is permitted under the terms of the GPLv3.
 
@@ -106,9 +107,21 @@ else
 fi
 if getcmd LSHW lshw
 then
-	"$LSHW" > lshw.txt
+	run "$LSHW" > lshw.txt
 else
 	echo "lshw is not installed; skipping." >& 2
+fi
+if getcmd HWINFO hwinfo
+then
+	run "$HWINFO" > hwinfo.txt
+else
+	echo "hwinfo is not installed; skipping." >& 2
+fi
+if getcmd CPUID cpuid
+then
+	run "$CPUID" > cpu_features.txt
+else
+	echo "cpuid is not installed; skipping." >& 2
 fi
 if ! getcmd BZR bzr || test ! -d /etc/.bzr
 then
@@ -144,8 +157,4 @@ fi
 if getcmd UNAME uname
 then
 	run "$UNAME" -a > "current_kernel.txt"
-fi
-if getcmd CPUID cpuid
-then
-	run "$CPUID" > cpu_features.txt
 fi
