@@ -6,7 +6,7 @@
 # intended to be kept under version control. This allows to detect changes to
 # those configuration details later on.
 #
-# Version 2024.102
+# Version 2024.181
 # (c) 2011-2024 by Guenther Brunthaler.
 #
 # This script is free software.
@@ -110,12 +110,6 @@ then
 	run "$LSHW" > lshw.txt
 else
 	echo "lshw is not installed; skipping." >& 2
-fi
-if getcmd HWINFO hwinfo
-then
-	run "$HWINFO" > hwinfo.txt
-else
-	echo "hwinfo is not installed; skipping." >& 2
 fi
 if getcmd CPUID cpuid
 then
