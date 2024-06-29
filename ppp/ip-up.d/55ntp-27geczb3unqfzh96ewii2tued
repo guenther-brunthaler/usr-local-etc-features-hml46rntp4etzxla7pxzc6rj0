@@ -1,2 +1,9 @@
 #! /bin/sh
-exec invoke-rc.d --force chrony start > /dev/null
+
+# Start chrony explicitly for the PPP session even if not activated for the
+# current runlevel.
+#
+# v2024.67
+invoke-rc.d --quiet chrony status > /dev/null || {
+	invoke-rc.d --force chrony start > /dev/null
+}
