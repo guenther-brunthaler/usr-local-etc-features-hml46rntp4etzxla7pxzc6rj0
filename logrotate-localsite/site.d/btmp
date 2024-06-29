@@ -1,4 +1,4 @@
-# No packages own btmp -- we'll rotate it here.
+# v2024.181
 /var/log/btmp {
     missingok
     create 0660 root utmp

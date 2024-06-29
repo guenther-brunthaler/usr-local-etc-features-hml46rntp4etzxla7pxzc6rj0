@@ -1,4 +1,4 @@
-# No packages own wtmp -- we'll rotate it here.
+# v2024.181
 /var/log/wtmp {
     missingok
     create 0664 root utmp
