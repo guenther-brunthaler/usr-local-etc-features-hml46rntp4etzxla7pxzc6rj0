@@ -1,14 +1,24 @@
 #! /bin/sh
+
+# Migrate upstream logrotate-snippets (from <indir>) into ones to be actually
+# used (<outdir>) when logrotate is run.
+#
+# This migration works by inserting "include" commands into the original
+# snippets which enforce the local logrotation policy.
+#
+# Upstream snippets for which snippets of the same name exist in one of the
+# <overrides> subdirectories will not be migrated. Those snippets will be
+# included directly by the logrotate configuration.
+#
 # This script can also be run from a cron job if standard error is redirected
 # to /dev/null. It only writes to /etc/ when actually necessary and avoids all
 # unnecessary write accesses (as long as $TMPDIR or /tmp is a tmpfs or ramfs).
 #
-# Version 2018.263
+# Version 2024.181
 
 basedir=/etc/logrotate-localsite
 defaults=$basedir/defaults
 overrides='site.d realm.d' # Highest priority first.
-
 
 set -e
 cleanup() {
@@ -19,20 +29,27 @@ cleanup() {
 T=
 trap cleanup 0
 
-cd "$basedir"
+cd -- "$basedir"
 outdir=$basedir/fixed-upstream.d
 test -d "$outdir"
 indir=$basedir/ignored-upstream.d
 test -d "$indir"
+# Remove already-patched upstream copies which have become obsolete.
 for o in "$outdir"/*
 do
-	test -e "$o" || continue # Required if directory is empty.
-	ob=${o#"$outdir/"}
-	for s in "${indir#"$basedir/"}" $overrides
+	test ! -e "$o" && continue # Required if directory is empty.
+	ob=${o#"$outdir/"} # Basename of upstream snippet.
+	overridden=false
+	for ov in $overrides
 	do
-		s=$basedir/$s/$ob
-		test -f "$s" && continue 2
+		if test -e "$basedir/$ov/$ob"
+		then
+			overridden=true
+			break
+		fi
 	done
+	test $overridden = false && test -e "$indir/${o#"$outdir/"}" \
+		&& continue
 	echo "Removing orphaned '$o'..." >& 2
 	rm -- "$o"
 done
@@ -56,21 +73,18 @@ edscript='
 	}
 '
 T=`mktemp -- "${TMPDIR:-/tmp}/${0##*/}.XXXXXXXXXX"`
+# Create patched copies of all upstream snippets unless overrides for them are
+# present.
 for s in "$indir"/*
 do
-	test -e "$s" || continue # Required if directory is empty.
-	ob=${s#"$indir/"}
-	none=true
+	test ! -e "$s" && continue # Required if directory is empty.
+	ob=${s#"$indir/"} # Basename of upstream snippet.
 	for o in $overrides
 	do
-		o=$basedir/$o/$ob
-		test ! -f "$o" && continue
-		cat < "$o" > "$T"
-		none=false
-		break
+		test -f "$basedir/$o/$ob" && continue 2 # Override exists.
 	done
-	o=$outdir/$ob
-	$none && sed "$edscript" < "$s" > "$T"
+	o=$outdir/$ob # Pathname of patched copy.
+	sed "$edscript" < "$s" > "$T" # Create patched version $T.
 	# Avoid overwriting unless necessary to not disturb file mtime and
 	# ctime and thus not triggering unnecessary backups.
 	if cmp -s -- "$T" "$o"
