@@ -1,6 +1,6 @@
 #! /bin/sh
 
-# Switch the green ACT LED of the RPi4 off.
+# Switch the green ACT LED of the RPi4 to show mmc0 activity.
 #
 # v2025.25
 set -e
@@ -10,4 +10,4 @@ case `grep ^Model /proc/cpuinfo` in
 	*) exit
 esac
 
-echo none > /sys/class/leds/ACT/trigger
+echo mmc0 > /sys/class/leds/ACT/trigger
