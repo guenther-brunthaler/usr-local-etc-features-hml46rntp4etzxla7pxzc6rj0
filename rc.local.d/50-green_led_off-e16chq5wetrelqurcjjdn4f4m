@@ -1,0 +1,13 @@
+#! /bin/sh
+
+# Switch the green ACT LED of the RPi4 off.
+#
+# v2025.24
+set -e
+
+case `grep ^Model /proc/cpuinfo` in
+	*'Raspberry Pi 4'*) ;;
+	*) exit
+esac
+
+echo none > /sys/class/leds/ACT/trigger

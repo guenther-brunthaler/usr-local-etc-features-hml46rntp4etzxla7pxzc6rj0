@@ -1,0 +1,14 @@
+#! /bin/sh
+
+# Let the red PWR LED of the RPi4 only light up if there is Wi-Fi or
+# Bluetooth currently enabled (via rfkill).
+#
+# v2025.24
+set -e
+
+case `grep ^Model /proc/cpuinfo` in
+	*'Raspberry Pi 4'*) ;;
+	*) exit
+esac
+
+echo rfkill-any > /sys/class/leds/PWR/trigger
