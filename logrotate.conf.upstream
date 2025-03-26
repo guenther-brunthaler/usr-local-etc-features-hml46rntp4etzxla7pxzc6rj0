@@ -1,4 +1,7 @@
 # see "man logrotate" for details
+
+# global options do not affect preceding include directives
+
 # rotate log files weekly
 weekly
 
@@ -17,4 +20,4 @@ create
 # packages drop log rotation information into this directory
 include /etc/logrotate.d
 
-# system-specific logs may be also be configured here.
+# system-specific logs may also be configured here.
