@@ -1,0 +1,37 @@
+DVTM-PAGER(1)             BSD General Commands Manual            DVTM-PAGER(1)
+
+NAME
+     dvtm-pager — select appropriate pager for dvtm
+
+SYNOPSIS
+     dvtm-pager ARGS...
+
+DESCRIPTION
+     dvtm-pager is an utility used by the dvtm(1) terminal multiplexer to dis‐
+     play its scrollback history using a suitable pager.
+
+     The invoked pager is expected to display the data sent to its standard
+     input.  The data stream might contain ANSI color escape sequence.  All
+     command line arguments are forwarded verbatim.  dvtm(1) uses this to ad‐
+     just the initial view port by passing +n, meaning the start of line n
+     should be displayed.
+
+ENVIRONMENT VARIABLES
+     dvtm-pager will try to find the preferred pager by checking these vari‐
+     ables in order:
+
+     DVTM_PAGER
+             Permitting to invoke a pager specific to dvtm, or set particular
+             flags such as -R for less(1).
+
+     PAGER   Falling back to the default pager.
+
+     If none of these variables are set, less(1) is used.
+
+SEE ALSO
+     less(1), dvtm(1), dvtm-editor(1)
+
+AUTHOR
+     dvtm is written by Marc André Tanner <mat at brain-dump.org>
+
+dvtm 0.15+40.g311a8c0-1        January 03, 2017        dvtm 0.15+40.g311a8c0-1

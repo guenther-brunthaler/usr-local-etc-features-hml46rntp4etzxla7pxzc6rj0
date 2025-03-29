@@ -1,0 +1,253 @@
+DVTM(1)                   BSD General Commands Manual                  DVTM(1)
+
+NAME
+     dvtm — dynamic virtual terminal manager
+
+SYNOPSIS
+     dvtm [-v] [-M] [-m modifier] [-d delay] [-h lines] [-t title]
+          [-s status-fifo] [-c cmd-fifo] [command ...]
+
+DESCRIPTION
+     dvtm is a dynamic tiling window manager for the console.
+
+     As a console window manager it tries to make it easy to work with multi‐
+     ple console based applications.
+
+     -v
+       Print version information to standard output and exit.
+
+     -M
+       Toggle default mouse grabbing upon startup. Use this to allow normal
+       mouse operation under X.
+
+     -m modifier
+       Set command modifier at runtime.
+
+     -d delay
+       Set the delay ncurses waits before deciding if a character that might
+       be part of an escape sequence is actually part of an escape sequence.
+
+     -h lines
+       Set the scrollback history buffer size at runtime.
+
+     -t title
+       Set a static terminal title and don't change it to the one of the cur‐
+       rently focused window.
+
+     -s status-fifo
+       Open or create the named pipe status-fifo read its content and display
+       it in the statusbar. See the dvtm-status(1) script for an usage exam‐
+       ple.
+
+     -c cmd-fifo
+       Open or create the named pipe cmd-fifo and look for commands to execute
+       which were defined in config.h.
+
+     command ...
+       Execute command (s), each in a separate window.
+
+USAGE
+   Keyboard commands
+     Each keybinding begins with Mod which defaults to ^g but can be changed
+     in config.h or with the -m command line option.
+
+     Mod-c
+       Create a new shell window.
+
+     Mod-C
+       Create a new shell window using the current working directory of the
+       focused window.
+
+     Mod-x-x
+       Close focused window.
+
+     Mod-l
+       Increases the master area width about 5% (all except grid and
+       fullscreen layout).
+
+     Mod-h
+       Decreases the master area width about 5% (all except grid and
+       fullscreen layout).
+
+     Mod-i
+       Increase number of windows displayed in the master area.
+
+     Mod-d
+       Decrease number of windows displayed in the master area.
+
+     Mod-j
+       Focus next window.
+
+     Mod-k
+       Focus previous window.
+
+     Mod-J
+       Focus window below.
+
+     Mod-K
+       Focus window above.
+
+     Mod-H
+       Focus window to the left.
+
+     Mod-L
+       Focus window to the right.
+
+     Mod-[0..9]
+       Focus the [0..9]-th window.
+
+     Mod-Tab
+       Focus previously selected window.
+
+     Mod-.
+       Toggle minimization of current window.
+
+     Mod-m
+       Maximize current window (change to fullscreen layout).
+
+     Shift-PageUp
+
+     Mod-PageUp
+       Scroll up.
+
+     Shift-PageDown
+
+     Mod-PageDown
+       Scroll down.
+
+     Mod-Space
+       Toggle between defined layouts (affects all windows).
+
+     Mod-Enter
+       Zooms/cycles current window to/from master area.
+
+     Mod-f
+       Change to vertical stack tiling layout.
+
+     Mod-b
+       Change to bottom stack tiling layout.
+
+     Mod-g
+       Change to grid layout.
+
+     Mod-s
+       Show/hide the status bar.
+
+     Mod-S
+       Toggle position of the status bar between top and bottom.
+
+     Mod-r
+
+     Mod-^L
+       Redraw whole screen.
+
+     Mod-a
+       Toggle keyboard multiplexing mode, if activated keypresses are sent to
+       all visible windows.
+
+     Mod-M
+       Toggle dvtm mouse grabbing.
+
+     Mod-e
+       Enter copy mode (see section below for further information).
+
+     Mod-/
+       Enter copy mode and start searching forward (assumes a vi-like editor).
+
+     Mod-p
+       Paste last copied text from copy mode at current cursor position.
+
+     Mod-?
+       Show this manual page.
+
+     Mod-Mod
+       Send the Mod key.
+
+     Mod-F[1..n]
+
+     Mod-v-[1..n]
+       View all windows with n-th tag.
+
+     Mod-0
+       View all windows with any tag.
+
+     Mod-v-Tab
+       Toggles to the previously selected tags.
+
+     Mod-V-[1..n]
+       Add/remove all windows with nth tag to/from the view.
+
+     Mod-t-[1..n]
+       Apply nth tag to focused window.
+
+     Mod-T-[1..n]
+       Add/remove nth tag to/from focused window.
+
+     Mod-q-q
+       Quit dvtm.
+
+   Mouse commands
+     By default dvtm captures mouse events to provide the actions listed be‐
+     low.  Unfortunately this interferes with the standard X copy and paste
+     mechanism.  To work around this you need to hold down Shift while select‐
+     ing or pasting text.  Alternatively you can disable mouse support at com‐
+     pile time, start dvtm with the -M flag or toggle mouse support during
+     runtime with Mod-M.
+
+     Button1 click
+       Focus window.
+
+     Button1 double click
+       Focus window and toggle maximization.
+
+     Button2 click
+       Zoom/cycle current window to/from master area.
+
+     Button3 click
+       Toggle minimization of current window.
+
+   Copy mode
+     Copy mode gives easy access to past output by piping it to
+     dvtm-editor(1), opening an editor.  What the editor writes will be stored
+     in an internal register and can be pasted into other clients (via Mod-p
+     ).
+
+ENVIRONMENT VARIABLES
+     DVTM
+       Each process spawned by dvtm will have this variable set to the dvtm
+       version it is running under.
+
+     DVTM_WINDOW_ID
+       Each process also has access to its constant and unique window id.
+
+     DVTM_CMD_FIFO
+       If the -c command line argument was specified upon dvtm startup, this
+       variable will be set to the file name of the named pipe. Thus allowing
+       the process to send commands back to dvtm.
+
+     DVTM_TERM
+       By default dvtm uses its own terminfo file and therefore sets TERM=dvtm
+       within the client windows. This can be overridden by setting the
+       DVTM_TERM environment variable to a valid terminal name before launch‐
+       ing dvtm.
+
+     DVTM_EDITOR
+       When entering the copymode dvtm pipes the whole scroll back buffer to
+       dvtm-editor(1) which opens the content in DVTM_EDITOR, with fallbacks
+       to VISUAL, EDITOR and vi(1) config.h is used instead.
+
+EXAMPLE
+     See the dvtm-status(1) script as an example of how to display text in the
+     status bar.
+
+FILES
+     dvtm is customized by creating a custom config.h and (re)compiling the
+     source code.  This keeps it fast, secure and simple.
+
+SEE ALSO
+     abduco(1), dvtm-status(1)
+
+AUTHOR
+     dvtm is written Marc André Tanner <mat at brain-dump.org>
+
+dvtm 0.15+40.g311a8c0-1        December 27, 2016       dvtm 0.15+40.g311a8c0-1

@@ -1,0 +1,15 @@
+#! /bin/sh
+
+# v2025.88
+# Copyright (c) 2025 Guenther Brunthaler. All rights reserved.
+#
+# This script is free software.
+# Distribution is permitted under the terms of the GPLv3.
+
+PREREQS='locale-j2mkmlcr0gu1pkjv7vn84ksnl terminfo-l0km6uwmh25jblf7a05w7eh5n'
+
+set -e
+
+case $1 in
+	prereqs) echo "$PREREQS"; exit
+esac

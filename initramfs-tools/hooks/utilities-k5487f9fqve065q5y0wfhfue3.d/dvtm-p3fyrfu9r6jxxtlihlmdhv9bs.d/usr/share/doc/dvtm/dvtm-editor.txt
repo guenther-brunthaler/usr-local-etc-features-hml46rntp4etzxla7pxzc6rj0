@@ -1,0 +1,54 @@
+DVTM-EDITOR(1)            BSD General Commands Manual           DVTM-EDITOR(1)
+
+NAME
+     dvtm-editor — make a text editor act as a filter
+
+SYNOPSIS
+     dvtm-editor ARGS...
+
+DESCRIPTION
+     The dvtm-editor is a file buffering utility used by the dvtm(1) terminal
+     multiplexer to implement its copy mode. It reads the standard input and
+     saves it to a temporary file, then opens an editor according to the
+     ENVIRONMENT VARIABLES.
+
+     If the invoked editor terminates with a non-zero exit status or the file
+     modification time remains unchanged, dvtm-editor does not output any‐
+     thing.  Otherwise, it outputs the content of the modified temporary file
+     to stdout.
+
+     All command line arguments are forwarded verbatim.  dvtm(1) uses this to
+     adjust the initial view port by passing +n, meaning the start of line n
+     should be displayed.
+
+ENVIRONMENT VARIABLES
+     dvtm-editor will try to find the user editor by checking these variables
+     in order:
+
+     DVTM_EDITOR
+             Permitting to invoke an editor specific to dvtm, or set particu‐
+             lar flags.
+
+     VISUAL, EDITOR
+             Falling back to global defaults: VISUAL and EDITOR.
+
+     If no editor is found, vi(1) is used.
+
+FILES
+     The temporary files are created according to the template:
+     /tmp/dvtm-editor.XXXXXX.
+
+     /dev/tty is opened to obtain a controlling tty which is used for the
+     standard input/output streams of the invoked editor.
+
+NOTES
+     Using vis(1) as editor is particularly convenient because :wq! in visual
+     mode will reduce the file to the currently active selection(s).
+
+SEE ALSO
+     vi(1), dvtm(1), dvtm-pager(1)
+
+AUTHOR
+     dvtm is written by Marc André Tanner <mat at brain-dump.org>
+
+dvtm 0.15+40.g311a8c0-1        December 27, 2016       dvtm 0.15+40.g311a8c0-1
