@@ -2,3 +2,5 @@ dvtm
 dvtm-editor
 dvtm-pager
 /usr/lib/dvtm/dvtm-editor
+/usr/share/terminfo/d/dvtm
+/usr/share/terminfo/d/dvtm-256color
