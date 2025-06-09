@@ -1,1 +1,1 @@
-deb http://mirrordirector.raspbian.org/raspbian bookworm main contrib non-free rpi firmware
+deb [ arch=armhf ] http://raspbian.raspberrypi.com/raspbian/ bookworm main contrib non-free rpi firmware
