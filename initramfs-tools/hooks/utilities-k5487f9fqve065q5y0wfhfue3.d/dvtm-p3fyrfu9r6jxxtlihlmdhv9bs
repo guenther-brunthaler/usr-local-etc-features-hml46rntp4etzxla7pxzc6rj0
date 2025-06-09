@@ -1,6 +1,8 @@
 dvtm
 dvtm-editor
 dvtm-pager
-/usr/lib/dvtm/dvtm-editor
-/usr/share/terminfo/d/dvtm
-/usr/share/terminfo/d/dvtm-256color
+ruler-for-terminal-columns
+= /usr/lib/dvtm/dvtm-editor
+= /usr/share/doc/dvtm/examples/dvtm-status
+= /usr/share/terminfo/d/dvtm
+= /usr/share/terminfo/d/dvtm-256color

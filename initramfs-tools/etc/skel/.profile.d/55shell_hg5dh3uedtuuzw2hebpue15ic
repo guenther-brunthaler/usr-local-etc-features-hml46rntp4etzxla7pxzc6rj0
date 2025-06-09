@@ -1,0 +1,6 @@
+#! /bin/false
+# v2025.138
+
+SHELL=/bin/ash
+
+export SHELL

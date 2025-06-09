@@ -1,12 +1,18 @@
 #! /bin/sh
 # Invoked by "/etc/apt/apt.conf.d/55mount_boot".
+#
+# v2025.155
+
 set -e
 state_file=/var/run/${0##*/}.state
-target=/boot
+target=/boot/firmware
+target_fallback=/boot
 
 remount_rw() {
 	mount -o remount,rw,noatime -- "$1"
 }
+
+test -d "$target" || target=$target_fallback
 
 case $1 in
 	make-writable)

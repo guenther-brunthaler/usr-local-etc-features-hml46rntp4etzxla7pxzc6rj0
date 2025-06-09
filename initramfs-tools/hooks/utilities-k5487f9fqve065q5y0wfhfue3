@@ -1,4 +1,5 @@
 #! /bin/sh
+
 # Non-recursively process all properly named list files and file drop tree
 # directories in $list_dir.
 #
@@ -7,13 +8,14 @@
 # ignored in the list files. The script will then locate those files and copy
 # them to suitable locations within the initramfs. If an entry is prefixed
 # with "? ", then it will not be an error if that executable cannot be found.
-# If an entry is prefixed with "= ", then it will be put exactly at the
-# corresponding location in the initramfs, bypassing automatic target
-# directory mapping. If an entry is prefixed with "M ", then it must be a
-# kernel driver name, and its associated kernel module (unless already built
-# into the kernel) as well as all its dependency modules will be included
-# within initramfs. (Prefix characters "=" or "M" may be combined with "?" in
-# arbitrary order.)
+# If an entry is prefixed with "~ ", then it will only be copied unless a
+# destination file of the same name already exists. If an entry is prefixed
+# with "= ", then it will be put exactly at the corresponding location in the
+# initramfs, bypassing automatic target directory mapping. If an entry is
+# prefixed with "M ", then it must be a kernel driver name, and its associated
+# kernel module (unless already built into the kernel) as well as all its
+# dependency modules will be included within initramfs. (Prefix characters "="
+# or "M" may be combined with "?" in arbitrary order.)
 #
 # Every file drop tree directory contains a directory tree of related files
 # which shall be placed into the initramfs filesystem root directory, using
@@ -28,9 +30,8 @@
 # directories with actual files in $list_dir, and *this* hook ensures the
 # files will get copied to initramfs properly.
 #
-# Version 2022.84
-#
-# Copyright (c) 2018-2022 Guenther Brunthaler. All rights reserved.
+# Version 2025.159
+# Copyright (c) 2018-2025 Guenther Brunthaler. All rights reserved.
 #
 # This script is free software.
 # Distribution is permitted under the terms of the GPLv3.
@@ -64,9 +65,11 @@ test "$DESTDIR"
 test "$list_dir"
 
 # Put file $1 into directory with absolute path $2 (which will be interpreted
-# relative to $DESTDIR, though). If $1 happens to be an executeble, any
-# pre-existing executables (such as Busybox replacements) of the same name
-# will be removed first.
+# relative to $DESTDIR, though). If $1 happens to be an executable, any
+# pre-existing executables (such as Busybox replacements) of the same name in
+# well-known directories such as /bin will be removed first. The same will
+# happen if the target file already exists, no matter in which directory. This
+# ensures that pre-existing hardlinks and symlinks will be broken alike.
 destputfile() {
 	scope
 		var ddir
@@ -81,17 +84,23 @@ destputfile() {
 				do
 					bpth=$ddir$bpth/$bn
 					test ! -e "$bpth" && continue
+					if test "$fallback"
+					then
+						unwind; return
+					fi
 					rm -- "$bpth"
 				done
+				rm -f -- "$ddir$2/${1##*/}"
 				copy_exec "$1" "$2"
 				unwind; return
 		esac
+		rm -f -- "$ddir$2/${1##*/}"
 		cp -p -- "$1" "$ddir$2"
 	unwind
 }
 
 # Recursively copy existing directory tree $1 to absolute path $2 (which will
-# be interpreted relative to $DESTDIR, though). $3 must also already exist.
+# be interpreted relative to $DESTDIR, though). $2 must also already exist.
 copy_directory() {
 	scope
 	var fso rp o
@@ -107,7 +116,8 @@ copy_directory() {
 				&& test ! -f "$fso" && test ! -d "$fso"
 			}
 		then
-			scp -P -- "$rp" "${DESTDIR%%/}${2##/}"/
+			# Symlink, FIFO or other special file.
+			cp -P -- "$rp" "${DESTDIR%%/}/${2##/}"/
 		elif test -d "$fso"
 		then
 			o=${DESTDIR%%/}${2%%/}/$rp
@@ -138,16 +148,18 @@ mam() {
 	esac
 }
 
+# Process drop-file list line in variable $utility.
 process_utility_item() {
 	scope
-	var optional exact module f
-	optional= exact= module=
+	var optional exact module fallback f
+	optional= exact= module= fallback=
 	while :
 	do
 		case $utility in
 			"#"* | "") return;;
 			"? "*) utility=${utility#"? "}; optional=Y;;
 			"= "*) utility=${utility#"= "}; exact=Y;;
+			"~ "*) utility=${utility#"~ "}; fallback=Y;;
 			"M "*) utility=${utility#"M "}; module=Y;;
 			/*)
 				test -e "$utility" && break
@@ -177,9 +189,11 @@ process_utility_item() {
 	then
 		d=${d%/*}
 	else
+		# Automatic target directory mapping.
 		var k o
 		case $d in
 			/usr/local/*/*) d=/usr/${d#/usr/local/}; k=4;;
+			/usr/games/*) d=/usr/bin/${d#/usr/games/}; k=4;;
 			/usr/*/*) k=4;;
 			/bin/* | /sbin/*) k=3;;
 			*) d=/usr/; k=3
