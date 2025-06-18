@@ -1,5 +1,5 @@
 #! /bin/sh
-# Version 2020.56
+# Version 2025.89
 tagfile_no_bootloader=/boot/bootcode.bin
 
 text() {
@@ -149,8 +149,8 @@ do
 			"Alternative Aktionen" \
 		&& rc=$? || rc=$?
 	case $rc in
-		101) text p$mod | xmessage -file - "$@";;
-		102) text r | xmessage -file - "$@";;
+		101) shutdown -hP now && break;;
+		102) shutdown -r && break;;
 		*) false || exit
 	esac
 done

@@ -1,0 +1,14 @@
+#
+# CLEX configuration file
+#
+CMD_LINES=4
+LAYOUT2=$d $R $t $l $*|$p $l $o
+LAYOUT_ACTIVE=2
+KILOBYTE=1
+CMD_F3=more -- $f
+CMD_F4=vi -- $f
+CMD_F5=cp -ir -- $f $2
+CMD_F6=mv -i -- $f $2
+CMD_F7=mkdir -- 
+CMD_F8=rm -- $f
+CMD_F9=lpr -- $f

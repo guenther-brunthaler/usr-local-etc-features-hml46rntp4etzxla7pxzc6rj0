@@ -76,3 +76,6 @@
 # :0 local /usr/bin/X :0 vt9 -depth 15 -nolisten tcp
 # :1 local /usr/bin/X :1 vt10 -depth 8 -nolisten tcp
 :0 local /usr/bin/X :0 vt7 -nolisten tcp -logverbose 0
+# If your Xorg.0.log gets flooded by "modeset(0): Printing DDC gathered
+# Modelines" messages into the gigabyte range, the above "-logverbose 0" will
+# get rid of the flooding.
