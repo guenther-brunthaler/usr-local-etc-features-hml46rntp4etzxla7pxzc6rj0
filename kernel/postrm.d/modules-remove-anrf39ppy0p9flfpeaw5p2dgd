@@ -1,12 +1,16 @@
 #! /bin/sh
-# Version 2021.316
-#
-# Copyright (c) 2021 Guenther Brunthaler. All rights reserved.
+
+# Version 2025.171
+# Copyright (c) 2021-2025 Guenther Brunthaler. All rights reserved.
 #
 # This script is free software.
 # Distribution is permitted under the terms of the GPLv3.
 
 KERNEL_VERSION=${1:?kernel version}
+target=/boot/firmware
+target_fallback=/boot
+
+test -d "$target" || target=$target_fallback
 
 retry() {
 	tries=5
@@ -20,7 +24,7 @@ retry() {
 set -e
 cleanup() {
 	rc=$?
-	test "$RMTRO" && retry mount -o remount,ro /boot
+	test "$RMTRO" && retry mount -o remount,ro "$target"
 	test $rc = 0 || echo "\"$0\" failed!" >& 2
 }
 RMTRO=
@@ -29,13 +33,13 @@ trap 'exit $?' INT HUP TERM QUIT
 
 a=xz
 tarext=t$a
-MODARCH=/boot/modules-$KERNEL_VERSION.$tarext
+MODARCH=$target/modules-$KERNEL_VERSION.$tarext
 
 test ! -e "$MODARCH" && exit
 
-if test ! -w /boot
+if test ! -w "$target"
 then
-	mount -o remount,rw /boot
+	mount -o remount,rw "$target"
 	RMTRO=yes
 fi
 

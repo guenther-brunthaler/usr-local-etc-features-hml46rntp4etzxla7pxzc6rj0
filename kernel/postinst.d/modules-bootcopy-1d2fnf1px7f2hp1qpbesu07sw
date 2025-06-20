@@ -1,15 +1,19 @@
 #! /bin/sh
-# Version 2022.3
-#
-# Copyright (c) 2021-2022 Guenther Brunthaler. All rights reserved.
+
+# Version 2025.171
+# Copyright (c) 2021-2025 Guenther Brunthaler. All rights reserved.
 #
 # This script is free software.
 # Distribution is permitted under the terms of the GPLv3.
 
 KERNEL_VERSION=${1:?kernel version}
+target=/boot/firmware
+target_fallback=/boot
 bb=busybox-pbyqxzl1ktqlk3fjm3arlrclg # Optional.
 bb_fallback=busybox # Optional.
 pp=pipe_progress # Optional.
+
+test -d "$target" || target=$target_fallback
 
 retry() {
 	tries=5
@@ -24,7 +28,7 @@ set -e
 cleanup() {
 	rc=$?
 	test "$OUTFILE" && rm -- "$OUTFILE"
-	test "$RMTRO" && retry mount -o remount,ro /boot
+	test "$RMTRO" && retry mount -o remount,ro "$target"
 	test "$TD" && rm -r -- "$TD"
 	test $rc = 0 || echo "\"$0\" failed!" >& 2
 }
@@ -60,12 +64,12 @@ arc=xz
 tarext=t$arc
 have "$arc"
 
-if test ! -w /boot
+if test ! -w $target
 then
-	mount -o remount,rw /boot
+	mount -o remount,rw $target
 	RMTRO=yes
 fi
-OUTFILE=/boot/modules-$KERNEL_VERSION.$tarext
+OUTFILE=$target/modules-$KERNEL_VERSION.$tarext
 
 a=Creating
 test -e "$OUTFILE" && a=Refreshing

@@ -9,8 +9,9 @@
 /dev/mapper/HOSTNAME-level0-dec			/					nilfs2		defaults,noatime 0 1
 
 # Order group 2.
-/dev/mmcblk0p1					/boot					vfat		defaults,noatime,ro,umask=117,dmask=007,uid=root,gid=disk 0 2
 UUID=55555555-5555-5555-5555-555555555555	/boot					ext4		defaults,ro,noatime,errors=remount-ro 0 2
+PARTUUID=55555555-01				/boot/firmware				vfat		defaults,noatime,ro,fmask=7 0 2
+/dev/mmcblk0p1					/boot					vfat		defaults,noatime,ro,umask=117,dmask=007,uid=root,gid=disk 0 2
 /dev/vg_myhost/home				/home					ext4		defaults,errors=remount-ro 0 2
 /dev/vg_myhost/usr				/usr					ext4		defaults,noatime,errors=remount-ro 0 2
 /dev/vg_myhost/var				/var					ext4		relatime,errors=remount-ro 0 2
