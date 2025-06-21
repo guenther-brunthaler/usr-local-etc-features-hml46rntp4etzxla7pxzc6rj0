@@ -1,0 +1,3 @@
+deb [ arch=i386 ] http://deb.debian.org/debian bookworm main contrib non-free non-free-firmware
+deb [ arch=i386 ] http://deb.debian.org/debian bookworm-updates main contrib non-free non-free-firmware
+deb [ arch=i386 ] http://security.debian.org bookworm-security main contrib non-free non-free-firmware
