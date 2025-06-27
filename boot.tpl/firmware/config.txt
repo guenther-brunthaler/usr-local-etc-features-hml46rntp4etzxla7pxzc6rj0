@@ -1,5 +1,5 @@
 # Raspberry Pi boot configuration file
-# v2023.143.1
+# v2025.178
 #
 # For more options and information see
 # http://rpf.io/configtxt
@@ -59,112 +59,52 @@ dtparam=spi=off
 # Enable audio (loads snd_bcm2835)
 dtparam=audio=on
 
-[pi1]
-# Model A, Model B, Compute Module
-enable_uart=1
-
-#gpu_mem=16
-#max_framebuffers=0
-
-#gpu_mem=32
-
-gpu_mem=74
-
-# Important: This value will be updated by initramfs generation scripts.
-initramfs initrd.img-6.1.21+ followkernel
-
-[pi2]
-# Model 2B (BCM2836- or BCM2837-based)
-enable_uart=1
-
-#gpu_mem=16
-#max_framebuffers=0
-
-#gpu_mem=32
-
-gpu_mem=74
-
-# Important: This value will be updated by initramfs generation scripts.
-###initramfs initrd.img-6.1.21-v7+ followkernel
-
-[pi3]
-# Model 3B, Model 3B+, Model 3A+, Compute Module 3
-enable_uart=0
-
-gpu_mem=16
-max_framebuffers=0
-
-#gpu_mem=32
-
-#gpu_mem=74
-
-# Important: This value will be updated by initramfs generation scripts.
-initramfs initrd.img-6.1.21-v7+ followkernel
-
-[pi3+]
-# Model 3A+, Model 3B+
-enable_uart=0
-
-#gpu_mem=16
-#max_framebuffers=0
-
-#gpu_mem=32
-
-gpu_mem=74
-
-# Important: This value will be updated by initramfs generation scripts.
-initramfs initrd.img-6.1.21-v7l+ followkernel
-
-[pi4]
-# Model 4B
-enable_uart=0
-
-#max_framebuffers=0
-#gpu_mem=16
-
-#gpu_mem=32
-
-#gpu_mem=74
-
-gpu_mem=128
-max_framebuffers=2
-
-# Enable DRM VC4 V3D driver on top of the dispmanx display stack
-dtoverlay=vc4-fkms-v3d
-
-# Important: This value will be updated by initramfs generation scripts.
-initramfs initrd.img-6.1.21-v7l+ followkernel
-
-# fbturbo does not work with 32 bit userland and 64 bit kernel
-arm_64bit=0
-
 [pi0]
-# Zero, Zero W, Zero WH
+# Model Zero, Zero W
 enable_uart=1
-
-#gpu_mem=16
-#max_framebuffers=0
-
-#gpu_mem=32
-
 gpu_mem=74
-
-# Important: This value will be updated by initramfs generation scripts.
-initramfs initrd.img-6.1.21+ followkernel
+initramfs initramfs followkernel
 
 [pi0w]
 # Zero W, Zero WH
 enable_uart=1
-
-#gpu_mem=16
-#max_framebuffers=0
-
-#gpu_mem=32
-
 gpu_mem=74
+initramfs initramfs followkernel
 
-# Important: This value will be updated by initramfs generation scripts.
-initramfs initrd.img-6.1.21+ followkernel
+[pi1]
+# Model A, Model B, Compute Module
+enable_uart=1
+gpu_mem=74
+initramfs initramfs followkernel
+
+[pi2]
+# Model 2B (BCM2836- or BCM2837-based)
+enable_uart=1
+gpu_mem=74
+initramfs initramfs7 followkernel
+
+[pi3]
+# Model 3B, Model 3B+, Model 3A+, Compute Module 3
+enable_uart=0
+max_framebuffers=0
+gpu_mem=74
+initramfs initramfs7 followkernel
+
+[pi3+]
+# Model 3A+, Model 3B+
+enable_uart=0
+gpu_mem=74
+initramfs initramfs7l followkernel
+
+[pi4]
+# Model 4B
+arm_64bit=0
+enable_uart=0
+dtoverlay=vc4-kms-v3d-pi4,cma-256
+# Support only a single monitor device at the same time.
+max_framebuffers=1
+gpu_mem=128
+initramfs initramfs7l followkernel
 
 [all]
 # Set this to 1 in order to enable the Mini-UART. This will allow the first
@@ -211,6 +151,15 @@ initramfs initrd.img-6.1.21+ followkernel
 # This is the recommended configuration, at least up to the RPi3. It gives
 # video screen, H.264 hardware decoding, and at least basic OpenGL ES 3D stuff.
 #gpu_mem=74
+
+# Use DRM VC4 without the new OpenGL driver (just OpenGL ES then).
+#dtoverlay=vc4-fkms-v3d
+
+# Enable DRM VC4 V3D driver on top of the dispmanx display stack.
+# This also specified the GPU memory.
+# 256 MiB are enough for 1080p H.264/H.265 decoding. 
+#dtoverlay=vc4-kms-v3d-pi4,cma-512
+#dtoverlay=vc4-kms-v3d-pi4,cma-256
 
 # Run emergency shell from /boot using local screen and USB keyboard.
 # Does not need an initrd which should be commented out.
