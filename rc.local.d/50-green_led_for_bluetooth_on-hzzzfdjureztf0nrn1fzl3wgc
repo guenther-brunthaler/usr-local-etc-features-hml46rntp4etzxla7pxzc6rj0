@@ -1,0 +1,14 @@
+#! /bin/sh
+
+# Let the green ACT LED of the RPi4 only light up if there is Bluetooth
+# currently enabled (via rfkill).
+#
+# v2025.182
+set -e
+
+case `grep ^Model /proc/cpuinfo` in
+	*'Raspberry Pi 4'*) ;;
+	*) exit
+esac
+
+echo rfkill0 > /sys/class/leds/ACT/trigger
