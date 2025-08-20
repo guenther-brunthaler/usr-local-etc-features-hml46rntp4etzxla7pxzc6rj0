@@ -1,11 +1,19 @@
 #! /bin/sh
-# Version 2020.43
-# Copyright (c) 2018-2020 Guenther Brunthaler. All rights reserved.
+
+# Version 2025.227
+# Copyright (c) 2018-2025 Guenther Brunthaler. All rights reserved.
 #
 # This script is free software.
 # Distribution is permitted under the terms of the GPLv3.
 
-ti_src=/lib/terminfo
+#{{terminfo-4ayq79y9zk95hdtevtfjcqphr
+for ti in /usr/share/terminfo /lib/terminfo
+do
+	test -d $ti && break
+done
+test -d $ti
+#terminfo-4ayq79y9zk95hdtevtfjcqphr}}
+ti_src=$ti
 ti_dst=/etc/terminfo
 tinfos='linux screen xterm'
 

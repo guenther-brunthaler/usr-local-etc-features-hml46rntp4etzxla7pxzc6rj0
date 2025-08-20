@@ -1,4 +1,6 @@
 #! /bin/sh
+
+# v2025.232
 set -e
 
 case $1 in
@@ -26,4 +28,11 @@ copy_exec /usr/bin/find /bin/gfind
 copy_exec /usr/bin/tput /bin/
 ln -sn ../lib/cryptsetup/askpass "$DESTDIR"/bin/
 mkdir -p "$DESTDIR"/etc/terminfo/l
-cp /lib/terminfo/l/linux "$DESTDIR"/etc/terminfo/l/
+#{{terminfo-4ayq79y9zk95hdtevtfjcqphr
+for ti in /usr/share/terminfo /lib/terminfo
+do
+	test -d $ti && break
+done
+test -d $ti
+#terminfo-4ayq79y9zk95hdtevtfjcqphr}}
+cp $ti/l/linux "$DESTDIR"/etc/terminfo/l/

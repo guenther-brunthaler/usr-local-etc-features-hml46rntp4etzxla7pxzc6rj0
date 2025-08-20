@@ -1,4 +1,4 @@
-# v2023.142
+# v2025.232
 # "defaults" = "rw,suid,dev,exec,auto,nouser,async"
 # Do not use "noauto", "noacl", "nouser_xattr": Not supported in initramfs.
 
@@ -12,6 +12,8 @@
 UUID=55555555-5555-5555-5555-555555555555	/boot					ext4		defaults,ro,noatime,errors=remount-ro 0 2
 PARTUUID=55555555-01				/boot/firmware				vfat		defaults,noatime,ro,fmask=7 0 2
 /dev/mmcblk0p1					/boot					vfat		defaults,noatime,ro,umask=117,dmask=007,uid=root,gid=disk 0 2
+tmpfs						/tmp					tmpfs		auto,mode=1777,nosuid,nodev,relatime,size=30% 0 2
+media_mnt					/media					tmpfs		auto,relatime,size=128k,mode=755 0 2
 /dev/vg_myhost/home				/home					ext4		defaults,errors=remount-ro 0 2
 /dev/vg_myhost/usr				/usr					ext4		defaults,noatime,errors=remount-ro 0 2
 /dev/vg_myhost/var				/var					ext4		relatime,errors=remount-ro 0 2
