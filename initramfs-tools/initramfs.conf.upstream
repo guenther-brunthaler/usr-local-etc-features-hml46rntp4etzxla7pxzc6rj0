@@ -74,11 +74,11 @@ NFSROOT=auto
 #
 # RUNSIZE: ...
 #
-# The size of the /run tmpfs mount point, like 256M or 10%
+# The size of the /run tmpfs mount point, like 256M or 20%
 # Overridden by optional initramfs.runsize= bootarg
 #
 
-RUNSIZE=10%
+RUNSIZE=20%
 
 #
 # FSTYPE: ...
