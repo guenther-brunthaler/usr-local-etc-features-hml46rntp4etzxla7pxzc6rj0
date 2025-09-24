@@ -1,4 +1,4 @@
-# v2025.115
+# v2025.266
 
 # $ apt-get install hwdata
 = /usr/share/hwdata/pnp.ids
@@ -7,4 +7,4 @@
 = /usr/share/misc/pci.ids
 
 # $ apt-get install usb.ids
-= /var/lib/usbutils/usb.ids
+= /usr/share/misc/usb.ids

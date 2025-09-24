@@ -1,0 +1,11 @@
+# v2025.266
+#
+# This file is used only by "pam.env.so". It may only contain "Key=Value"
+# assignments with *no* whitespace around the "=", as well as "#" comments and
+# empty lines. This file is *not* processed by the shell! Therefore no shell
+# substititions or backslash-escapes are supported either.
+
+# Sync the following assignment with
+# /etc/profile.d/apt_ignore_files-lzfuie9tjzt6kqjh15zi2gke7.sh
+# where the same variable will be set.
+APT_CONFIG=/etc/apt/apt.conf.d/50ignore_upstream-hdq2kzpvyehnsea0gtcr6vflu
