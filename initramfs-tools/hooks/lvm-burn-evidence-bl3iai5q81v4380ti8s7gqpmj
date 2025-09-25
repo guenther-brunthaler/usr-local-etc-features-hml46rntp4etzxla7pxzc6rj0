@@ -1,0 +1,29 @@
+#! /bin/sh
+
+# The lvm initramfs hook is crazy and copies all LVM VG backups and archives
+# into the initramfs image! While this might not be a problem for unencrypted
+# systems, it reveals the details of all encrypted VGs!
+#
+# This script therefore deletes both VG backups and archives from initramfs.
+#
+# Version 2025.252
+# Copyright (c) 2025 Guenther Brunthaler. All rights reserved.
+#
+# This script is free software.
+# Distribution is permitted under the terms of the GPLv3.
+
+PREREQ="lvm2"
+initramfs_burn='/etc/lvm/archive /etc/lvm/backup /etc/lvm/lvm.conf.upstream'
+
+set -e
+
+case $1 in
+	prereqs) echo "${PREREQ}"; exit
+esac
+
+test -d "$DESTDIR"
+
+for dir in $initramfs_burn
+do
+	find "$DESTDIR$dir" -type f -exec rm -- {} +
+done

@@ -1,6 +1,6 @@
 #! /bin/sh
 
-# v2025.232
+# v2025.252
 set -e
 
 case $1 in
@@ -27,12 +27,24 @@ EOF
 copy_exec /usr/bin/find /bin/gfind
 copy_exec /usr/bin/tput /bin/
 ln -sn ../lib/cryptsetup/askpass "$DESTDIR"/bin/
-mkdir -p "$DESTDIR"/etc/terminfo/l
+unset tinfos
 #{{terminfo-4ayq79y9zk95hdtevtfjcqphr
-for ti in /usr/share/terminfo /lib/terminfo
+# v2025.252
+: {tinfos:=linux}
+tidst=${DESTDIR}/etc/terminfo
+for ti in $tinfos
 do
-	test -d $ti && break
+	tidir=${ti#?} && tidir=${ti%$tidir} || exit
+	for tibase in /usr/share/terminfo /lib/terminfo
+	do
+		tifile=$tibase/$tidir/$ti
+		test -f "$tifile" && break
+	done
+	if test ! -d "$tidst/$tidir"
+	then
+		mkdir -p -- "$tidst/$tidir" || exit
+	fi
+	cp -- "$tifile" "$tidst/$tidir"/ || exit
 done
-test -d $ti
+unset tinfos tidst ti tifile tidir tibase
 #terminfo-4ayq79y9zk95hdtevtfjcqphr}}
-cp $ti/l/linux "$DESTDIR"/etc/terminfo/l/

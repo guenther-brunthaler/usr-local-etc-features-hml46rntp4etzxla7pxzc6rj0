@@ -1,32 +1,37 @@
 #! /bin/sh
 
-# Version 2025.227
+# Version 2025.252
 # Copyright (c) 2018-2025 Guenther Brunthaler. All rights reserved.
 #
 # This script is free software.
 # Distribution is permitted under the terms of the GPLv3.
-
-#{{terminfo-4ayq79y9zk95hdtevtfjcqphr
-for ti in /usr/share/terminfo /lib/terminfo
-do
-	test -d $ti && break
-done
-test -d $ti
-#terminfo-4ayq79y9zk95hdtevtfjcqphr}}
-ti_src=$ti
-ti_dst=/etc/terminfo
-tinfos='linux screen xterm'
 
 set -e
 
 case $1 in
 	prereqs) echo; exit
 esac
+
 test "$verbose" != n && echo "Installing terminfo entries: $tinfos" >& 2
+
+tinfos='linux screen xterm'
+#{{terminfo-4ayq79y9zk95hdtevtfjcqphr
+# v2025.252
+: {tinfos:=linux}
+tidst=${DESTDIR}/etc/terminfo
 for ti in $tinfos
 do
-	dir=${ti#?}; dir=${ti%"$dir"}
-	dest=$DESTDIR$ti_dst/$dir
-	mkdir -p -- "$dest"
-	cp -Pp -- "$ti_src/$dir/$ti" "$dest"/
+	tidir=${ti#?} && tidir=${ti%$tidir} || exit
+	for tibase in /usr/share/terminfo /lib/terminfo
+	do
+		tifile=$tibase/$tidir/$ti
+		test -f "$tifile" && break
+	done
+	if test ! -d "$tidst/$tidir"
+	then
+		mkdir -p -- "$tidst/$tidir" || exit
+	fi
+	cp -- "$tifile" "$tidst/$tidir"/ || exit
 done
+unset tinfos tidst ti tifile tidir tibase
+#terminfo-4ayq79y9zk95hdtevtfjcqphr}}

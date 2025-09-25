@@ -1,4 +1,6 @@
 #! /bin/sh
+
+# v2025.252
 where=/root
 tagfile=bin/true
 
@@ -7,7 +9,12 @@ while test ! -e "$where/$tagfile"
 do
 	echo
 	echo "Please be so good and read-only mount the REAL filesystem"
-	echo "root on $where! Then enter 'exit' to continue."
+	echo "root on $where!"
+	echo
+	echo "If '/usr' happens to be a filesystem separate from '/',"
+	echo "then please read-only mount '/usr' as well."
+	echo
+	echo "Then enter 'exit' to continue booting."
 	ash
 	sleep 1
 done
