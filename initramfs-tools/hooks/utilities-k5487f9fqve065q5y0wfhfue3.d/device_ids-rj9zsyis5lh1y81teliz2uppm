@@ -1,10 +1,10 @@
-# v2025.266
+# v2025.270
 
 # $ apt-get install hwdata
 = /usr/share/hwdata/pnp.ids
+= /usr/share/hwdata/pci.ids
+= /usr/share/hwdata/usb.ids
 
-# $ apt-get install pci.ids
-= /usr/share/misc/pci.ids
-
-# $ apt-get install usb.ids
-= /usr/share/misc/usb.ids
+# There are also the packages "pci.ids" and "usb.ids". However, it turned out
+# that each of those packages just installs an exact copy of one of the files
+# listed above into a different location.

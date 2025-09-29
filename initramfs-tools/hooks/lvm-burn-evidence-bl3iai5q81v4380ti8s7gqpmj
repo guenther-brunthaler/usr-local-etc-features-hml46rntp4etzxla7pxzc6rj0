@@ -6,7 +6,7 @@
 #
 # This script therefore deletes both VG backups and archives from initramfs.
 #
-# Version 2025.252
+# Version 2025.270
 # Copyright (c) 2025 Guenther Brunthaler. All rights reserved.
 #
 # This script is free software.
@@ -25,5 +25,7 @@ test -d "$DESTDIR"
 
 for dir in $initramfs_burn
 do
-	find "$DESTDIR$dir" -type f -exec rm -- {} +
+	dir=$DESTDIR$dir
+	test ! -e "$dir" && continue
+	find "$dir" -type f -exec rm -- {} +
 done
