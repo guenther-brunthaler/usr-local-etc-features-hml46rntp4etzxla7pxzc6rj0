@@ -3,7 +3,7 @@
 # Let the red PWR LED of the RPi4 only light up if there is Wi-Fi or currently
 # enabled (via rfkill).
 #
-# v2025.182
+# v2025.308
 set -e
 
 case `grep ^Model /proc/cpuinfo` in
@@ -11,4 +11,4 @@ case `grep ^Model /proc/cpuinfo` in
 	*) exit
 esac
 
-echo rfkill1 > /sys/class/leds/PWR/trigger
+echo rfkill2 > /sys/class/leds/PWR/trigger
