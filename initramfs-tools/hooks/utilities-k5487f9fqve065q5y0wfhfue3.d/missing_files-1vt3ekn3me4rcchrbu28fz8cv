@@ -1,2 +1,6 @@
 # Some files missed by third-party scripts.
+#
+# v2025.324
+
+logsave
 mountpoint

@@ -1,21 +1,33 @@
 #! /bin/sh
 
-# v2025.252
-where=/root
+# v2025.323
+mountpoint=/root
 tagfile=bin/true
 
 set -e
-while test ! -e "$where/$tagfile"
+is_writable() {
+		if touch -- "$mountpoint"/isRW 2> /dev/null
+		then
+			rm -- "$mountpoint"/isRW
+		else
+			: && false
+		fi
+}
+
+while
+	test ! -d "$mountpoint" \
+	|| test ! -e "$mountpoint/$tagfile" \
+	|| is_writable "$mountpoint"
 do
 	echo
 	echo "Please be so good and read-only mount the REAL filesystem"
-	echo "root on $where!"
+	echo "root on $mountpoint!"
 	echo
 	echo "If '/usr' happens to be a filesystem separate from '/',"
 	echo "then please read-only mount '/usr' as well."
 	echo
 	echo "Then enter 'exit' to continue booting."
-	ash
+	ash || :
 	sleep 1
 done
 echo
