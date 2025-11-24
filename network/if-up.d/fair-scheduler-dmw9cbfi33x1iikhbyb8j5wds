@@ -1,0 +1,25 @@
+#! /bin/sh
+
+# Apply traffic shaping to the network interface by attaching a "queueing
+# discipline" to it which tries to distribute the available bandwidth evenly
+# among all processes which access the network.
+#
+# $ tc qdisc show
+#
+# will display the currently applied queueing disciplines for traffic shaping.
+#
+# Note that only outbound traffic can be shaped diretly, because the local
+# computer has no way to control what remote systems send to it. However, TCP
+# connections also have an outbound channel which can be shaped, and this
+# usually also indirectly effects the incoming channel. Therefore, traffic
+# shaping will also have some effect on incoming connection, although it might
+# not be as effective as for outgoing connections.
+#
+# v2025.326
+
+set -e
+
+if test "${PHASE:?}" = post-up && command -v rc > /dev/null 2>& 1
+then
+	tc qdisc add dev "${IFACE:?}" root fq
+fi
