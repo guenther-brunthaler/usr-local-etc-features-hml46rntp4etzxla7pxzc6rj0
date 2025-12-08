@@ -15,11 +15,13 @@
 # shaping will also have some effect on incoming connection, although it might
 # not be as effective as for outgoing connections.
 #
-# v2025.328
+# v2025.342
 
 set -e
-
-if test "${PHASE:?}" = post-up && command -v tc > /dev/null 2>& 1
+if
+	test "${PHASE:?}" = post-up \
+	&& test "${IFACE:?}" != 'lo' \
+	&& command -v tc > /dev/null 2>& 1
 then
 	tc qdisc add dev "${IFACE:?}" root fq
 fi
