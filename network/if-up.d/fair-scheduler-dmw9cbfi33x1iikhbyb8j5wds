@@ -8,6 +8,12 @@
 #
 # will display the currently applied queueing disciplines for traffic shaping.
 #
+# Copy this script into the "/etc/network/if-up.d" directory and also create a
+# relative symlink to it in the "/etc/network/if-down.d" directory. (Actually,
+# the script would better be suited for the "if-post-up.d" and "if-pre-down.d"
+# directories. But at least under Debian, those do not exist, and the
+# beforementioned directories are used for the same purposes.)
+#
 # Note that only outbound traffic can be shaped diretly, because the local
 # computer has no way to control what remote systems send to it. However, TCP
 # connections also have an outbound channel which can be shaped, and this
@@ -15,13 +21,13 @@
 # shaping will also have some effect on incoming connection, although it might
 # not be as effective as for outgoing connections.
 #
-# v2025.342
+# v2025.345
 
 set -e
-if
-	test "${PHASE:?}" = post-up \
-	&& test "${IFACE:?}" != 'lo' \
-	&& command -v tc > /dev/null 2>& 1
+if test "${IFACE:?}" != 'lo' && command -v tc > /dev/null 2>& 1
 then
-	tc qdisc add dev "${IFACE:?}" root fq
+	case ${PHASE:?} in
+		post-up) tc qdisc add dev "${IFACE:?}" root fq;;
+		pre-down) tc qdisc del dev "${IFACE:?}" root fq
+	esac
 fi
