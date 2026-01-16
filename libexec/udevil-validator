@@ -1,0 +1,98 @@
+#! /bin/sh
+
+# Permission validator for "udevil".
+#
+# Allows to restrict mounting internal devices to those with a matching line
+# in $allowed (see below). If that file contains a line with the internal
+# device's "uuid" and "size" (as displayed by "udevil info") separated by a
+# single ASCII space, then the validator will allow mounting such internal
+# devices.
+#
+# This validator is especially useful for mounting specific LUKS and dmcrypt
+# mappings, which appear as internal devices even if the underlying encrypted
+# block devices are in fact removable drives.
+#
+# The $allowed file may also contain empty lines and comments preceded by "#".
+# The entries do not need to be sorted in any special way, although it is
+# recommended to sort them lexicographically by the "uuid" and "size" fields.
+#
+# Note that this validator is just an additional restricting filter. In order
+# to be able to mount such internal devices, they must be allowed by the
+# general udevil configuration as well. In particular, the "allowed_devices"
+# and "allowed_internal_devices" settings must both match the block device in
+# question, and the "validate_exec" setting must contain the absolute path of
+# THIS script.
+#
+# Also note that internal block devices can only be unmounted via "udevil" by
+# specifying a path to the block device. Specifying the mount point path only
+# works for non-internal block devices.
+#
+# v2026.16.1
+allowed=/etc/udevil/allowed_internal_devices.conf
+
+case $3 in
+	"udevil mount "*) ;;
+	*) exit
+esac
+
+set -e -- $3; shift 2
+while getopts o: opt
+do
+	case $opt in
+		o)
+			case $OPTARG in
+				ro | read-only) ;;
+				noatime | atime | relatime) ;;
+				*) false || exit
+			esac
+			;;
+		*) false || exit
+	esac
+done
+shift `expr $OPTIND - 1 || :`
+test $# = 1
+
+case $1 in
+	/dev/*) ;;
+	*) false || exit
+esac
+test -b "$1"
+
+cleanup() {
+	rc=$?
+	test "$TF" && rm -- "$TF"
+	if test $rc != 0
+	then
+		$silent || echo "\"$0\" failed!" >& 2
+	fi
+}
+TF=
+silent=false
+trap cleanup 0
+trap 'exit $?' INT QUIT TERM PIPE HUP
+TF=`mktemp -- ${TMPDIR:-/tmp}/${0##*/}.XXXXXXXXXX`
+
+udevil info "$1" | sed '
+	s/^  \([^[:space:]][^:]\{1,\}\):[[:space:]]*/\1:/; t; d
+' > "$TF"
+
+ok=true size= uuid=
+while IFS=: read key value
+do
+	case $key in
+		'system internal') test "$value" = 0 && exit;;
+		size) size=$value;;
+		uuid) uuid=$value;;
+		device) test "${value#254:}" != "$value" || ok=false;;
+		usage) test "$value" = filesystem || ok=false;;
+	esac
+done < "$TF"
+
+if $ok
+then
+	test -r "$allowed" && grep -qFx -- "$uuid $size" "$allowed" \
+		|| ok=false
+fi
+
+silent=true
+$ok
