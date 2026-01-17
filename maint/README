@@ -1,6 +1,6 @@
 README
 ======
-v2023.185
+v2026.16
 
 File format: ASCII, lines up to 79 columns.
 
@@ -19,10 +19,10 @@ changes to /etc among different system installations.
 It is *not* supposed to be copied over entirely to a real /etc!
 
 It just contains scripts and example configuration files for helping with 
-synchronizing the available changes between the /etc/ and /etc/$TPL/ 
+synchronizing the available changes between the /etc/ and /etc/$tpl/ 
 directories.
 
-$TPL is a symlink with an arbitrary name (for instance, "tpl" or "etc.tpl" 
+$tpl is a symlink with an arbitrary name (for instance, "tpl" or "etc.tpl" 
 might be good candidates for suitable names) to where the repository 
 containing THIS file you are reading has been checked out. Alternatively, you 
 can also check the repository out there directly as a subdirectory rather than 
@@ -32,7 +32,7 @@ This might not be the best idea, however, because the etc-templates repository
 might be much larger than /etc itself and "/" might have only little space to 
 spare.
 
-Scripts contained in /etc/$TPL/maint are not meant to be part of the files 
+Scripts contained in /etc/$tpl/maint are not meant to be part of the files 
 copied to /etc, but rather contains scripts for helping the administrator 
 perform the synchronization.
 
@@ -40,23 +40,22 @@ perform the synchronization.
 File locations
 --------------
 
-Many of the scripts in the $TPL/maint-directory require configuration files. 
-The paths of those are normally assigned to variables at the beginning of the 
-script and can therefore be determined easily. However, most paths defined 
-there are relative and not absolute.
+In order to simplify further explanations, the actual location where /etc is 
+currently located will be referred to as $etc. Most of the time, $etc will 
+refer to the real /etc.
 
-Normally, those paths will be relative to the /etc directory.
+However, this is not always the case. If "/etc" or "/" has been mounted as a 
+different directory (for instance after booting a recovery system for 
+repairing the /etc directory of the real installation), then $etc will refer 
+to a different directory than /etc.
 
-However, this is not always the case. If "/etc" or "/" has been mounted onto a 
-different directory, then the configuration files will instead be relative to 
-the directory wherever /etc has been mounted/symlinked/renamed/relocated to.
+Many of the scripts in the "$etc/$tpl/maint"-directory require configuration 
+files. The paths of those are normally assigned to variables at the beginning 
+of the script and can therefore be determined easily. However, most paths 
+defined there are relative and not absolute.
 
-This is important when those scripts are used on a rescue system where the 
-filesystem root of the system to be repaired has been mounted elsewhere, such 
-as to /mnt/realsys as an example. In this case, the configuration files used 
-by the scripts will be relative to /mnt/realsys/etc (of the system to be 
-repaired) rather than to /etc (the rescue system itself which shall not be 
-touched by the scripts).
+Unless documented otherwise, those paths will always be relative to the $etc 
+directory.
 
 In order to determine the base directory for their own configuration files, 
 the scripts examine the absolute or relative path by which they have been 
@@ -67,7 +66,8 @@ $tpl/maint/$scriptname
 where $scriptname is the basename of the script being invoked.
 
 The script will infer the variable part $tpl from this path and use it as the 
-actual base directory for its configuration files.
+actual base directory for its configuration files. Also, $etc will be inferred 
+from $tpl.
 
 Note that $tpl may be an absolute or relative path depending on how the script 
 was invoked. But this should not matter because the configuration files will 
@@ -77,46 +77,35 @@ be found either way.
 Configuration files
 -------------------
 
-Many of the scripts in /etc/$TPL/maint/ require configuration files. Some of 
+Many of the scripts in $etc/$tpl/maint/ require configuration files. Some of 
 them are specific to a particular script, but many of them are used by 
 multiple scripts.
 
 This section of the document shall explain the names and purpose of the 
 various configuration files.
 
-In order to make things easier for the reader of this document, absolute 
-pathnames relative to /etc are specified for the configuration files.
+Note that $etc refers to /etc under normal circumstances, but may refer to a 
+different directory if the normal "/" or "/etc" have been temporarily mounted 
+elsewhere for access from within a repair system.
 
-However, those path names will only be actually used by the scripts if the 
-scripts have been invoked at /etc/$TPL/maint/$scriptname.
-
-If /etc has been moved to somewhere via mounting or symlinking such that the 
-script has been invoked as e.g. /mnt/recovery/etc/tpl/maint/$scriptname, then 
-/mnt/recovery/etc would be used instead of /etc as the base path to which the 
-paths of the configuration files are actually relative to.
-
-In other words, some configuration file specified as /etc/some.cfg in this 
-document would then be used with the pathname /mnt/recovery/etc/some.cfg by 
-the scripts instead. Keep the difference in mind!
-
-* /etc/site-6n580p79r0flmgyv0feaxchll/ignore_dirs.list
+* $etc/site-6n580p79r0flmgyv0feaxchll/ignore_dirs.list
 +
 --
 This file contains the pathnames of directories to be ignored by scripts which 
 try to integrate changes introduced into the prototype files in 
-/etc/$TPL to (possibly modified) local copies of the same files in /etc.
+$etc/$tpl to (possibly modified) local copies of the same files in $etc.
 
 This has basically the same purpose as 
-"/etc/site-6n580p79r0flmgyv0feaxchll/local_only.list" (see there for a more 
+"$etc/site-6n580p79r0flmgyv0feaxchll/local_only.list" (see there for a more 
 thorough explanation), except that whole directory trees can ignored that way 
 rather than adding every single file to the local_only.list file.
 --
 
-* /etc/site-6n580p79r0flmgyv0feaxchll/local_dpkg_diversions.txt
+* $etc/site-6n580p79r0flmgyv0feaxchll/local_dpkg_diversions.txt
 +
 --
 This file is maintained by the script 
-"/etc/tpl/cron.daily/check_diversions_sy5u6m0kxpjgs9017v4hzatck" which is 
+"$etc/tpl/cron.daily/check_diversions_sy5u6m0kxpjgs9017v4hzatck" which is 
 normally run as a cron job but can also be invoked directly.
 
 The file contains the current administrator-approved list of local file 
@@ -147,13 +136,13 @@ into its place. The script will verify that the original is still diverted
 somewhere else, but that the file put into its place also still exists.
 --
 
-* /etc/site-6n580p79r0flmgyv0feaxchll/local_only.list
+* $etc/site-6n580p79r0flmgyv0feaxchll/local_only.list
 +
 --
-This is a list of files which exist both in /etc and /etc/$TPL, but where the 
+This is a list of files which exist both in $etc and $etc/$tpl, but where the 
 local file has been created from scratch (or has been copied from elsewhere) 
 and bears no relation to the contents of the prototype file if the same name 
-in /etc/$TPL.
+in $etc/$tpl.
 
 The scipts will leave such files alone and basically ignore them. They will 
 not try to identify changes made to newer versions of the prototype files and 
@@ -168,7 +157,7 @@ should be added to the above configuration file. Then the administrator will
 no longer be othered by upgrade suggestions for those files.
 --
 
-* /etc/site-6n580p79r0flmgyv0feaxchll/secrets/*
+* $etc/site-6n580p79r0flmgyv0feaxchll/secrets/*
 +
 --
 This directory is supposed to contain secret, private or security sensitive 
@@ -189,42 +178,42 @@ matter where the files eventually exist (after resolving all symlinks and
 traversing all mount points).
 --
 
-* /etc/site-6n580p79r0flmgyv0feaxchll/syslog-exclusions-bre
+* $etc/site-6n580p79r0flmgyv0feaxchll/syslog-exclusions-bre
 +
 This file contains regular expressions which will trigger syslog entries to be 
 excluded from the permanent syslog file /var/log/syslogprefix written by the
-/etc/cron.daily/save_logs-4vzntsgfwksyilhv27klxte5l script. Each line of the 
+$etc/cron.daily/save_logs-4vzntsgfwksyilhv27klxte5l script. Each line of the 
 file is used as a basic regular expression (BRE) to search for in syslog 
 entries. Any syslog entry matching any such BRE will not be written 
 /var/log/syslogprefix. EREs are not supported because 'sed' will be used to 
 actually filter the syslog entries, and sed only supports BREs.
 
-* /etc/site-6n580p79r0flmgyv0feaxchll/syslog-exclusions-plain
+* $etc/site-6n580p79r0flmgyv0feaxchll/syslog-exclusions-plain
 +
 This file contains strings which will trigger syslog entries to be excluded 
 from the permanent syslog file /var/log/syslogprefix written by the
-/etc/cron.daily/save_logs-4vzntsgfwksyilhv27klxte5l script. Each line of the 
+$etc/cron.daily/save_logs-4vzntsgfwksyilhv27klxte5l script. Each line of the 
 file is used literally as a substring to search for in syslog entries, i.e. 
 not as a regular expression. Any syslog entry containing any such string will 
 not be written /var/log/syslogprefix.
 
-* /etc/site-6n580p79r0flmgyv0feaxchll/template_patches/*.patch
+* $etc/site-6n580p79r0flmgyv0feaxchll/template_patches/*.patch
 +
 --
 This directory contains patches which transform example prototype files from 
-etc/$TPL into the modified local copies of those files in the real /etc 
-directory. That is, it contains local modifications made to copies of $TPL 
+etc/$tpl into the modified local copies of those files in the real $etc 
+directory. That is, it contains local modifications made to copies of $tpl 
 files expressed as differences.
 
-This allows upgrading to newer versions of /etc/$TPL-provided files without 
-losing local changes made to the copies of those files in /etc.
+This allows upgrading to newer versions of $etc/$tpl-provided files without 
+losing local changes made to the copies of those files in $etc.
 
 The patch files in this directory have the same relative pathnames as the 
-actual files in /etc. For instance, the patch file corresponding to the local 
-file "/etc/dictd/dict.conf" would be stored as 
-"/etc/site-6n580p79r0flmgyv0feaxchll/template_patches/dictd/dict.conf". This 
+actual files in $etc. For instance, the patch file corresponding to the local 
+file "$etc/dictd/dict.conf" would be stored as 
+"$etc/site-6n580p79r0flmgyv0feaxchll/template_patches/dictd/dict.conf". This 
 file should contain the result of the command "LC_ALL=C TZ=UTC0 diff -u
-/etc/$TPL/dictd/dict.conf /etc/dictd/dict.conf" where $TPL is the subdirectory 
+$etc/$tpl/dictd/dict.conf $etc/dictd/dict.conf" where $tpl is the subdirectory 
 or symlink in etc which leads to the example prototype files.
 --
 
@@ -235,18 +224,22 @@ Short explanations what the various scripts do
 Look into the comments at the start of every script in order to get more 
 detailed usage instructions.
 
+* ./propagate-from-other-etc: Find differences between $file and 
+$file.upstream in the git checkout specified as the only argument, and
+apply them to the files in $etc.
+
 * ./suggest-simple-replacements.sh: Call this with a single argument which is 
 a script file to be created and redirect output to another file. The latter 
 file will be filled with unified diffs of all template files (including 
-upstream templates) and the files in /etc which are not identical. For every 
+upstream templates) and the files in $etc which are not identical. For every 
 such diff, a copy instruction will be added to the script file. The user shall 
 edit the script file and modify or remove the copy instructions or change them 
 into removal instructions, depending on the differences shown in the file with 
 the diffs. After this, the script can be executed in order to apply the 
 scheduled operations.
 
-* ./diffs.sh: Show changes between the real /etc and its template version. 
-Updates "/etc/site-6n580p79r0flmgyv0feaxchll/template_patches/*.patch". 
+* ./diffs.sh: Show changes between the real $etc and its template version. 
+Updates "$etc/site-6n580p79r0flmgyv0feaxchll/template_patches/*.patch". 
 Irrelevant changes should be identified and be added to local ignore lists, so 
 they won't show up again in future runs of this script. Look at the comments 
 at the beginning of this file to learn the location and names of the ignore 
@@ -256,14 +249,14 @@ lists.
 useful for system customization. Completely optional. Should not be needed at 
 all. (Otherwise it should be considered a bug.)
 
-* ./newlocals.sh: Display new files in the local /etc directory which be 
-candidates for copying over into the template directory for /etc. New files 
+* ./newlocals.sh: Display new files in the local $etc directory which be 
+candidates for copying over into the template directory for $etc. New files 
 which are not wanted there should be added to the local ignore lists, so they 
 won't show up again in future runs of this script.
 
 * ./suggest-appliable-patches.sh: Compares all files which are not locally 
-ignored and exist both in the template directory and the real /etc. Then emit 
-a single update patch which would update all non-ignored files in /etc in such 
+ignored and exist both in the template directory and the real $etc. Then emit 
+a single update patch which would update all non-ignored files in $etc in such 
 a way that they, after applying any locally defined patches, become identical 
 to the template versions.
 
@@ -271,7 +264,7 @@ to the template versions.
 properly. WIP.
 
 * ./upstreams.sh: Find any new unmodified upstream copies in the template 
-directory for files which do exist in the real /etc with different contents.
+directory for files which do exist in the real $etc with different contents.
 +
 -- 
 The script finds all *.upstream files present only in the template directory 
@@ -297,7 +290,7 @@ The -a option suggests actions - piping them into a shell will execute them.
 and will therefore not interfere with the suggested commands written to 
 standard output.
 
-The script displays pathnames of local files in /etc prefixed with the 
+The script displays pathnames of local files in $etc prefixed with the 
 following indicators:
 
 MISSING:: This is a local file which misses its *.upstream companion file 
@@ -307,35 +300,35 @@ containing the unmodified original distribution version of this file.
 The *.upstream file is necessary to calculate the local modifications to the 
 file.
  
-A copy of the *.upsteam file can always be found in the /etc/$TPL directory at 
+A copy of the *.upsteam file can always be found in the $etc/$tpl directory at 
 the same relative location (i.e. in the same subdirectory, if any). But this 
 is not necessary the same version which the local administrator took to modify 
-it. It is just the original version of the files in /etc/$TPL.
+it. It is just the original version of the files in $etc/$tpl.
 
-To be more precise, the *.upstream files in /etc allow to identify the changes 
-made locally, where the *.upstream files in /etc/$TPL allow to identify the 
-changes made by the example prototype files in /etc/$TPL.
+To be more precise, the *.upstream files in $etc allow to identify the changes 
+made locally, where the *.upstream files in $etc/$tpl allow to identify the 
+changes made by the example prototype files in $etc/$tpl.
 
 The means means that the "diff" utility can create patches represented by 
-either the local files or those in /etc/$TPL, and those patches can then be 
+either the local files or those in $etc/$tpl, and those patches can then be 
 applied or combined in various ways for different purposes by the scripts in 
-/etc/$TPL/maint.
+$etc/$tpl/maint.
 --
 
 OUTDATED:: There is a local *.upstream file present, but a different version of 
-the same file is present in /etc/$TPL. Therefore, one of the versions is 
+the same file is present in $etc/$tpl. Therefore, one of the versions is 
 obviously outdated.
 +
 --
-Determine the newer version (either the one in /etc or the one in /etc/$TPL) 
+Determine the newer version (either the one in $etc or the one in $etc/$tpl) 
 and replace the other version with it. It is also possible that neither 
 version is up to date. In this case, acquire the actual newest version and 
-replace both the /etc and the /etc/$TPL version by it.
+replace both the $etc and the $etc/$tpl version by it.
 
 But before actually doing that, create a patch of the differences of the old 
 versions of the *.upstream file against the newest one. Then apply this patch 
-to the modified versions (without the ".upstream"-suffix) in both /etc and
-/etc/$TPL.
+to the modified versions (without the ".upstream"-suffix) in both $etc and 
+$etc/$tpl.
 
 This will migrate the upstream changes into the modified versions.
 --
@@ -345,7 +338,7 @@ file (having the same name minus the ".upstream" stripped from the end of the
 name). Delete such local files in order to silence the indicator.
 
 After reviewing the files listed by the script and examining their indicators, 
-the files can then be copied over to the real /etc and both versions be put 
+the files can then be copied over to the real $etc and both versions be put 
 under version control.
 
 This allows to see which changes originated from upstream and which changes 
