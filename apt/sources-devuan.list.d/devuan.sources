@@ -1,0 +1,6 @@
+# Modernized from /etc/apt/sources.list
+Types: deb
+URIs: http://deb.devuan.org/merged/
+Suites: excalibur
+Components: main contrib non-free non-free-firmware 
+Signed-By: /usr/share/keyrings/devuan-archive-keyring.gpg

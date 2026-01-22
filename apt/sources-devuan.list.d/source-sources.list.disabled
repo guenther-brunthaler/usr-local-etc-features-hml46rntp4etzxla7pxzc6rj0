@@ -1,3 +1,0 @@
-deb-src https://pkgmaster.devuan.org/merged chimaera main contrib non-free
-deb-src https://pkgmaster.devuan.org/merged chimaera-updates main contrib non-free
-deb-src https://pkgmaster.devuan.org/merged chimaera-security main contrib non-free
