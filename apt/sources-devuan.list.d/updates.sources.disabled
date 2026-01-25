@@ -1,0 +1,12 @@
+# "updates" integrate important changes from upstream. Packages in updates
+# will be part of the next stable point release, but are safe to upgrade right
+# away. If you’re using an antivirus and other similar packages that require
+# up-to-date information, you should activate this repository.
+#
+# Enabled by default: yes (but only component "main").
+
+Types: deb
+URIs: http://deb.devuan.org/merged/
+Suites: excalibur-updates
+Components: main contrib non-free non-free-firmware
+Signed-By: /usr/share/keyrings/devuan-archive-keyring.gpg

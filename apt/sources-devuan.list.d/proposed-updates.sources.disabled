@@ -1,0 +1,13 @@
+# "proposed-updates" are packages that will become part of the next stable
+# point release but are not fully tested yet. It is usually safe to use them,
+# but we recommend not using them on production systems. Note that there may
+# be rare cases where a package from Debian's proposed-updates is needed, and
+# in that case /merged should be used instead of /devuan below.
+#
+# Enabled by default: no.
+
+Types: deb
+URIs: http://deb.devuan.org/devuan/
+Suites: excalibur-proposed-updates
+Components: main contrib non-free
+Signed-By: /usr/share/keyrings/devuan-archive-keyring.gpg

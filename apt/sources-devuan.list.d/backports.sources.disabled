@@ -1,0 +1,12 @@
+# "backports" provides newer versions of packages already in the testing suite
+# but linked to stable dependencies. This is useful if you prefer using newer
+# software versions over well-tested stable versions. It is advised to disable
+# backports and only enable to install specific packages.
+#
+# Enabled by default: no.
+
+Types: deb
+URIs: http://deb.devuan.org/merged/
+Suites: excalibur-backports
+Components: main contrib non-free non-free-firmware
+Signed-By: /usr/share/keyrings/devuan-archive-keyring.gpg

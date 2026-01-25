@@ -1,0 +1,9 @@
+# "experimental" is for testing very new software. Use at your own risk.
+#
+# Enabled by default: no.
+
+Types: deb
+URIs: http://deb.devuan.org/devuan/
+Suites: experimental
+Components: main contrib non-free
+Signed-By: /usr/share/keyrings/devuan-archive-keyring.gpg

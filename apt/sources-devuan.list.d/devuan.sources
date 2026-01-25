@@ -1,4 +1,9 @@
 # Modernized from /etc/apt/sources.list
+#
+# Primary repository. Will typically not change between releases.
+#
+# Enabled by default: yes (but only component "main").
+
 Types: deb
 URIs: http://deb.devuan.org/merged/
 Suites: excalibur

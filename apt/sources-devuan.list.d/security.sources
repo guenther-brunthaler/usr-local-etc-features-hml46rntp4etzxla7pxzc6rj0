@@ -1,0 +1,12 @@
+# Security updates are strongly recommended as they provide fixes to
+# identified vulnerabilities. Security updates automatically enter the stable
+# release as they appear. You should activate this repository if your system
+# can connect to the internet.
+#
+# Enabled by default: yes (but only component "main").
+
+Types: deb
+URIs: http://deb.devuan.org/merged/
+Suites: excalibur-security
+Components: main contrib non-free non-free-firmware
+Signed-By: /usr/share/keyrings/devuan-archive-keyring.gpg

@@ -1,0 +1,9 @@
+# Source files for "proposed-updates".
+#
+# Enabled by default: no.
+
+Types: deb-src
+URIs: http://deb.devuan.org/devuan/
+Suites: excalibur-proposed-updates
+Components: main contrib non-free
+Signed-By: /usr/share/keyrings/devuan-archive-keyring.gpg
