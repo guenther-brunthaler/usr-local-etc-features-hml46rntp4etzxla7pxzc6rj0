@@ -1,5 +1,5 @@
---- pam-auth-update.disabled	2023-09-21 20:55:12.000000000 +0000
-+++ pam-auth-update	2023-11-11 10:49:10.279393278 +0000
+--- pam-auth-update.disabled	2025-06-29 17:40:46.000000000 +0000
++++ pam-auth-update	2026-02-01 11:42:56.582921152 +0000
 @@ -1,4 +1,21 @@
 +#! /bin/sh
 +
@@ -30,7 +30,7 @@
  my $template = 'libpam-runtime/profiles';
  my $errtemplate = 'libpam-runtime/conflicts';
  my $overridetemplate = 'libpam-runtime/override';
-@@ -107,6 +125,9 @@
+@@ -109,6 +127,9 @@
  	}
  }
  
@@ -40,7 +40,7 @@
  opendir(DIR, $inputdir) || die "could not open config directory: $!";
  while (my $profile = readdir(DIR)) {
  	next if ($profile eq '.' || $profile eq '..' || $profile =~ m/~$/ || $profile =~ m/^#.+#$/);
-@@ -117,6 +138,11 @@
+@@ -119,6 +140,11 @@
  }
  closedir DIR;
  
