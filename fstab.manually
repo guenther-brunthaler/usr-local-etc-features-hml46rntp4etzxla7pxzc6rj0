@@ -10,16 +10,19 @@
 #
 # v2025.235
 
-# <file system>	<mount point>	<type>		<options> <dump> <fsck_order>
-proc		/proc		proc		auto,rw,nodiratime,relatime 0 0
+# v2025.342
+
+# <file system>	<mount point>			<type>		<options> <dump> <fsck_order>
+proc		/proc				proc		auto,rw,nodiratime,relatime 0 0
 # /tmp default is 20% VM, but 30% - 50% is better suited in most setups.
 # Because of wildly varying defaults for /tmp, it might be best to copy this entry to /etc/fstab
-tmpfs		/tmp		tmpfs		auto,mode=1777,nosuid,nodev,relatime,size=30% 0 0
-media_mnt	/media		tmpfs		auto,relatime,size=128k,mode=755 0 0
-udev		/dev		devtmpfs	noauto,nosuid,relatime,size=100m,mode=755 0 0
-devpts		/dev/pts	devpts		nosuid,noexec,relatime,gid=5,mode=620,ptmxmode=000 0 0
-lock		/var/lock	tmpfs		auto,nosuid,nodev,noexec,relatime,size=5m 0 0
+tmpfs		/tmp				tmpfs		auto,mode=1777,nosuid,nodev,relatime,size=30% 0 0
+media_mnt	/media				tmpfs		auto,relatime,size=128k,mode=755 0 0
+udev		/dev				devtmpfs	noauto,nosuid,relatime,size=100m,mode=755 0 0
+devpts		/dev/pts			devpts		nosuid,noexec,relatime,gid=5,mode=620,ptmxmode=000 0 0
+lock		/var/lock			tmpfs		auto,nosuid,nodev,noexec,relatime,size=5m 0 0
 # /run default is 20% VM, but it is unlikely to ever be more than 100 MiB
-run		/run		tmpfs		noauto,mode=0755,nosuid,noexec,relatime,size=100m 0 0
-shm		/dev/shm	tmpfs		auto,mode=1777,nosuid,nodev,noexec,relatime,size=20% 0 0
-sys		/sys		sysfs		noauto,nodiratime,relatime 0 0
+run		/run				tmpfs		noauto,mode=0755,nosuid,noexec,relatime,size=100m 0 0
+shm		/dev/shm			tmpfs		auto,mode=1777,nosuid,nodev,noexec,relatime,size=20% 0 0
+sys		/sys				sysfs		noauto,nodiratime,relatime 0 0
+none		/sys/firmware/efi/efivars	efivarfs	noauto 0 0
