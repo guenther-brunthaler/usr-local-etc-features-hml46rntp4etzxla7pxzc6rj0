@@ -1,0 +1,20 @@
+# v2026.34
+#
+# User `myuser` is allowed to run *every* command as any user
+# without having to supply a password.
+#
+# Only root may edit this file. It must be `chmod 0440`.
+#
+# Syntax:
+# <user> <host> = ( <user> ) <options>: <commands>
+#
+# Example:  myuser ALL = (ALL) NOPASSWD: ALL
+#
+# Explanation:
+#   * myuser    - the account we’re granting the rights to
+#   * ALL       - on all hosts (here only locally)
+#   * (ALL)     - may run the command as any user
+#   * NOPASSWD: - do not prompt for a password
+#   * ALL       - all commands
+
+myuser ALL = (ALL) NOPASSWD: ALL

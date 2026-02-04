@@ -1,0 +1,19 @@
+#! /bin/sh
+
+# v2026.34
+set -e
+echo
+echo "Please be so good and make the underlying block device"
+echo "for the root filesystem available for later mounting!"
+echo "But do not mount it yourself."
+echo
+echo "If '/usr' happens to be a filesystem separate from"
+echo "'/', then please make its underlying block device"
+echo "available for later mounting as well."
+echo
+echo "Then enter 'exit' to continue booting."
+ash || :
+sleep 1
+echo
+echo "Thank you so very much! Continuing boot process."
+echo

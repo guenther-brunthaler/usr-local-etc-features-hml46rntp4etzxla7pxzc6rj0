@@ -1,0 +1,25 @@
+# v2026.34
+#
+# Allow every user to run any command as any user without
+# entering a password.
+#
+# Use it only in a tightly controlled environment (e.g. a
+# dedicated build/test system). In production it is a huge
+# security hole.
+#
+# Only root may edit this file. It must be `chmod 0440`.
+#
+# Syntax:
+# <user> <host> = ( <user> ) <options>: <commands>
+#
+# Example:
+# ALL ALL = (ALL) NOPASSWD: ALL
+#
+# Explanation:
+#   * ALL       - every system user
+#   * ALL       - on all hosts (here only locally)
+#   * (ALL)     - may run the command as any user
+#   * NOPASSWD: - do not prompt for a password
+#   * ALL       - all commands
+
+ALL ALL = (ALL) NOPASSWD: ALL
