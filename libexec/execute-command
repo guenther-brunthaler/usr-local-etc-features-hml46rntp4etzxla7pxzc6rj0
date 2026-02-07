@@ -1,0 +1,26 @@
+#! /bin/sh
+
+# Try to execute an arbitrary command specified as arguments.
+#
+# Without any arguments, starts a login shell.
+#
+# The idea is to configure "sudo" to apply special configuration if a
+# command is run via this script rather than directly.
+#
+# For instance, "sudo" might be configured to request a TOTP-PIN for
+# the target account (rather than for the invoking user).
+#
+# But if TOTP is not available, the invoking user should be able to
+# authenticate using the user's own password, not the password of the
+# target account.
+#
+# The "sudo" configuration can then apply an option which expects the
+# invoking user's password, rather than the target account's.
+#
+# v2026.38
+
+if test $# = 0
+then
+        set -- "${SHELL:-/bin/sh}" -l
+fi
+exec "$@"

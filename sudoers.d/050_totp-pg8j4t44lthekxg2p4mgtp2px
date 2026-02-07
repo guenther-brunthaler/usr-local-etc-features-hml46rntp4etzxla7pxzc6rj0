@@ -1,0 +1,37 @@
+# Support for TOTP-logins with Google Authenticator PAM module.
+#
+# Makes PAM ask for the target account's TOTP "verification code" by default.
+#
+# Unfortunately, this means that if TOTP is not working and PAM falls back
+# to asking for a password, the target account's password will be expected,
+# not the password of the invoking user.
+#
+# In order to fix that, a wrapper script
+#
+# /lib/exec/execute-command
+#
+# will be accepted by sudo. This is a dummy script just executes whatever
+# command will be specified as its argument (or invoke an interactive shell if
+# run without any arguments). But if sudo needs a password, it will accept the
+# invoking user's password rather than the target account's one.
+#
+# This means one can do
+#
+# $ sudo -i
+#
+# as usual as long as TOTP works. But if TOTP is not possible, then the same
+# effect can be achieved by executing
+#
+# $ sudo /etc/libexec/execute-command
+#
+# and sudo will ask for the password of the invoking user, nor for the
+# password of user 'root'.
+#
+
+Cmnd_Alias ASK_PSW_OF_INVOKING_USER = /etc/libexec/execute-command
+
+Defaults targetpw
+
+Defaults listpw=never
+
+Defaults!ASK_PSW_OF_INVOKING_USER !targetpw
