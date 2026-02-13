@@ -1,4 +1,9 @@
-# "experimental" is for testing very new software. Use at your own risk.
+# "experimental" are pre-release experiments by developers (optional, only for
+# developer).
+#
+# This is for testing very new package versions. Use at your own risk.
+#
+# v2026.44
 #
 # Enabled by default: no.
 

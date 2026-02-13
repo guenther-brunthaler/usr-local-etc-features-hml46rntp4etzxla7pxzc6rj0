@@ -3,6 +3,8 @@
 # software versions over well-tested stable versions. It is advised to disable
 # backports and only enable to install specific packages.
 #
+# v2026.44
+#
 # Enabled by default: no.
 
 Types: deb

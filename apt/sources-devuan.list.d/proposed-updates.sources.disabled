@@ -4,6 +4,8 @@
 # be rare cases where a package from Debian's proposed-updates is needed, and
 # in that case /merged should be used instead of /devuan below.
 #
+# v2026.44
+#
 # Enabled by default: no.
 
 Types: deb

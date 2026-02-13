@@ -3,6 +3,8 @@
 # release as they appear. You should activate this repository if your system
 # can connect to the internet.
 #
+# v2026.44
+#
 # Enabled by default: yes (but only component "main").
 
 Types: deb

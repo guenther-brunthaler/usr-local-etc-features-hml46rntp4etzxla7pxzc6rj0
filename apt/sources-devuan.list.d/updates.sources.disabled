@@ -3,6 +3,8 @@
 # away. If you’re using an antivirus and other similar packages that require
 # up-to-date information, you should activate this repository.
 #
+# v2026.44
+#
 # Enabled by default: yes (but only component "main").
 
 Types: deb
