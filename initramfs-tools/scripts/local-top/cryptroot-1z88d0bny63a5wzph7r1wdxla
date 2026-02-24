@@ -1,5 +1,6 @@
 #! /bin/sh
 
+# v2026.34
 prereqs() {
 	# Make sure that cryptroot is run last in local-top.
 	for req in `dirname $0`/*
@@ -27,16 +28,16 @@ fallback() {
 trap fallback 0
 set -e
 
-vg=vg_xduo
-mapping=pv_xduo-dec
-
 # Avoid mapping multiple times if already executed successfully once.
 if test ! -e /dev/mapper/$mapping
 then
-	#mount -t tmpfs -o mode=1777,size=2g tmp /tmp
-	cryptsetup-bm1fu35d94e5tbvvfib9bzgi0 $mapping
-	#lvm vgchange -a y $vg
-	#mount -t reiserfs -o ro,noatime /dev/$vg/debian-fsroot /root
-	#umount /tmp
+	if
+		command -v manual_crypto_unlock-3cx4bfsxqgkyu30ffdzuim0hx \
+			> /dev/null 2>& 1
+	then
+		manual_crypto_unlock-3cx4bfsxqgkyu30ffdzuim0hx $mapping
+	else
+		cryptsetup-bm1fu35d94e5tbvvfib9bzgi0 $mapping
+	fi
 fi
 trap - 0
