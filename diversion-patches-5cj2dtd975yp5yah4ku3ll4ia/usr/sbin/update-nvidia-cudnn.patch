@@ -1,0 +1,69 @@
+--- /usr/sbin/update-nvidia-cudnn.disabled	2025-01-28 23:33:09.000000000 +0000
++++ /usr/sbin/update-nvidia-cudnn	2026-02-26 03:03:53.435022710 +0000
+@@ -34,9 +34,44 @@
+ #
+ #  For a more thorough testing of install/purge, use piuparts instead.
+ 
++# Patch version v2026.57.1
++ofile=/usr/sbin/update-nvidia-cudnn.disabled
++. /etc/libexec/update-patch-helper-5cj2dtd975yp5yah4ku3ll4ia
+ ## configs ####################################################################
+-TMPDIR="$(mktemp -d)"
+-TMPDIR_IS_OVERRIDEN=0
++# Optional config file:
++conf=/etc/default/nvidia-cudnn-ty2htt7mm3qw2yd41r6z39zim
++# Predefine default settings:
++
++# Where to unpack archive. Requires approximately 1 GB. It /tmp is small,
++# overriding with /var/tmp in the config file might me a good idea.
++extraction_tmpdir=/tmp
++# Where the downloaded archive might be found in order to avoid a download.
++# Otherwise it will be downloaded into this directory.
++archive_download_dir=/var/tmp
++# Whether to keep or delete archive file after installation.
++keep_archive=false
++
++# Let config file override settings.
++if test -f "$conf"
++then
++    . "$conf"
++fi
++unset conf
++# Verify settings.
++test -d "$extraction_tmpdir"
++test -d "$archive_download_dir"
++if test "$keep_archive" != true
++then
++    test "$keep_archive" = false
++fi
++
++# Note that the following commented-out initialization became a resource leak
++# if the "--tmpdir", "-h" or "--help" options were used, because nobody cared
++# to remove that then-unused directory in this case.
++#
++#TMPDIR="$(mktemp -d)"
++TMPDIR=$archive_download_dir
++TMPDIR_IS_OVERRIDEN=1
+ ARCH="$(dpkg-architecture -qDEB_HOST_ARCH)"
+ MULTIARCH="$(dpkg-architecture -qDEB_HOST_MULTIARCH)"
+ PREFIX="/usr"
+@@ -285,7 +320,7 @@
+ elif test "${DO_UPDATE}" -ne 0; then
+     path=$(download_cudnn ${URL})
+     verify_checksum ${path}
+-    tmpdir2=$(mktemp -d)
++    tmpdir2=$(mktemp -d --tmpdir="$extraction_tmpdir")
+     echo Extracting files from the downloaded tarball...
+     tar xvf ${path} -C ${tmpdir2}/
+     echo Installing the files to system directories...
+@@ -296,6 +331,10 @@
+         rm -rv ${path}
+         rmdir -v ${TMPDIR}
+     fi
++    if test $keep_archive = false
++    then
++    	rm -f -- "${path}"
++    fi
+ elif test "${DO_PURGE}" -ne 0; then
+     echo Purging cuDNN installation from ${PREFIX}
+     purge_cudnn ${PREFIX} || true

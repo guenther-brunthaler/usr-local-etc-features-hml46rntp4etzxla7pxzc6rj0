@@ -1,0 +1,22 @@
+# Configuration file for patched "update-nvidia-cudnn". (The original version
+# does not support a configuration file.)
+#
+# v2026.57.1
+
+# Where to unpack archive. Requires approximately 1 GB. It /tmp is small,
+# overriding with /var/tmp in the config file might me a good idea.
+#
+# Default: extraction_tmpdir=/tmp
+#extraction_tmpdir=/var/tmp
+
+# Where the downloaded archive might be found in order to avoid a download.
+# Otherwise it will be downloaded into this directory.
+#
+# Default: archive_download_dir=/var/tmp
+#archive_download_dir=/var/cache/downloads
+#archive_download_dir=~root/.cache/downloads
+
+# Whether to keep or delete archive file after installation.
+#
+# Default: keep_archive=false
+#keep_archive=true
