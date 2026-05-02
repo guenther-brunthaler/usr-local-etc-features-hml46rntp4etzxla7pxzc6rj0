@@ -1,0 +1,5 @@
+# Use NTP from the Debian vendor zone pool servers.
+#
+# v2026.122
+
+pool 2.debian.pool.ntp.org iburst minpoll 10 maxpoll 11
