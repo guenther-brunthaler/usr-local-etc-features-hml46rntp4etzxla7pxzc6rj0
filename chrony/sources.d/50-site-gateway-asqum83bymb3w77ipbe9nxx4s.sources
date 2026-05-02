@@ -1,0 +1,5 @@
+# Use site-local gateway as NTP server.
+#
+# v2026.107
+
+server 10.157.146.248 iburst minpoll 10 maxpoll 11
