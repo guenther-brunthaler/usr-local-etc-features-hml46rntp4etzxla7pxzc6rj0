@@ -1,0 +1,33 @@
+#!/bin/sh
+
+# v2026.143
+CUSTOM_BB=busybox-pbyqxzl1ktqlk3fjm3arlrclg
+set -e
+
+case $1 in
+	prereqs) echo; exit
+esac
+
+. /scripts/functions
+
+log_begin_msg "Configuring network"
+configure_networking
+test -n "$DEVICE" || {
+        log_failure_msg "No network device specified"
+        false || exit
+}
+if LC_ALL=C ip -4 addr show dev "$DEVICE" 2> /dev/null | grep -q 'inet '
+then
+        log_success_msg "Network configured via DHCP/static config"
+        exit
+fi
+log_warning_msg "DHCP failed, falling back to ZeroConf"
+ip link set "$DEVICE" up
+"$CUSTOM_BB" zcip -q "$DEVICE" /scripts/zcip-handler
+if ip -4 addr show dev "$DEVICE" 2>/dev/null | grep -q 'inet '
+then
+        log_success_msg "ZeroConf network configured"
+        exit
+fi
+log_failure_msg "No IPv4 address configured"
+false

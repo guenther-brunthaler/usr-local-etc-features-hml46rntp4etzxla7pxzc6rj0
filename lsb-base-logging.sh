@@ -2,18 +2,18 @@
 # This file is sourced by init.d scripts via the lsb helper scripts.
 # We use it to maintain a trace log what the scripts are actually doing.
 #
-# v2021.342
+# v2026.141
 
 # Define default values.
 
 # Create this empty directory in order for the scripts to mount a tmpfs
 # there and creating a log file within it.
-rclogmpt=/rclog
+rclogmpt=/run/rclog
 rclogfile=log
-rclogmax=3g
+rclogmax=100m # Suffixes: k, m, g, ...
 
 # Source defaults file (if any), allowing the user to override above settings.
-test -f /etc/defaults/rclog && . /etc/defaults/rclog
+test -f /etc/default/rclog && . /etc/default/rclog
 
 test ! -d "$rclogmpt" && return # Do nothing if mount point dir does not exist.
 test -e "$rclogmpt"/no && return # Create tag file "no" there to stop logging.

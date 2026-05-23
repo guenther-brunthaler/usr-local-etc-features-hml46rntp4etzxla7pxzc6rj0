@@ -1,0 +1,14 @@
+#!/bin/sh
+
+# v2026.143
+set -e
+case $1 in
+	deconfig) ip addr flush dev "$interface";;
+	config)
+		ip link set "$interface" up
+		LC_ALL=C ip link show "$interface" | grep -q "state UP"
+		ip addr add "$ip/16" broadcast 169.254.255.255 dev "$interface"
+		ip route add 169.254.0.0/16 dev "$interface" 2> /dev/null || :
+		;;
+	*) false || exit
+esac
