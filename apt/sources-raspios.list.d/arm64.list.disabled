@@ -1,0 +1,6 @@
+# Raspberry Pi OS, 64 Bit Userland, no 32-bit components whatsoever.
+#
+# v2026.213
+
+deb [ arch=arm64 ] http://archive.raspberrypi.com/debian/ trixie main
+deb [ arch=arm64 ] http://raspbian.raspberrypi.com/raspbian/ trixie main contrib non-free rpi firmware

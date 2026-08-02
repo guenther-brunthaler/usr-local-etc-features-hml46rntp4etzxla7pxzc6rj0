@@ -1,1 +1,1 @@
-deb [ arch=armhf ] http://raspbian.raspberrypi.com/raspbian/ trixie main contrib non-free rpi firmware
+sources-empty.list

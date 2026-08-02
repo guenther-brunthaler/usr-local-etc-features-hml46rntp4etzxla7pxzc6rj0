@@ -1,0 +1,7 @@
+# Raspberry Pi OS, 32 Bit Userland, but adding some 64 bit components like a
+# v8 kernel.
+#
+# v2026.213
+
+deb [ arch=armhf ] http://raspbian.raspberrypi.com/raspbian/ trixie main contrib non-free rpi firmware
+deb [ arch=armhf,arm64 ] http://archive.raspberrypi.com/debian/ trixie main

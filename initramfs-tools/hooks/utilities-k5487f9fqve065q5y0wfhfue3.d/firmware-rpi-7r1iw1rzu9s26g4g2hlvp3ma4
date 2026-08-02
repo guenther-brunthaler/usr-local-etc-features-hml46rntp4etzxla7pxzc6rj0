@@ -1,0 +1,9 @@
+/lib/firmware/brcm/brcmfmac43430-sdio.raspberrypi,3-model-b.bin
+/lib/firmware/brcm/brcmfmac43430-sdio.raspberrypi,model-zero-w.bin
+/lib/firmware/brcm/brcmfmac43436-sdio.raspberrypi,model-zero-2-w.bin
+/lib/firmware/brcm/brcmfmac43436s-sdio.raspberrypi,model-zero-2-w.bin
+/lib/firmware/brcm/brcmfmac43455-sdio.raspberrypi,3-model-a-plus.bin
+/lib/firmware/brcm/brcmfmac43455-sdio.raspberrypi,3-model-b-plus.bin
+/lib/firmware/brcm/brcmfmac43455-sdio.raspberrypi,4-model-b.bin
+/lib/firmware/brcm/brcmfmac43456-sdio.raspberrypi,400.bin
+/lib/firmware/brcm/brcmfmac43456-sdio.raspberrypi,4-compute-module.bin

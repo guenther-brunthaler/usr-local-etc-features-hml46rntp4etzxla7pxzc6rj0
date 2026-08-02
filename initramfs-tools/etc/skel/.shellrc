@@ -1,12 +1,12 @@
 #! /bin/false
 
-# v2025.234
+# v2026.213
 
 alias ps='command ps -o tty,ppid,pid,args | grep -v \]\$'
 
 if command -v ne > /dev/null 2>& 1
 then
-	alias joe=ne	
+	alias joe=ne
 else
 	alias joe='busybox vi'
 fi
