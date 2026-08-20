@@ -17,14 +17,16 @@
 # interface of the bridge as the interface name, assuming the bridge itself
 # will not exist yet during initramfs execution.
 #
-# Version 2026.143
+# Version 2026.232
 # Copyright (c) 2018-2026 Guenther Brunthaler. All rights reserved.
 #
 # This script is free software.
 # Distribution is permitted under the terms of the GPLv3.
 
 BOOT_IFC_CLASS=primary_boot
-IFC_CONFIG_TEMPLATE=$DESTDIR/conf/conf.d/dropbear_u62wwzzvdqjd5ej4dad43b1i8
+IFC_CONFIG_TEMPLATE_DIR=$DESTDIR/conf/conf.d
+IFC_CONFIG_TEMPLATE=dropbear-static_u62wwzzvdqjd5ej4dad43b1i8
+IFC_CONFIG_TEMPLATE_ALT=dropbear-dhcp_a30ujnp35dnkq9bjphh8810kz
 PREREQS='<dropbear'
 more_search_paths=/usr/local/sbin:/usr/sbin:/sbin
 
@@ -39,6 +41,15 @@ then
 	set +e; . ~/.profile > /dev/null 2>& 1 < /dev/null; set -e
 fi
 PATH=$PATH:$more_search_paths
+
+test -d "$IFC_CONFIG_TEMPLATE_DIR"
+IFC_CONFIG_TEMPLATE=$IFC_CONFIG_TEMPLATE_DIR/$IFC_CONFIG_TEMPLATE
+IFC_CONFIG_TEMPLATE_ALT=$IFC_CONFIG_TEMPLATE_DIR/$IFC_CONFIG_TEMPLATE_ALT
+if test ! -e "$IFC_CONFIG_TEMPLATE"
+then
+	IFC_CONFIG_TEMPLATE=$IFC_CONFIG_TEMPLATE_ALT
+fi
+test -f "$IFC_CONFIG_TEMPLATE"
 
 t=$IFC_CONFIG_TEMPLATE.tmp
 ifquery -l -a --allow=$BOOT_IFC_CLASS > "$t"
