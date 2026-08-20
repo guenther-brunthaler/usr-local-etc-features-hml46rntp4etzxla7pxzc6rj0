@@ -1,4 +1,8 @@
 default		0.0.0.0
 loopback	127.0.0.0
 link-local	169.254.0.0
-
+bt.emgenxx69lwyn5ctlr4nl64ul.local	10.73.0.0
+bvm.emgenxx69lwyn5ctlr4nl64ul.local	10.218.0.0 
+eth.emgenxx69lwyn5ctlr4nl64ul.local	10.157.0.0
+vm.emgenxx69lwyn5ctlr4nl64ul.local	10.54.0.0
+wifi.emgenxx69lwyn5ctlr4nl64ul.local	10.238.0.0

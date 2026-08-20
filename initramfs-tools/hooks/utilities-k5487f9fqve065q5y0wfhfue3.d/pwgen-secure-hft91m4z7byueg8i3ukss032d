@@ -3,3 +3,5 @@ haveged
 keygen-octets-by-harvesting-entropy
 openssl
 pwgen-with-entropy-harvesting-as-base62
+pwgen-with-entropy-harvesting-as-typeable
+pwgen-with-entropy-harvesting-as-pronounceable

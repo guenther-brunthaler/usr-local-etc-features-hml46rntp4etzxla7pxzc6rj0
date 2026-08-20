@@ -1,0 +1,11 @@
+# Make ModemManager ignore typical modem devices, assuming
+# they will be managed with PPP/chat directly instead.
+#
+# If you actually want ModemManager control modems, do *not*
+# install this rule file!
+#
+# v2026.139
+
+SUBSYSTEM=="tty", ENV{ID_MM_DEVICE_IGNORE}="1"
+SUBSYSTEM=="net", ENV{ID_MM_DEVICE_IGNORE}="1"
+SUBSYSTEM=="usb", ENV{ID_MM_DEVICE_IGNORE}="1"
