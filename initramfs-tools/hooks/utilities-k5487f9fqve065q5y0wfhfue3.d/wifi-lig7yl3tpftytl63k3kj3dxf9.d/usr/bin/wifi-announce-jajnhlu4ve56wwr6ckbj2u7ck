@@ -1,0 +1,43 @@
+#! /bin/sh
+
+INTERVAL=20
+PORT=42042
+DEST="255.255.255.255"
+PIDFILE="/run/wifi-announce-jajnhlu4ve56wwr6ckbj2u7ck.pid"
+
+detect_iface() {
+	for dev in `ls /sys/class/net`
+	do
+		if test -d "/sys/class/net/$dev/wireless"
+		then
+			echo "$dev"
+			return
+		fi
+	done
+	ip -o link | awk -F': ' '/wl/{print $2; exit}'
+}
+
+IFACE=`detect_iface` 
+test -z "$IFACE" && IFACE="wlan0"
+
+MAC=`cat /sys/class/net/$IFACE/address`
+HOST=`hostname`
+MODEL=`
+	cat /sys/devices/virtual/dmi/id/product_name 2> /dev/null \
+	|| echo unknown
+`
+IP="$(ip -4 -o addr show dev "$IFACE" | awk '{print $4}' | cut -d/ -f1)"
+
+PAYLOAD="$HOST $IP $MAC $MODEL"
+
+SIG="$(printf "%s" "$PAYLOAD" \
+	  | openssl dgst -sha256 -hex | awk '{print $2}')"
+SIGTYPE="sha256-hex"
+
+echo $$ > "$PIDFILE"
+
+while :
+do
+	echo "$PAYLOAD $SIGTYPE $SIG" | nc -b -u -w1 "$DEST" "$PORT"
+	sleep "$INTERVAL"
+done

@@ -1,0 +1,79 @@
+#! /bin/sh
+
+# Version 2026.232
+# Copyright (c) 2026 Guenther Brunthaler. All rights reserved.
+#
+# This script is free software.
+# Distribution is permitted under the terms of the GPLv3.
+
+PREREQS=
+SSID="adhoc-ssh"
+CHANNEL="6"
+FREQ="2437"
+
+set -e
+case $1 in
+	prereqs) echo "$PREREQS"; exit
+esac
+
+log() {
+	echo "[adhoc-wifi-jajnhlu4ve56wwr6ckbj2u7ck] $*" \
+		> /dev/kmsg 2> /dev/null \
+	|| echo "[adhoc-wifi-jajnhlu4ve56wwr6ckbj2u7ck] $*"
+}
+
+detect_iface() {
+	for dev in `ls /sys/class/net`
+	do
+		if test -d "/sys/class/net/$dev/wireless"
+		then
+			echo "$dev"
+			return
+		fi
+	done
+	ip -o link | awk -F': ' '/wl/{print $2; exit}'
+}
+
+IFACE=`detect_iface`
+test -z "$IFACE" && IFACE="wlan0"
+
+log "Detected Wi-Fi interface: $IFACE"
+
+if command -v rfkill > /dev/null 2>& 1
+then
+	rfkill unblock wlan || log "rfkill unblock failed"
+fi
+
+modprobe brcmfmac 2> /dev/null || :
+modprobe iwlwifi 2> /dev/null || :
+
+TRIES=30
+while test $TRIES -gt 0
+do
+	ip link show "$IFACE" > /dev/null 2>& 1 && break
+	TRIES=$((TRIES - 1))
+	sleep 0.5
+done
+
+ip link set "$IFACE" up || log "Failed to bring $IFACE up"
+
+if command -v iw > /dev/null 2>& 1
+then
+	iw dev "$IFACE" ibss join "$SSID" "$FREQ" fixed-freq \
+	|| log "iw ibss join failed"
+else
+	iwconfig "$IFACE" mode ad-hoc
+	iwconfig "$IFACE" essid "$SSID"
+	iwconfig "$IFACE" channel "$CHANNEL"
+	iwconfig "$IFACE" key off
+fi
+
+MAC=`cat /sys/class/net/$IFACE/address`
+IPADDR=`mac2ip-jajnhlu4ve56wwr6ckbj2u7ck "$MAC"`
+
+ip addr flush dev "$IFACE"
+ip addr add "$IPADDR/24" dev "$IFACE"
+
+log "Ad-hoc Wi-Fi ready: SSID='$SSID', IP=$IPADDR"
+
+wifi-announce-jajnhlu4ve56wwr6ckbj2u7ck &

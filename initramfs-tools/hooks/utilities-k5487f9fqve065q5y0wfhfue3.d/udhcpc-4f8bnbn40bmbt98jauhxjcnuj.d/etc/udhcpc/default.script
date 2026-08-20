@@ -1,0 +1,40 @@
+#! /bin/sh
+
+# udhcpc event handler for initramfs
+# Handles: deconfig, bound, renew, nak
+
+case $1 in
+    deconfig)
+        # Remove old IP
+        ip addr flush dev "$interface"
+        # Remove default route
+        ip route del default 2>/dev/null
+        ;;
+
+    bound|renew)
+        # Set IP + netmask
+        if [ -n "$ip" ] && [ -n "$mask" ]; then
+            ip addr flush dev "$interface"
+            ip addr add "$ip/$mask" dev "$interface"
+        fi
+
+        # Set default route
+        if [ -n "$router" ]; then
+            ip route del default 2>/dev/null
+            ip route add default via "$router" dev "$interface"
+        fi
+
+        # Set DNS (optional)
+        if [ -n "$dns" ]; then
+            echo "nameserver $dns" > /etc/resolv.conf
+        fi
+        ;;
+
+    nak)
+        # Server rejected request → clear IP
+        ip addr flush dev "$interface"
+        ip route del default 2>/dev/null
+        ;;
+esac
+
+exit 0

@@ -1,0 +1,11 @@
+/lib/firmware/regulatory.db
+M ? bluetooth
+M ? rfkill
+busybox
+ifconfig
+ip
+iw
+iwconfig
+nc
+openssl
+rfkill

@@ -1,0 +1,29 @@
+#! /bin/sh
+set -e
+
+if test "$1"
+then
+	MAC=$1
+else
+	MAC=`cat`
+fi
+
+MAC=`echo "$MAC" | tr '[:upper:]' '[:lower:]' | tr -d ':.-'`
+
+case $MAC in
+	[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]\
+[0-9a-f][0-9a-f][0-9a-f][0-9a-f]);;
+	*) echo "Invalid MAC: $MAC" >& 2; false || exit;;
+esac
+
+HASH=`printf "%s" "$MAC" | openssl md5 -r | awk '{print $1}'`
+
+B1=`echo "$HASH" | cut -c27-28`
+B2=`echo "$HASH" | cut -c29-30`
+B3=`echo "$HASH" | cut -c31-32`
+
+O2=$(( 16 + (0x$B1 % 16) ))
+O3=$(( 0x$B2 ))
+O4=$(( 0x$B3 ))
+
+echo "172.$O2.$O3.$O4"

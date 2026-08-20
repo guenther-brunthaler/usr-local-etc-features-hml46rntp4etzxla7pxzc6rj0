@@ -1,0 +1,63 @@
+#! /bin/sh
+PREREQ=""
+prereqs() { echo "$PREREQ"; }
+case "$1" in
+    prereqs) prereqs; exit 0 ;;
+esac
+
+log() { echo "preboot-wifi-top: $1" > /dev/kmsg; }
+
+IFACE="wifi"
+PIDFILE="/var/run/udhcpc.pid"
+RETRYPID="/run/preboot-wifi-retry.pid"
+STOPFILE="/run/preboot-wifi-retry.stop"
+RETRY_INTERVAL=30
+
+# Fail silent wenn kein Interface existiert
+if ! ip link show "$IFACE" >/dev/null 2>&1; then
+    log "No WiFi hardware detected, silent exit"
+    exit 0
+fi
+
+log "Loading WiFi modules"
+modprobe brcmfmac 2>/dev/null
+modprobe cfg80211 2>/dev/null
+modprobe mac80211 2>/dev/null
+
+log "Unblocking rfkill"
+rfkill unblock wlan 2>/dev/null
+
+# Hintergrundprozess starten
+(
+    while :; do
+        # Stop-Signal vom Bottom-Script
+        if [ -f "$STOPFILE" ]; then
+            exit 0
+        fi
+
+        # Interface hochfahren
+        ip link set "$IFACE" up 2>/dev/null
+
+        # AP verbinden
+        iw dev "$IFACE" connect preboot-ssh 2>/dev/null
+
+        # Prüfen ob verbunden
+        if iw dev "$IFACE" link | grep -q "Connected"; then
+            log "AP reachable, starting DHCP"
+
+            udhcpc -i "$IFACE" \
+                   -s /etc/udhcpc/default.script \
+                   -p "$PIDFILE" \
+                   -q -f
+
+            log "DHCP completed"
+            exit 0
+        fi
+
+        sleep "$RETRY_INTERVAL"
+    done
+) &
+echo $! > "$RETRYPID"
+
+log "Retry process started"
+exit 0

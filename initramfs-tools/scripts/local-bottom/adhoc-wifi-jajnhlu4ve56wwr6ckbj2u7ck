@@ -1,0 +1,64 @@
+#! /bin/sh
+
+# Version 2026.232
+# Copyright (c) 2026 Guenther Brunthaler. All rights reserved.
+#
+# This script is free software.
+# Distribution is permitted under the terms of the GPLv3.
+
+PREREQS=dropbear
+
+set -e
+case $1 in
+	prereqs) echo "$PREREQS"; exit
+esac
+
+log() {
+	echo "[adhoc-wifi-jajnhlu4ve56wwr6ckbj2u7ck] $*" \
+		> /dev/kmsg 2> /dev/null \
+	|| echo "[adhoc-wifi-jajnhlu4ve56wwr6ckbj2u7ck] $*"
+}
+
+detect_iface() {
+	for dev in `ls /sys/class/net`
+	do
+		if test -d "/sys/class/net/$dev/wireless"
+		then
+			echo "$dev"
+			return
+		fi
+	done
+	ip -o link | awk -F': ' '/wl/{print $2; exit}'
+}
+
+IFACE=`detect_iface`
+test -z "$IFACE" && IFACE="wlan0"
+
+log "Teardown: interface $IFACE"
+
+PIDFILE="/run/wifi-announce-jajnhlu4ve56wwr6ckbj2u7ck.pid"
+if test -f "$PIDFILE"
+then
+	PID=`cat "$PIDFILE"`
+	kill "$PID" 2> /dev/null || :
+	rm -f "$PIDFILE"
+	log "Stopped wifi-announce-jajnhlu4ve56wwr6ckbj2u7ck (PID $PID)"
+fi
+
+if command -v iw > /dev/null 2>& 1
+then
+	iw dev "$IFACE" ibss leave || :
+else
+	iwconfig "$IFACE" essid off || :
+	iwconfig "$IFACE" mode managed || :
+fi
+
+ip addr flush dev "$IFACE" || :
+ip link set "$IFACE" down || :
+
+if command -v rfkill > /dev/null 2>& 1
+then
+	rfkill block wlan || log "rfkill block failed"
+fi
+
+log "Ad-hoc Wi-Fi shut down"

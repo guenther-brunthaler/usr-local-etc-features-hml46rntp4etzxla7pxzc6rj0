@@ -1,0 +1,39 @@
+#! /bin/sh
+PREREQ=""
+prereqs() { echo "$PREREQ"; }
+case "$1" in
+    prereqs) prereqs; exit 0 ;;
+esac
+
+log() { echo "preboot-wifi-bottom: $1" > /dev/kmsg; }
+
+IFACE="wifi"
+PIDFILE="/var/run/udhcpc.pid"
+RETRYPID="/run/preboot-wifi-retry.pid"
+STOPFILE="/run/preboot-wifi-retry.stop"
+
+# Retry-Prozess stoppen
+if [ -f "$RETRYPID" ]; then
+    log "Stopping retry process"
+    touch "$STOPFILE"
+    kill "$(cat "$RETRYPID")" 2>/dev/null
+fi
+
+# DHCP-Lease zurückgeben
+if [ -f "$PIDFILE" ]; then
+    log "Releasing DHCP lease"
+    kill -USR2 "$(cat "$PIDFILE")"
+fi
+
+log "Flushing IP"
+ip addr flush dev "$IFACE"
+ip route del default 2>/dev/null
+
+log "Bringing interface down"
+ip link set "$IFACE" down 2>/dev/null
+
+log "Blocking rfkill"
+rfkill block wlan 2>/dev/null
+
+log "WiFi teardown complete"
+exit 0
