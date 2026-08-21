@@ -1,0 +1,24 @@
+# Version 2026.232
+#
+# Create an unencrypted, open WLAN for usage via SSH only.
+#
+# Wi-Fi capable preboot-environments (like initramfs) shall automatically try
+# to connect to this AP.
+#
+# $ ifup wifi=hotspot-preboot
+# ...
+# $ ifdown wifi
+
+allow-x-wifi-hotspot hotspot
+
+rename mac/gg:gg:gg:gg:gg:gg=wifi
+
+iface hotspot-preboot inet static
+	pre-up rfkill unblock wlan
+	address 10.238.999.999
+	netmask 255.255.0.0
+	hostapd /etc/hostapd/hotspot-preboot-a1zkt4xhbqs1zci3yyq5kidf2.conf
+	post-up invoke-rc.d --quiet dnsmasq status > /dev/null && invoke-rc.d --quiet --force dnsmasq force-reload > /dev/null || invoke-rc.d --quiet --force dnsmasq start > /dev/null
+	post-down rfkill block wlan
+	post-down invoke-rc.d --quiet dnsmasq status > /dev/null && invoke-rc.d --quiet --force dnsmasq stop > /dev/null || :
+	metric 10
