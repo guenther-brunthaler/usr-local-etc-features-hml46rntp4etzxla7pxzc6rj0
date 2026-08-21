@@ -1,0 +1,6 @@
+# Allow members of group "input" to create virtual input devices. This will
+# allow users of that group to e.g. re-map joystick buttons.
+#
+# v2026.225
+
+KERNEL=="uinput", GROUP="input", MODE="0660"
