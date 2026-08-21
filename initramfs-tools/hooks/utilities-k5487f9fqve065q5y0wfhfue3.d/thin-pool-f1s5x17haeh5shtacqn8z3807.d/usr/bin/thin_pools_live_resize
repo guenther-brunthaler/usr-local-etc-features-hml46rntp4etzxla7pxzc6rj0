@@ -1,0 +1,110 @@
+#! /bin/sh
+
+# Live resize of thin-pool after LV resize or for planned shrink
+#
+# v2026.185
+
+set -e
+
+DEFAULTS_SRC="/etc/initramfs-tools/scripts/local-block/thin-pool"
+
+load_defaults() {
+    awk '
+        /^# BEGIN_THIN_POOL_DEFAULTS/ {flag=1; next}
+        /^# END_THIN_POOL_DEFAULTS/   {flag=0}
+        flag && !/^#/ && NF > 0
+    ' "$DEFAULTS_SRC"
+}
+
+eval "$(load_defaults)"
+
+CONFIG_SRC="/etc/initramfs-tools/${DEFAULTS_REL_PATHNAME}"
+[ -r "$CONFIG_SRC" ] && . "$CONFIG_SRC"
+
+POOL_NAME="$THINPOOL_DM_NAME"
+VG="$VG_NAME"
+DATA_LV="/dev/${VG}/blocks"
+META_LV="/dev/${VG}/meta"
+
+DATA_SIZE_MIB_OVERRIDE=""
+META_SIZE_MIB_OVERRIDE=""
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --data-mib)
+            DATA_SIZE_MIB_OVERRIDE="$2"
+            shift 2
+            ;;
+        --meta-mib)
+            META_SIZE_MIB_OVERRIDE="$2"
+            shift 2
+            ;;
+        *)
+            echo "thin_pools_live_resize: unknown argument: $1" >&2
+            false || exit
+            ;;
+    esac
+done
+
+if ! dmsetup status "$POOL_NAME" >/dev/null 2>&1; then
+    echo "thin_pools_live_resize: pool device \"$POOL_NAME\" not found" >&2
+    false || exit
+fi
+
+if [ ! -b "$DATA_LV" ] || [ ! -b "$META_LV" ]; then
+    echo "thin_pools_live_resize: LV devices not found" >&2
+    false || exit
+fi
+
+DATA_SIZE_MIB_LV=$(lvs --noheadings --units m --nosuffix -o lv_size "$DATA_LV" | tr -d ' ')
+META_SIZE_MIB_LV=$(lvs --noheadings --units m --nosuffix -o lv_size "$META_LV" | tr -d ' ')
+
+DATA_SECTORS_CURRENT=$(dmsetup table "$POOL_NAME" | awk '{print $2}')
+DATA_SECTORS_FROM_LV=$(( DATA_SIZE_MIB_LV * 1024 * 1024 / 512 ))
+
+DATA_SECTORS_TARGET="$DATA_SECTORS_CURRENT"
+
+# Grow automatically if LV is larger
+if [ -z "$DATA_SIZE_MIB_OVERRIDE" ] && [ "$DATA_SECTORS_FROM_LV" -gt "$DATA_SECTORS_CURRENT" ]; then
+    DATA_SECTORS_TARGET="$DATA_SECTORS_FROM_LV"
+fi
+
+# Shrink based on override
+if [ -n "$DATA_SIZE_MIB_OVERRIDE" ]; then
+    DATA_SECTORS_TARGET=$(( DATA_SIZE_MIB_OVERRIDE * 1024 * 1024 / 512 ))
+
+    if [ "$DATA_SECTORS_TARGET" -gt "$DATA_SECTORS_FROM_LV" ]; then
+        echo "thin_pools_live_resize: override data size larger than LV size" >&2
+        false || exit
+    fi
+
+    echo "Shrinking data LV to ${DATA_SIZE_MIB_OVERRIDE} MiB" >&2
+    lvresize -L "${DATA_SIZE_MIB_OVERRIDE}M" "$DATA_LV"
+fi
+
+if [ -n "$META_SIZE_MIB_OVERRIDE" ]; then
+    if [ "$META_SIZE_MIB_OVERRIDE" -gt "$META_SIZE_MIB_LV" ]; then
+        echo "thin_pools_live_resize: override meta size larger than LV size" >&2
+        false || exit
+    fi
+
+    echo "Shrinking meta LV to ${META_SIZE_MIB_OVERRIDE} MiB" >&2
+    lvresize -L "${META_SIZE_MIB_OVERRIDE}M" "$META_LV"
+fi
+
+if [ "$DATA_SECTORS_TARGET" -eq "$DATA_SECTORS_CURRENT" ]; then
+    echo "thin_pools_live_resize: data size unchanged" >&2
+    : && exit
+fi
+
+DATA_NAME=$(dmsetup info -c --noheadings -o dev_name "$DATA_LV")
+META_NAME=$(dmsetup info -c --noheadings -o dev_name "$META_LV")
+
+echo "Resizing pool \"$POOL_NAME\" to ${DATA_SECTORS_TARGET} sectors" >&2
+
+dmsetup suspend "$POOL_NAME"
+POOL_TABLE="0 ${DATA_SECTORS_TARGET} thin-pool ${DATA_NAME} ${META_NAME} ${CHUNK_SIZE} 0 skip_block_zeroing"
+dmsetup reload "$POOL_NAME" --table "$POOL_TABLE"
+dmsetup resume "$POOL_NAME"
+
+echo "thin_pools_live_resize: pool resized successfully" >&2

@@ -1,0 +1,6 @@
+M dm_bufio
+M dm_mod
+M dm_thin_pool
+M zram
+dmsetup
+lvm

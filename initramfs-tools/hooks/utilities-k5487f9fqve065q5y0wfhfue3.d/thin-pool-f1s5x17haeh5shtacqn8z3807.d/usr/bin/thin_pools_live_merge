@@ -1,0 +1,47 @@
+#! /bin/sh
+
+# Merge thin device contents back into backing device (make persistent)
+#
+# v2026.185
+
+set -e
+
+DEFAULTS_SRC="/etc/initramfs-tools/scripts/local-block/thin-pool"
+
+load_defaults() {
+    awk '
+        /^# BEGIN_THIN_POOL_DEFAULTS/ {flag=1; next}
+        /^# END_THIN_POOL_DEFAULTS/   {flag=0}
+        flag && !/^#/ && NF > 0
+    ' "$DEFAULTS_SRC"
+}
+
+eval "$(load_defaults)"
+
+CONFIG_SRC="/etc/initramfs-tools/${DEFAULTS_REL_PATHNAME}"
+[ -r "$CONFIG_SRC" ] && . "$CONFIG_SRC"
+
+POOL_NAME="$THINPOOL_DM_NAME"
+ROOT_NAME="$THINROOT_DM_NAME"
+
+if ! dmsetup status "$ROOT_NAME" >/dev/null 2>&1; then
+    echo "thin_pools_live_merge: thin root \"$ROOT_NAME\" not found" >&2
+    false || exit
+fi
+
+echo "Starting merge of thin device \"$ROOT_NAME\" into backing store \"$THIN_BACKING_STORE\"" >&2
+
+dmsetup message "$POOL_NAME" 0 "merge ${THIN_DEV_ID}"
+
+echo "Merge initiated. Waiting for completion..." >&2
+
+while true; do
+    status=$(dmsetup status "$POOL_NAME")
+    echo "$status" | grep -q "needs_check" && {
+        echo "Merge complete." >&2
+        break
+    }
+    sleep 1
+done
+
+echo "thin_pools_live_merge: merge completed successfully" >&2

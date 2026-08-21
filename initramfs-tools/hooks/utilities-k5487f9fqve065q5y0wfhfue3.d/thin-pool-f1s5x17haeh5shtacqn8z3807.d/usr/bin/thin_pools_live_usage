@@ -1,0 +1,49 @@
+#! /bin/sh
+
+# Show thin-pool usage (data and metadata) after boot
+#
+# v2026.185
+
+set -e
+
+DEFAULTS_SRC="/etc/initramfs-tools/scripts/local-block/thin-pool"
+
+# Extract defaults block
+load_defaults() {
+    awk '
+        /^# BEGIN_THIN_POOL_DEFAULTS/ {flag=1; next}
+        /^# END_THIN_POOL_DEFAULTS/   {flag=0}
+        flag && !/^#/ && NF > 0
+    ' "$DEFAULTS_SRC"
+}
+
+eval "$(load_defaults)"
+
+# Load override file
+CONFIG_SRC="/etc/initramfs-tools/${DEFAULTS_REL_PATHNAME}"
+[ -r "$CONFIG_SRC" ] && . "$CONFIG_SRC"
+
+POOL_NAME="$THINPOOL_DM_NAME"
+
+if ! dmsetup status "$POOL_NAME" >/dev/null 2>&1; then
+    echo "thin_pools_live_usage: pool device \"$POOL_NAME\" not found" >&2
+    false || exit
+fi
+
+dmsetup status "$POOL_NAME" | awk '
+{
+    used_data  = $(NF-3)
+    total_data = $(NF-2)
+    used_meta  = $(NF-1)
+    total_meta = $(NF)
+
+    data_used_pct = (total_data > 0) ? (used_data * 100.0 / total_data) : 0
+    meta_used_pct = (total_meta > 0) ? (used_meta * 100.0 / total_meta) : 0
+
+    printf "Data blocks: used=%d, total=%d, used=%.2f%%, free=%.2f%%\n",
+           used_data, total_data, data_used_pct, 100.0 - data_used_pct
+
+    printf "Meta blocks: used=%d, total=%d, used=%.2f%%, free=%.2f%%\n",
+           used_meta, total_meta, meta_used_pct, 100.0 - meta_used_pct
+}
+'

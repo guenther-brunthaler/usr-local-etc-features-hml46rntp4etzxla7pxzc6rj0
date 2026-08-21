@@ -1,0 +1,190 @@
+#! /bin/sh
+#
+# Thin-Pool setup in initramfs: ZRAM + LVM + dm-thin + external origin
+#
+# v2026.233
+set -e
+
+PREREQ=""
+
+prereqs() {
+	echo "$PREREQ"
+}
+
+case "$1" in
+	prereqs) echo "$PREREQ"; exit
+esac
+
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+
+log() {
+	echo "thin-pool-initramfs: $*" >&2
+}
+
+# ----------------------------------------------------------------------
+# RAM detection
+# ----------------------------------------------------------------------
+
+get_ram_kb() {
+	awk '/^MemTotal:/ {print $2}' /proc/meminfo
+}
+
+ram_percentage_to_mib() {
+	echo $(( $1 * $2 / 100 / 1024 ))
+}
+
+mib_to_bytes() {
+	echo $(( $1 * 1024 * 1024 ))
+}
+
+# ----------------------------------------------------------------------
+# BEGIN_THIN_POOL_DEFAULTS
+# Default values (always set, can be overridden via /etc/default/thin-pool)
+#
+# Users may copy this block into /etc/default/thin-pool and edit values.
+# Delete a line in the config file to use the built-in default.
+#
+# Setting THIN_POOL_DISABLE=true disables the thin-pool setup entirely.
+# Instead a simple linear device-mapper mapping of THIN_BACKING_STORE
+# will be created under the name THINROOT_DM_NAME.
+#
+# The same effect can be triggered via the kernel command line by adding:
+#	  disable_thin_pool
+#
+# The kernel command line override takes precedence over the config file.
+# ----------------------------------------------------------------------
+
+THIN_POOL_DISABLE="false"
+THIN_POOL_RAM_PERCENTAGE=25
+META_RATIO=1
+BLOCKS_RATIO=100
+
+VG_NAME="vg_thinpool"
+THINPOOL_DM_NAME="thinpool"
+THINROOT_DM_NAME="thinroot"
+
+THIN_DEV_ID=1
+CHUNK_SIZE=128
+
+THIN_BACKING_STORE="/dev/sda"
+
+# ----------------------------------------------------------------------
+# END_THIN_POOL_DEFAULTS
+
+# Optional config override
+[ -r /etc/default/thin-pool ] && . /etc/default/thin-pool
+
+# Kernel command line override
+if grep -qw "disable_thin_pool" /proc/cmdline; then
+	THIN_POOL_DISABLE="true"
+fi
+
+log "Config: THIN_POOL_DISABLE=$THIN_POOL_DISABLE RAM%=$THIN_POOL_RAM_PERCENTAGE META_RATIO=$META_RATIO BLOCKS_RATIO=$BLOCKS_RATIO"
+log "VG=$VG_NAME POOL_DM=$THINPOOL_DM_NAME ROOT_DM=$THINROOT_DM_NAME ORIGIN=$THIN_BACKING_STORE"
+
+# ----------------------------------------------------------------------
+# Thin-pool disable mode: create linear mapping and exit
+# ----------------------------------------------------------------------
+
+if [ "$THIN_POOL_DISABLE" = "true" ]; then
+	log "Thin-pool setup disabled. Creating linear mapping instead."
+
+	ORIGIN_SECTORS=$(blockdev --getsize "$THIN_BACKING_STORE")
+	ORIGIN_NAME=$(dmsetup info -c --noheadings -o dev_name "$THIN_BACKING_STORE")
+
+	LINEAR_TABLE="0 ${ORIGIN_SECTORS} linear ${ORIGIN_NAME} 0"
+
+	dmsetup create "$THINROOT_DM_NAME" --table "$LINEAR_TABLE"
+
+	log "Linear root ready: /dev/mapper/$THINROOT_DM_NAME"
+	: && exit
+fi
+
+# ----------------------------------------------------------------------
+# ZRAM device selection
+# ----------------------------------------------------------------------
+
+find_free_zram() {
+	for sysdev in /sys/block/zram*; do
+		[ ! -d "$sysdev" ] && continue
+		size=$(cat "$sysdev/disksize" 2>/dev/null || echo 0)
+		if [ "$size" -eq 0 ]; then
+			echo "/dev/$(basename "$sysdev")"
+			return 0
+		fi
+	done
+	return 1
+}
+
+# Check if zram module is already loaded
+if ls /sys/block/zram* >/dev/null 2>&1; then
+	ZRAM_DEV=$(find_free_zram || true)
+	if [ -z "$ZRAM_DEV" ] && [ -e /sys/class/zram-control/hot_add ]; then
+		echo 1 > /sys/class/zram-control/hot_add
+		ZRAM_DEV=$(find_free_zram || true)
+	fi
+else
+	modprobe zram || false || exit
+	if [ -e /sys/class/zram-control/hot_add ]; then
+		echo 1 > /sys/class/zram-control/hot_add
+		ZRAM_DEV=$(find_free_zram || true)
+	else
+		ZRAM_DEV="/dev/zram0"
+	fi
+fi
+
+[ -z "$ZRAM_DEV" ] && log "No free ZRAM device found" && false || exit
+
+log "Using ZRAM device: $ZRAM_DEV"
+
+RAM_KB=$(get_ram_kb)
+POOL_MIB=$(ram_percentage_to_mib "$RAM_KB" "$THIN_POOL_RAM_PERCENTAGE")
+POOL_BYTES=$(mib_to_bytes "$POOL_MIB")
+
+log "Thin-pool RAM allocation: ${POOL_MIB} MiB"
+
+echo "$POOL_BYTES" > "/sys/block/$(basename "$ZRAM_DEV")/disksize"
+
+# ----------------------------------------------------------------------
+# LVM: PV + VG
+# ----------------------------------------------------------------------
+
+lvm pvcreate -ff -y "$ZRAM_DEV"
+lvm vgcreate "$VG_NAME" "$ZRAM_DEV"
+
+VG_MIB=$(lvm vgdisplay --units m --columns --noheadings -o vg_size "$VG_NAME" | sed 's/[[:space:]]*//;s/M$//')
+
+TOTAL_RATIO=$(( META_RATIO + BLOCKS_RATIO ))
+META_MIB=$(( VG_MIB * META_RATIO / TOTAL_RATIO ))
+BLOCKS_MIB=$(( VG_MIB - META_MIB ))
+
+lvm lvcreate -L "${META_MIB}M" -n meta "$VG_NAME"
+lvm lvcreate -L "${BLOCKS_MIB}M" -n blocks "$VG_NAME"
+
+META_DEV="/dev/${VG_NAME}/meta"
+BLOCKS_DEV="/dev/${VG_NAME}/blocks"
+
+# ----------------------------------------------------------------------
+# Thin-pool creation via dmsetup
+# ----------------------------------------------------------------------
+
+DATA_SECTORS=$(blockdev --getsize "$BLOCKS_DEV")
+META_NAME=$(dmsetup info -c --noheadings -o dev_name "$META_DEV")
+DATA_NAME=$(dmsetup info -c --noheadings -o dev_name "$BLOCKS_DEV")
+
+POOL_TABLE="0 ${DATA_SECTORS} thin-pool ${DATA_NAME} ${META_NAME} ${CHUNK_SIZE} 0 skip_block_zeroing"
+
+dmsetup create "$THINPOOL_DM_NAME" --table "$POOL_TABLE"
+
+# ----------------------------------------------------------------------
+# Thin device with external origin
+# ----------------------------------------------------------------------
+
+ORIGIN_SECTORS=$(blockdev --getsize "$THIN_BACKING_STORE")
+ORIGIN_NAME=$(dmsetup info -c --noheadings -o dev_name "$THIN_BACKING_STORE")
+
+THIN_TABLE="0 ${ORIGIN_SECTORS} thin ${THINPOOL_DM_NAME} ${THIN_DEV_ID} ${ORIGIN_NAME}"
+
+dmsetup create "$THINROOT_DM_NAME" --table "$THIN_TABLE"
+
+log "Thin-root ready: /dev/mapper/$THINROOT_DM_NAME"
