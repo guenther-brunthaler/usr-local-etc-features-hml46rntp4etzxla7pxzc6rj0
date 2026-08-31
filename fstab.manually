@@ -8,9 +8,7 @@
 #
 # Use them via "mount -T /etc/fstab.manually ..."
 #
-# v2025.235
-
-# v2025.342
+# v2026.241
 
 # <file system>	<mount point>			<type>		<options> <dump> <fsck_order>
 proc		/proc				proc		auto,rw,nodiratime,relatime 0 0
@@ -26,3 +24,4 @@ run		/run				tmpfs		noauto,mode=0755,nosuid,noexec,relatime,size=100m 0 0
 shm		/dev/shm			tmpfs		auto,mode=1777,nosuid,nodev,noexec,relatime,size=20% 0 0
 sys		/sys				sysfs		noauto,nodiratime,relatime 0 0
 none		/sys/firmware/efi/efivars	efivarfs	noauto 0 0
+debugfs		/sys/kernel/debug		debugfs		defaults 0 0

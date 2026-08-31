@@ -1,0 +1,5 @@
+#! /bin/sh
+
+# v2026.242
+set -e
+exec rfkill block bluetooth
