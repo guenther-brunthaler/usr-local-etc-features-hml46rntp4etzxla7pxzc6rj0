@@ -1,15 +1,15 @@
-# Version 2022.19.2
+# Version 2026.244
 #
 # $ ifup wifi=open-hotspot
 
 rename mac/gg:gg:gg:gg:gg:gg=wifi
 
 iface open-hotspot inet static
-	address 10.238.999.999
+	address 10.222.999.999
 	netmask 255.255.0.0
 	wireless-essid example-unencrypted-hotspot
 	wireless-ap
-	#gateway 10.238.888.888
+	#gateway 10.222.888.888
 	# dns-* options are implemented by the resolvconf package, if installed
 	dns-nameservers 9.9.9.9
 	dns-search wifi.emgenxx69lwyn5ctlr4nl64ul.local

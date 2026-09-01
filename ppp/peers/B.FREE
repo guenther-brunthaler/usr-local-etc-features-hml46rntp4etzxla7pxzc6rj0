@@ -1,5 +1,7 @@
 # "B.FREE" SIM card in Samsung D900e/B2100 Feature Phone
 #
+# v2026.244
+#
 # USB ID 04e8:663e, needs kernel driver cdc_acm.
 
 ipparam B.FREE
@@ -8,7 +10,7 @@ unit 1
 /dev/serial/by-id/usb-Samsung_SAMSUNG_Mobile_USB_Modem_358723-02-095431-if01
 # hash(unit1.remote.ppp.0u02q6wjr6zdku9qh4mjbyqdn.local):
 noipdefault
-:10.85.105.14
+:10.93.150.142
 lock
 hide-password 
 noauth

@@ -1,4 +1,4 @@
-# Version 2026.232
+# Version 2026.244
 #
 # Create an unencrypted, open WLAN for usage via SSH only.
 #
@@ -15,7 +15,7 @@ rename mac/gg:gg:gg:gg:gg:gg=wifi
 
 iface hotspot-preboot inet static
 	pre-up rfkill unblock wlan
-	address 10.238.999.999
+	address 10.222.999.999
 	netmask 255.255.0.0
 	hostapd /etc/hostapd/hotspot-preboot-a1zkt4xhbqs1zci3yyq5kidf2.conf
 	post-up invoke-rc.d --quiet dnsmasq status > /dev/null && invoke-rc.d --quiet --force dnsmasq force-reload > /dev/null || invoke-rc.d --quiet --force dnsmasq start > /dev/null
