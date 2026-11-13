@@ -1,0 +1,22 @@
+#! /bin/false
+
+# Stop dhcpcd immediately after successfully obtaining a lease with infinite
+# lease time from the DHCP server, instead of keeping dhcpcd running the whole
+# time until the interface is brought down.
+#
+# v2026.261
+
+case $reason in
+	BOUND | BOUND6 | RENEW | RENEW6 | REBIND | REBIND6 | REBOOT | REBOOT6)
+		if
+			expr x"$if_configured" = x'true' \
+			'&' x"$if_up" = x'true' \
+			'&' x"$ifcarrier" = x'up' \
+			'&' '(' x"$new_dhcp_lease_time" = x0 \
+				'|' x"$new_dhcp_lease_time" = x4294967295 \
+			')' \
+			'&' x"$pid" : x'[1-9][0-9]*$' > /dev/null
+		then
+			kill $pid || :
+		fi
+esac

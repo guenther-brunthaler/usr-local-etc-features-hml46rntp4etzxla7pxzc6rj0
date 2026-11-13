@@ -1,0 +1,76 @@
+#! /bin/false
+
+# Version 2026.261
+# Copyright (c) 2026 Guenther Brunthaler. All rights reserved.
+#
+# This script is free software.
+# Distribution is permitted under the terms of the GPLv3.
+
+# This shell snippet will be sourced from /etc/dhcpcd.enter-hook as well as
+# from /etc/dhcpcd.exit-hook with the variable
+# $phase_qn3f1kbcxgvu8l6h414ymzqgs set to either "enter" or "exit",
+# respectively. It will source any snippets in
+# /etc/dhcp/dhclient-${phase_qn3f1kbcxgvu8l6h414ymzqgs}-hooks.d in the same
+# order as reported by "run-parts --lsbsysinit --list" for the snippet
+# directory.
+#
+# Debug mode: As long as tag file /var/run/DEBUG-qn3f1kbcxgvu8l6h414ymzqgs.tag
+# exists, every snippet will be reported to syslog before being sourced by
+# THIS script.
+
+set +e
+for cmd_qn3f1kbcxgvu8l6h414ymzqgs in run-parts
+do
+	command -v "$cmd_qn3f1kbcxgvu8l6h414ymzqgs" > /dev/null 2>& 1 \
+		&& continue
+	unset phase_qn3f1kbcxgvu8l6h414ymzqgs cmd_qn3f1kbcxgvu8l6h414ymzqgs
+	false || return
+done
+snippets_qn3f1kbcxgvu8l6h414ymzqgs=`:
+	`/etc/dhcp/dhclient-${phase_qn3f1kbcxgvu8l6h414ymzqgs}-hooks.d
+unset phase_qn3f1kbcxgvu8l6h414ymzqgs cmd_qn3f1kbcxgvu8l6h414ymzqgs
+if test -d "$snippets_qn3f1kbcxgvu8l6h414ymzqgs"
+then
+	rc_qn3f1kbcxgvu8l6h414ymzqgs=0
+	for snippet_qn3f1kbcxgvu8l6h414ymzqgs in `
+		run-parts --lsbsysinit --list \
+			"$snippets_qn3f1kbcxgvu8l6h414ymzqgs"
+	`
+	do
+		test ! -f "$snippet_qn3f1kbcxgvu8l6h414ymzqgs" && continue
+		. "$snippet_qn3f1kbcxgvu8l6h414ymzqgs" \
+			&& lrc_qn3f1kbcxgvu8l6h414ymzqgs=$? \
+			|| lrc_qn3f1kbcxgvu8l6h414ymzqgs=$?
+		set +e
+		if test -e /var/run/DEBUG-qn3f1kbcxgvu8l6h414ymzqgs.tag
+		then
+			logger -t dhcpcd-dispatch-hooks-qn3f1kbcxgvu8l6h4 \
+			"Sourcing snippet $snippet_qn3f1kbcxgvu8l6h414ymzqgs"
+		fi
+		case $lrc_qn3f1kbcxgvu8l6h414ymzqgs in
+			0) ;;
+			*)
+				if
+					test $rc_qn3f1kbcxgvu8l6h414ymzqgs \
+					-lt $lrc_qn3f1kbcxgvu8l6h414ymzqgs
+				then
+					rc_qn3f1kbcxgvu8l6h414ymzqgs=`:
+					`$lrc_qn3f1kbcxgvu8l6h414ymzqgs
+				fi
+				logger -t dhcpcd-dispatch-hoo`:
+					`ks-qn3f1kbcxgvu8l6h4 "Snippet `:
+					`$snippet_qn3f1kbcxgvu8l6h414ymzqgs`:
+					` failed with return code `:
+					`$lrc_qn3f1kbcxgvu8l6h414ymzqgs!"
+		esac
+	done
+fi
+unset snippet_qn3f1kbcxgvu8l6h414ymzqgs snippets_qn3f1kbcxgvu8l6h414ymzqgs \
+	lrc_qn3f1kbcxgvu8l6h414ymzqgs
+case $rc_qn3f1kbcxgvu8l6h414ymzqgs in
+	0) ;;
+	*)
+		unset rc_qn3f1kbcxgvu8l6h414ymzqgs
+		false || return
+esac
+unset rc_qn3f1kbcxgvu8l6h414ymzqgs

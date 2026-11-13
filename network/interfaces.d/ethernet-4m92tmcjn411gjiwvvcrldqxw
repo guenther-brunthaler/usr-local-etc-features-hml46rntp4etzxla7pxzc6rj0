@@ -1,4 +1,4 @@
-# Version: 2022.19.1
+# Version: 2026.244
 #
 # The primary network interface. Does not set a route for reaching the
 # Internet. Only for local LAN communication.
@@ -10,7 +10,7 @@ allow-primary_boot ethernet
 auto ethernet
 
 iface ethernet inet static
-	address 10.157.55.999
+	address 10.48.888.999
 	netmask 255.255.0.0
 	#pre-up sh -c 'ifquery --state ethernic > /dev/null || ifup ethernic'
 	#bridge_ports ethernic

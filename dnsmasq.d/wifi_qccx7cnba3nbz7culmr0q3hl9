@@ -1,4 +1,4 @@
-# v2026.233
+# v2026.244
 
 # basic:
 bogus-priv
@@ -7,12 +7,12 @@ domain-needed
 localise-queries
 no-poll
 # fixed_assignments:
-read-ethers
+dhcp-hostsfile=/etc/dnsmasq.overrides
 # interfaces:
 bind-dynamic
-#listen-address=10.157.888.999
-listen-address=10.238.888.999
-listen-address=10.73.888.999
+#listen-address=10.48.888.999
+listen-address=10.222.888.999
+listen-address=10.41.888.999
 #interface=ethernet
 interface=wifi
 interface=bluetooth
@@ -36,14 +36,14 @@ log-facility=/dev/null
 # for commments which always come first.
 
 # Associate networks with domain names.
-#domain=eth.emgenxx69lwyn5ctlr4nl64ul.local,10.157.0.0/16,local
-domain=wifi.emgenxx69lwyn5ctlr4nl64ul.local,10.238.0.0/16,local
-domain=bt.emgenxx69lwyn5ctlr4nl64ul.local,10.73.0.0/16,local
+#domain=eth.emgenxx69lwyn5ctlr4nl64ul.local,10.48.0.0/16,local
+domain=wifi.emgenxx69lwyn5ctlr4nl64ul.local,10.222.0.0/16,local
+domain=bt.emgenxx69lwyn5ctlr4nl64ul.local,10.41.0.0/16,local
 
 # Define DHCP ranges within networks and assign range aliases.
-#dhcp-range=set:ethernet,10.157.0.1,10.157.255.254,infinite
-dhcp-range=set:wifi,10.238.0.1,10.238.255.254,infinite
-dhcp-range=set:bluetooth,10.73.0.1,10.73.255.254,infinite
+#dhcp-range=set:ethernet,10.48.223.250,10.48.255.254,infinite
+dhcp-range=set:wifi,10.222.223.250,10.222.255.254,infinite
+dhcp-range=set:bluetooth,10.41.223.250,10.41.255.254,infinite
 
 # Associate range aliases with domain names.
 #dhcp-option=tag:ethernet,option:domain-name,eth.emgenxx69lwyn5ctlr4nl64ul.local
@@ -65,5 +65,5 @@ dhcp-option=option:nis-domain,emgenxx69lwyn5ctlr4nl64ul.local
 #enable-tftp
 
 # Manual hostname entries.
-#host-record=rpo.eth.emgenxx69lwyn5ctlr4nl64ul.local,rpo.eth,rpo,gateway.eth.emgenxx69lwyn5ctlr4nl64ul.local,gateway.eth,gateway,10.157.888.888
-#host-record=rpo.wifi.emgenxx69lwyn5ctlr4nl64ul.local,rpo.wifi,gateway.wifi.emgenxx69lwyn5ctlr4nl64ul.local,gateway.wifi,10.238.999.999
+#host-record=rpo.eth.emgenxx69lwyn5ctlr4nl64ul.local,rpo.eth,rpo,gateway.eth.emgenxx69lwyn5ctlr4nl64ul.local,gateway.eth,gateway,10.48.888.888
+#host-record=rpo.wifi.emgenxx69lwyn5ctlr4nl64ul.local,rpo.wifi,gateway.wifi.emgenxx69lwyn5ctlr4nl64ul.local,gateway.wifi,10.222.999.999

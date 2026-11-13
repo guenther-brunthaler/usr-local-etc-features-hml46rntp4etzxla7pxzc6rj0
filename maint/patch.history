@@ -1,0 +1,12 @@
+# v2026.308
+# Start.
+e=/etc
+o=${e:?}/tpl
+u=.upstream
+f=login.defs
+diff -u "${o:?}/${f:?}${u:?}" "${o:?}/${f:?}"
+cp -avi -- "${e:?}/${f:?}" "${e:?}/${f:?}${u:?}"
+diff -u "${o:?}/${f:?}${u:?}" "${o:?}/${f:?}" | patch "${e:?}/${f:?}"
+diff -u "${e:?}/${f:?}${u:?}" "${e:?}/${f:?}"
+unset e o u v f
+# Completed.
